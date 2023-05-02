@@ -33,5 +33,5 @@ snafu = "0.7"
 
 kallax-initializer = { path = "../initializer" }
 kallax-sidecar = { path = "../sidecar" }
-kallax-tracker = { path = "../tracker" }
+kallax-tracker-server = { path = "../tracker/server" }
 

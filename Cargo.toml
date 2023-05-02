@@ -28,6 +28,9 @@ members = [
     "cli",
     "initializer",
     "sidecar",
-    "tracker",
+    "tracker/client",
+    "tracker/primitives",
+    "tracker/proto",
+    "tracker/server",
 ]
 

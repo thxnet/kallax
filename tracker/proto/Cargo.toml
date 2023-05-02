@@ -1,0 +1,15 @@
+[package]
+name = "kallax-tracker-proto"
+description = "Protobuf of Tracker for announcing Substrate-base information"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+prost = "0.11"
+prost-types = "0.11"
+tonic = { version = "0.9", features = ["gzip"] }
+
+[build-dependencies]
+prost-build = "0.11"
+tonic-build = { version = "0.9", default-features = false, features = ["prost", "transport"] }
