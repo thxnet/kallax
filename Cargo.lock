@@ -2645,12 +2645,9 @@ name = "kallax-initializer"
 version = "0.1.0"
 dependencies = [
  "futures",
- "serde",
- "serde_json",
- "sp-core",
- "substrate-rpc-client",
+ "kallax-tracker-client",
+ "kallax-tracker-primitives",
  "tokio",
- "toml 0.7.3",
  "tracing",
 ]
 
@@ -2659,12 +2656,13 @@ name = "kallax-sidecar"
 version = "0.1.0"
 dependencies = [
  "futures",
- "serde",
- "serde_json",
+ "http",
+ "kallax-tracker-client",
+ "kallax-tracker-primitives",
+ "snafu",
  "sp-core",
  "substrate-rpc-client",
  "tokio",
- "toml 0.7.3",
  "tracing",
 ]
 
@@ -2673,18 +2671,11 @@ name = "kallax-tracker-client"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "futures",
  "http",
  "kallax-tracker-primitives",
  "kallax-tracker-proto",
- "sc-network",
- "serde",
- "serde_json",
  "snafu",
- "tokio",
- "toml 0.7.3",
  "tonic",
- "tracing",
 ]
 
 [[package]]
@@ -2711,15 +2702,11 @@ dependencies = [
 name = "kallax-tracker-server"
 version = "0.1.0"
 dependencies = [
- "futures",
  "kallax-tracker-primitives",
  "kallax-tracker-proto",
  "sc-network",
- "serde",
- "serde_json",
  "snafu",
  "tokio",
- "toml 0.7.3",
  "tonic",
  "tracing",
 ]
