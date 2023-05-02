@@ -2,12 +2,13 @@
 version = "0.1.0"
 authors = ["THXLAB PTE. LTD. <contact@thxlab.io>"]
 homepage = "https://thxnet.org/"
-repository = "https://github.com/thxnet/leafchains"
+repository = "https://github.com/thxnet/kallax"
 license = "GPL-3.0-only"
 edition = "2021"
 
 [package]
 name = "kallax"
+readme = "README.md"
 version.workspace = true
 authors.workspace = true
 homepage.workspace = true
@@ -15,4 +16,18 @@ repository.workspace = true
 license.workspace = true
 edition.workspace = true
 
+[[bin]]
+name = "kallax"
+path = "src/main.rs"
+
 [dependencies]
+kallax-cli = { path = "cli" }
+
+[workspace]
+members = [
+    "cli",
+    "initializer",
+    "sidecar",
+    "tracker",
+]
+
