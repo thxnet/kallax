@@ -1,0 +1,12 @@
+[package]
+name = "kallax-tracker-primitives"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+
+snafu = "0.7"
+
+kallax-tracker-proto = { path = "../proto" }

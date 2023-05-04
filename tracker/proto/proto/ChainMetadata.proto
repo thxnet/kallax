@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package kallax.tracker;
+
+enum ChainLayer {
+  ROOTCHAIN = 0;
+  LEAFCHAIN = 1;
+}
+
+message ChainMetadata {
+  ChainLayer layer = 1;
+  string name = 2;
+}

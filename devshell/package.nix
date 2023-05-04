@@ -13,6 +13,9 @@ rustPlatform.buildRustPackage {
   src = lib.cleanSource ./..;
 
   cargoLock = {
+    outputHashes = {
+      "sc-allocator-4.1.0-dev" = "sha256-0/bW4cY+uVIsVjzyqqom3DtOWYQQsCJftBLTjsOJ6DQ=";
+    };
     lockFile = ../Cargo.lock;
   };
 
