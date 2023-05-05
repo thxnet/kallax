@@ -1,7 +1,7 @@
 use std::{collections::HashSet, str::FromStr};
 
-use kallax_tracker_client::{Client as TrackerClient, PeerExt};
-use kallax_tracker_primitives::{chain_spec::ChainMetadata, peer::PeerAddress};
+use kallax_primitives::{BlockchainLayer, PeerAddress};
+use kallax_tracker_client::{Client as TrackerClient, LeafchainPeer, RootchainPeer};
 use snafu::ResultExt;
 use substrate_rpc_client::{ws_client as connect_substrate_websocket_endpoint, SystemApi};
 
@@ -15,7 +15,9 @@ type BlockNumber = u128;
 
 #[derive(Debug)]
 pub struct NetworkKeeper {
-    chain_metadata: ChainMetadata,
+    chain_id: String,
+
+    blockchain_layer: BlockchainLayer,
 
     substrate_websocket_endpoint: http::Uri,
 
@@ -25,12 +27,13 @@ pub struct NetworkKeeper {
 impl NetworkKeeper {
     #[inline]
     #[must_use]
-    pub fn new(
-        chain_metadata: ChainMetadata,
+    pub const fn new(
+        chain_id: String,
+        blockchain_layer: BlockchainLayer,
         substrate_websocket_endpoint: http::Uri,
         tracker_client: TrackerClient,
     ) -> Self {
-        Self { chain_metadata, substrate_websocket_endpoint, tracker_client }
+        Self { chain_id, blockchain_layer, substrate_websocket_endpoint, tracker_client }
     }
 
     pub async fn execute(&self) -> Result<()> {
@@ -49,7 +52,7 @@ impl NetworkKeeper {
                 .context(error::FetchLocalListenAddressesFromSubstrateNodeSnafu)?
                 .into_iter()
                 .map(|addr| PeerAddress::from_str(addr.as_str()))
-                .collect::<std::result::Result<HashSet<_>, kallax_tracker_primitives::Error>>()
+                .collect::<std::result::Result<HashSet<_>, kallax_primitives::Error>>()
                 .unwrap_or_else(|err| {
                     tracing::error!("Error occurs while parsing peer address, error: {err}");
                     HashSet::default()
@@ -67,42 +70,82 @@ impl NetworkKeeper {
         );
 
         // fetch new peer addresses from tracker
-        let potential_new_peers = self
-            .tracker_client
-            .get_peer_addresses(&self.chain_metadata)
-            .await
-            .context(error::GetPeerAddressesFromTrackerSnafu)?;
+        let potential_new_peers = {
+            let blockchain_layer = self.blockchain_layer;
+            match blockchain_layer {
+                BlockchainLayer::Rootchain => {
+                    RootchainPeer::get(&self.tracker_client, &self.chain_id)
+                        .await
+                        .map_err(|err| tracing::error!("{err}"))
+                        .unwrap_or_default()
+                }
+                BlockchainLayer::Leafchain => {
+                    LeafchainPeer::get(&self.tracker_client, &self.chain_id)
+                        .await
+                        .map_err(|err| tracing::error!("{err}"))
+                        .unwrap_or_default()
+                }
+            }
+        };
 
         // filter out new peer addresses
         let new_peers = potential_new_peers;
         // TODO:
 
         // add new peer addresses into local node
-        tracing::info!(
-            "New peers that will be advertised to local Substrate-based node: {new_peers:?}"
-        );
-        let add_reserved_peers_futs: Vec<_> = new_peers
-            .into_iter()
-            .map(|addr| {
+        if new_peers.is_empty() {
+            tracing::info!("No new peer will be advertised to local Substrate-based node");
+        } else {
+            tracing::info!(
+                "New peers that will be advertised to local Substrate-based node: {new_peers:?}"
+            );
+            let add_reserved_peers_futs = new_peers.into_iter().map(|addr| {
                 SystemApi::<Hash, BlockNumber>::system_add_reserved_peer(
                     &substrate_client,
                     addr.to_string(),
                 )
-            })
-            .collect();
-        if let Err(err) = futures::future::try_join_all(add_reserved_peers_futs).await {
-            tracing::error!(
-                "Error occurs while advertising new peers to Substrate-based node, error: {err}"
-            )
-        }
+            });
 
-        // advertise local address via tracker
-        tracing::info!("Advertise local address via tracker");
-        let advertising_futs = listen_addresses.iter().map(|local_address| {
-            self.tracker_client.insert_peer_address(&self.chain_metadata, local_address)
-        });
-        if let Err(err) = futures::future::try_join_all(advertising_futs).await {
-            tracing::error!("Error occurs while advertising peers to Tracker, error: {err}")
+            if let Err(err) = futures::future::try_join_all(add_reserved_peers_futs).await {
+                tracing::error!(
+                    "Error occurs while advertising new peers to Substrate-based node, error: \
+                     {err}"
+                );
+            }
+
+            // advertise local address via tracker
+            tracing::info!("Advertise local address via tracker");
+            let res = {
+                let blockchain_layer = self.blockchain_layer;
+                match blockchain_layer {
+                    BlockchainLayer::Rootchain => futures::future::try_join_all(
+                        listen_addresses.iter().map(|local_address| {
+                            RootchainPeer::insert(
+                                &self.tracker_client,
+                                &self.chain_id,
+                                local_address,
+                            )
+                        }),
+                    )
+                    .await
+                    .map_err(|e| e.to_string()),
+                    BlockchainLayer::Leafchain => futures::future::try_join_all(
+                        listen_addresses.iter().map(|local_address| {
+                            LeafchainPeer::insert(
+                                &self.tracker_client,
+                                &self.chain_id,
+                                local_address,
+                            )
+                        }),
+                    )
+                    .await
+                    .map_err(|e| e.to_string()),
+                }
+            };
+
+            if let Err(err) = res {
+                tracing::error!("Error occurs while advertising peers to Tracker, error: {err}");
+            }
         }
 
         Ok(())
