@@ -2,8 +2,6 @@ use std::borrow::Cow;
 
 use snafu::{Backtrace, Snafu};
 
-pub type Result<T> = std::result::Result<T, Error>;
-
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
 pub enum Error {
@@ -12,4 +10,10 @@ pub enum Error {
 
     #[snafu(display("Invalid peer address `{value}`, error: {source}"))]
     InvalidPeerAddress { value: String, source: sc_network::multiaddr::Error },
+
+    #[snafu(display("Failed to deserialize chain spec, error: {source}"))]
+    DeserializeChainSpec { source: serde_json::Error },
+
+    #[snafu(display("Could not parse chain ID"))]
+    MissingChainId,
 }

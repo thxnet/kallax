@@ -25,5 +25,5 @@ pub enum Error {
     FetchPeersFromSubstrateNode { source: substrate_rpc_client::Error },
 
     #[snafu(display("Error occurs while fetching peer addresses from Tracker, error: {source}"))]
-    GetPeerAddressesFromTracker { source: kallax_tracker_client::peer::Error },
+    GetPeerAddressesFromTracker { source: kallax_tracker_client::Error },
 }

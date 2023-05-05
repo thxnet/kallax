@@ -3,12 +3,20 @@ name = "kallax-tracker-proto"
 description = "Protobuf of Tracker for announcing Substrate-base information"
 version.workspace = true
 authors.workspace = true
+homepage.workspace = true
+readme.workspace = true
+repository.workspace = true
+license.workspace = true
 edition.workspace = true
+categories.workspace = true
+keywords.workspace = true
 
 [dependencies]
 prost = "0.11"
 prost-types = "0.11"
 tonic = { version = "0.9", features = ["gzip"] }
+
+kallax-primitives = { path = "../../primitives" }
 
 [build-dependencies]
 prost-build = "0.11"
