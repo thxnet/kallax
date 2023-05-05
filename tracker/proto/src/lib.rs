@@ -170,7 +170,11 @@ mod proto {
     tonic::include_proto!("kallax.tracker");
 }
 
-pub use crate::proto::{
+use std::str::FromStr;
+
+use kallax_primitives as primitives;
+
+pub use self::proto::{
     leafchain_peer_service_client::LeafchainPeerServiceClient,
     leafchain_peer_service_server::{LeafchainPeerService, LeafchainPeerServiceServer},
     leafchain_spec_service_client::LeafchainSpecServiceClient,
@@ -185,3 +189,17 @@ pub use crate::proto::{
     InsertLeafchainPeerAddressResponse, InsertRootchainPeerAddressRequest,
     InsertRootchainPeerAddressResponse, PeerAddress,
 };
+
+impl TryFrom<proto::PeerAddress> for primitives::PeerAddress {
+    type Error = primitives::Error;
+
+    fn try_from(proto::PeerAddress { address }: proto::PeerAddress) -> Result<Self, Self::Error> {
+        Self::from_str(&address)
+    }
+}
+
+impl From<primitives::PeerAddress> for proto::PeerAddress {
+    fn from(primitives::PeerAddress(address): primitives::PeerAddress) -> Self {
+        Self { address: address.to_string() }
+    }
+}
