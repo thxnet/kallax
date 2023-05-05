@@ -32,8 +32,10 @@ impl KeyTypeIdExt for KeyTypeId {
     fn crypto_scheme(&self) -> CryptoScheme {
         match *self {
             GRANDPA => CryptoScheme::Ed25519,
-            AURA | BABE | IM_ONLINE | AUTHORITY_DISCOVERY | PARA_ASSIGNMENT | PARA_VALIDATOR
-            | _ => CryptoScheme::Sr25519,
+            AURA | BABE | IM_ONLINE | AUTHORITY_DISCOVERY | PARA_ASSIGNMENT | PARA_VALIDATOR => {
+                CryptoScheme::Sr25519
+            }
+            _ => CryptoScheme::Sr25519,
         }
     }
 }

@@ -15,8 +15,12 @@ pub struct NodeKey {
 
 impl NodeKey {
     #[inline]
+    #[must_use]
     pub fn generate_random() -> Self { Self { keypair: libp2p_ed25519::Keypair::generate() } }
 
+    /// # Errors
+    ///
+    /// This function returns an error if the file is not saved.
     #[inline]
     pub async fn save_file<P: AsRef<Path>>(&self, path: P) -> Result<()> {
         let secret = self.keypair.secret();
@@ -27,6 +31,7 @@ impl NodeKey {
     }
 
     #[inline]
+    #[must_use]
     pub fn peer_id(&self) -> String {
         PublicKey::Ed25519(self.keypair.public()).to_peer_id().to_string()
     }

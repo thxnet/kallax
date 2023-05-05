@@ -22,18 +22,18 @@ pub enum Error {
     #[snafu(display("Error occurs while writing file `{}`, error: {source}", path.display()))]
     WriteFile { path: PathBuf, source: std::io::Error },
 
-    #[snafu(display("{source}"))]
-    GetChainSpec { source: kallax_tracker_client::chain_spec::Error },
+    #[snafu(display("{error_message}"))]
+    GetChainSpec { error_message: String },
 }
 
 impl From<crate::node_key::Error> for Error {
-    fn from(source: crate::node_key::Error) -> Self { Error::NodeKey { source } }
+    fn from(source: crate::node_key::Error) -> Self { Self::NodeKey { source } }
 }
 
 impl From<crate::session_key::Error> for Error {
-    fn from(source: crate::session_key::Error) -> Self { Error::SessionKey { source } }
+    fn from(source: crate::session_key::Error) -> Self { Self::SessionKey { source } }
 }
 
 impl From<kallax_tracker_client::Error> for Error {
-    fn from(source: kallax_tracker_client::Error) -> Self { Error::Tracker { source } }
+    fn from(source: kallax_tracker_client::Error) -> Self { Self::Tracker { source } }
 }
