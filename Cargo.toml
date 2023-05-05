@@ -27,9 +27,9 @@ kallax-cli = { path = "cli" }
 members = [
     "cli",
     "initializer",
+    "primitives",
     "sidecar",
     "tracker/client",
-    "tracker/primitives",
     "tracker/proto",
     "tracker/server",
 ]

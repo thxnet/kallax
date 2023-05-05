@@ -2859,6 +2859,7 @@ dependencies = [
  "clap_complete",
  "exitcode",
  "futures",
+ "http",
  "kallax-initializer",
  "kallax-sidecar",
  "kallax-tracker-server",
@@ -2878,8 +2879,8 @@ dependencies = [
  "array-bytes 6.1.0",
  "futures",
  "http",
+ "kallax-primitives",
  "kallax-tracker-client",
- "kallax-tracker-primitives",
  "libp2p",
  "sc-cli",
  "serde_json",
@@ -2891,13 +2892,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "kallax-primitives"
+version = "0.1.0"
+dependencies = [
+ "sc-network",
+ "snafu",
+]
+
+[[package]]
 name = "kallax-sidecar"
 version = "0.1.0"
 dependencies = [
  "futures",
  "http",
+ "kallax-primitives",
  "kallax-tracker-client",
- "kallax-tracker-primitives",
  "snafu",
  "sp-core",
  "substrate-rpc-client",
@@ -2911,25 +2920,17 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "http",
- "kallax-tracker-primitives",
+ "kallax-primitives",
  "kallax-tracker-proto",
  "snafu",
  "tonic",
 ]
 
 [[package]]
-name = "kallax-tracker-primitives"
-version = "0.1.0"
-dependencies = [
- "kallax-tracker-proto",
- "sc-network",
- "snafu",
-]
-
-[[package]]
 name = "kallax-tracker-proto"
 version = "0.1.0"
 dependencies = [
+ "kallax-primitives",
  "prost",
  "prost-build",
  "prost-types",
@@ -2941,7 +2942,7 @@ dependencies = [
 name = "kallax-tracker-server"
 version = "0.1.0"
 dependencies = [
- "kallax-tracker-primitives",
+ "kallax-primitives",
  "kallax-tracker-proto",
  "sc-network",
  "snafu",
