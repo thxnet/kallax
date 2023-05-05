@@ -186,8 +186,9 @@ pub use self::proto::{
     GetLeafchainPeerAddressesRequest, GetLeafchainPeerAddressesResponse, GetLeafchainSpecRequest,
     GetLeafchainSpecResponse, GetRootchainPeerAddressesRequest, GetRootchainPeerAddressesResponse,
     GetRootchainSpecRequest, GetRootchainSpecResponse, InsertLeafchainPeerAddressRequest,
-    InsertLeafchainPeerAddressResponse, InsertRootchainPeerAddressRequest,
-    InsertRootchainPeerAddressResponse, PeerAddress,
+    InsertLeafchainPeerAddressResponse, InsertLeafchainSpecRequest, InsertLeafchainSpecResponse,
+    InsertRootchainPeerAddressRequest, InsertRootchainPeerAddressResponse,
+    InsertRootchainSpecRequest, InsertRootchainSpecResponse, PeerAddress,
 };
 
 impl TryFrom<proto::PeerAddress> for primitives::PeerAddress {
