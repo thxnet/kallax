@@ -2861,6 +2861,7 @@ dependencies = [
  "futures",
  "http",
  "kallax-initializer",
+ "kallax-primitives",
  "kallax-sidecar",
  "kallax-tracker-server",
  "serde",
@@ -2896,6 +2897,8 @@ name = "kallax-primitives"
 version = "0.1.0"
 dependencies = [
  "sc-network",
+ "serde",
+ "serde_json",
  "snafu",
 ]
 

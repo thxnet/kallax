@@ -3,7 +3,13 @@ name = "kallax-cli"
 description = "Tools for setting up Substrate-based nodes"
 version.workspace = true
 authors.workspace = true
+homepage.workspace = true
+readme.workspace = true
+repository.workspace = true
+license.workspace = true
 edition.workspace = true
+categories.workspace = true
+keywords.workspace = true
 
 [dependencies]
 tracing = "0.1"
@@ -13,18 +19,15 @@ futures = "0.3"
 tokio = { version = "1", features = [
   "fs",
   "io-util",
-  "macros",
-  "net",
   "rt-multi-thread",
   "signal",
-  "sync",
-  "time"
 ] }
-# tokio-rustls = { version = "0.24" }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", optional = true }
 toml = { version = "0.7", optional = true }
+
+http = "0.2"
 
 clap = { version = "4", features = ["derive", "env"] }
 clap_complete = { version = "4" }
@@ -32,6 +35,6 @@ exitcode = "1"
 snafu = "0.7"
 
 kallax-initializer = { path = "../initializer" }
+kallax-primitives = { path = "../primitives" }
 kallax-sidecar = { path = "../sidecar" }
 kallax-tracker-server = { path = "../tracker/server" }
-

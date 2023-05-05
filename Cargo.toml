@@ -5,6 +5,9 @@ homepage = "https://thxnet.org/"
 repository = "https://github.com/thxnet/kallax"
 license = "GPL-3.0-only"
 edition = "2021"
+description = "Utilities for setting up and managing Substrate-based blockchains"
+categories = ["command-line-utilities"]
+keywords = ["substrate"]
 
 [package]
 name = "kallax"
@@ -15,6 +18,9 @@ homepage.workspace = true
 repository.workspace = true
 license.workspace = true
 edition.workspace = true
+description.workspace = true
+categories.workspace = true
+keywords.workspace = true
 
 [[bin]]
 name = "kallax"
