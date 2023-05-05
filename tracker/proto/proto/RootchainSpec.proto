@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package kallax.tracker;
+
+service RootchainSpecService {
+  rpc Insert(InsertRootchainSpecRequest) returns (InsertRootchainSpecResponse);
+  rpc Get(GetRootchainSpecRequest) returns (GetRootchainSpecResponse);
+}
+
+message InsertRootchainSpecRequest {
+  string chain_id = 1;
+  bytes spec = 2;
+}
+message InsertRootchainSpecResponse { string chain_id = 1; }
+
+message GetRootchainSpecRequest { string chain_id = 1; }
+message GetRootchainSpecResponse {
+  string chain_id = 1;
+  bytes spec = 2;
+}
