@@ -146,8 +146,6 @@
         clippy::multiple_crate_versions,
     )
 )]
-// FIXME: allow: clippy bug https://github.com/rust-lang/rust-clippy/issues/8772
-#![cfg_attr(feature = "cargo-clippy", allow(clippy::type_repetition_in_bounds))]
 
 mod consts;
 mod error;

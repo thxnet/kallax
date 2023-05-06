@@ -140,14 +140,8 @@
         clippy::pedantic
     ),
     warn(unstable_features),
-    allow(
-        clippy::future_not_send,
-        clippy::module_name_repetitions,
-        clippy::multiple_crate_versions,
-    )
+    allow(clippy::module_name_repetitions,)
 )]
-// FIXME: allow: clippy bug https://github.com/rust-lang/rust-clippy/issues/8772
-#![cfg_attr(feature = "cargo-clippy", allow(clippy::type_repetition_in_bounds))]
 
 mod chain_spec;
 mod error;

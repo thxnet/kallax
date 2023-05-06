@@ -140,14 +140,8 @@
         clippy::pedantic
     ),
     warn(unstable_features),
-    allow(
-        clippy::future_not_send,
-        clippy::module_name_repetitions,
-        clippy::multiple_crate_versions,
-    )
+    allow(clippy::future_not_send, clippy::multiple_crate_versions)
 )]
-// FIXME: allow: clippy bug https://github.com/rust-lang/rust-clippy/issues/8772
-#![cfg_attr(feature = "cargo-clippy", allow(clippy::type_repetition_in_bounds))]
 
 mod error;
 pub mod node_key;
@@ -267,6 +261,8 @@ where
 /// # Errors
 ///
 /// This function returns an error if one of the preparation is failed.
+// SAFETY: `tracker_client` could be reused and drop at the end of its contained scope
+#[allow(clippy::significant_drop_tightening)]
 pub async fn prepare(config: Config) -> Result<()> {
     let Config {
         node_key_file_path,
