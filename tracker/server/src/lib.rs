@@ -153,7 +153,7 @@ mod leafchain_spec;
 mod rootchain_peer;
 mod rootchain_spec;
 
-use std::net::SocketAddr;
+use std::{future::Future, net::SocketAddr};
 
 use kallax_primitives::ChainSpec;
 use kallax_tracker_proto::{
@@ -172,14 +172,16 @@ pub struct Config {
 /// # Errors
 ///
 /// This function will return an error if the server fails to start.
-pub async fn start_grpc_server<R, L>(
+pub async fn serve_with_shutdown<R, L, F>(
     Config { listen_address }: Config,
     rootchain_spec_files: R,
     leafchain_spec_files: L,
+    shutdown: F,
 ) -> Result<()>
 where
     R: IntoIterator<Item = ChainSpec>,
     L: IntoIterator<Item = ChainSpec>,
+    F: Future<Output = ()> + Send + Unpin,
 {
     tracing::info!("Listen Tracker on {listen_address}");
 
@@ -192,7 +194,7 @@ where
             leafchain_spec_files,
         )))
         .add_service(LeafchainPeerServiceServer::new(leafchain_peer::Service::default()))
-        .serve(listen_address)
+        .serve_with_shutdown(listen_address, shutdown)
         .await
         .context(error::StartTonicServerSnafu)?;
 
