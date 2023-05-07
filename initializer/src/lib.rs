@@ -173,10 +173,10 @@ pub struct Config {
 
     pub tracker_grpc_endpoint: http::Uri,
 
-    pub rootchain_name: String,
+    pub rootchain_id: String,
     pub rootchain_spec_file_path: PathBuf,
 
-    pub leafchain_name: Option<String>,
+    pub leafchain_id: Option<String>,
     pub leafchain_spec_file_path: Option<PathBuf>,
 
     pub keystore_directory_path: PathBuf,
@@ -269,9 +269,9 @@ pub async fn prepare(config: Config) -> Result<()> {
         keystore_directory_path,
         session_key_mnemonic_phrase,
         node_name,
-        rootchain_name,
+        rootchain_id,
         rootchain_spec_file_path,
-        leafchain_name,
+        leafchain_id,
         leafchain_spec_file_path,
         tracker_grpc_endpoint,
     } = config;
@@ -289,7 +289,7 @@ pub async fn prepare(config: Config) -> Result<()> {
 
     // fetch rootchain `chain_spec` from tracker and save it
     prepare_chain_spec(
-        rootchain_name,
+        rootchain_id,
         BlockchainLayer::Rootchain,
         rootchain_spec_file_path,
         &tracker_client,
@@ -297,18 +297,18 @@ pub async fn prepare(config: Config) -> Result<()> {
     .await?;
 
     // fetch leafchain `chain_spec` from tracker and save it
-    if let (Some(leafchain_name), Some(leafchain_spec_file_path)) =
-        (leafchain_name, leafchain_spec_file_path)
+    if let (Some(leafchain_id), Some(leafchain_spec_file_path)) =
+        (leafchain_id, leafchain_spec_file_path)
     {
         prepare_chain_spec(
-            leafchain_name,
+            leafchain_id,
             BlockchainLayer::Leafchain,
             leafchain_spec_file_path,
             &tracker_client,
         )
         .await?;
     } else {
-        tracing::warn!("Both `leafchain name` and `leafchain spec file path` must be provided");
+        tracing::warn!("Both `leafchain ID` and `leafchain spec file path` must be provided");
     }
 
     Ok(())
