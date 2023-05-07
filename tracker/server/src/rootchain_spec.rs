@@ -18,7 +18,14 @@ impl Service {
         let chain_specs = Arc::new(Mutex::new(
             chain_specs
                 .into_iter()
-                .map(|chain_spec| (chain_spec.id().to_string(), chain_spec))
+                .map(|chain_spec| {
+                    let id = chain_spec.id().to_string();
+                    tracing::info!(
+                        "Rootchain spec `{id}` is loaded, file size: {}",
+                        chain_spec.as_ref().len()
+                    );
+                    (id, chain_spec)
+                })
                 .collect(),
         ));
 

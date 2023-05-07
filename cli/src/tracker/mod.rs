@@ -52,8 +52,33 @@ pub async fn run(config: Config) -> Result<()> {
         kallax_tracker_server::Config { listen_address }
     };
 
-    let rootchain_specs = load_chain_spec_files(rootchain_spec_files.iter()).await;
-    let leafchain_specs = load_chain_spec_files(leafchain_spec_files.iter()).await;
+    let rootchain_specs = {
+        let mut specs = load_chain_spec_files(rootchain_spec_files.iter()).await;
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/testnet.rootchain.thx.raw.json").as_ref(),
+            )
+            .expect("`testnet.rootchain.thx.raw.json` is a valid spec"),
+        );
+        specs
+    };
+    let leafchain_specs = {
+        let mut specs = load_chain_spec_files(leafchain_spec_files.iter()).await;
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/testnet.leafchain.thx.raw.json").as_ref(),
+            )
+            .expect("`testnet.leafchain.thx.raw.json` is a valid spec"),
+        );
+
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/testnet.leafchain.lmt.raw.json").as_ref(),
+            )
+            .expect("`testnet.leafchain.lmt.raw.json` is a valid spec"),
+        );
+        specs
+    };
 
     let (shutdown_handle, tracker_server_handle) = {
         let (shutdown_handle, mut rx) = tokio::sync::mpsc::unbounded_channel::<()>();
