@@ -46,10 +46,16 @@ where
 }
 
 pub async fn run(config: Config) -> Result<()> {
-    let Config { listen_address, listen_port, rootchain_spec_files, leafchain_spec_files } = config;
+    let Config {
+        listen_address,
+        listen_port,
+        rootchain_spec_files,
+        leafchain_spec_files,
+        allow_loopback_ip,
+    } = config;
     let config = {
         let listen_address = SocketAddr::from((listen_address, listen_port));
-        kallax_tracker_server::Config { listen_address }
+        kallax_tracker_server::Config { listen_address, allow_loopback_ip }
     };
 
     let rootchain_specs = {

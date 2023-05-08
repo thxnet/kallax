@@ -16,4 +16,7 @@ pub struct Config {
 
     #[clap(long = "leafchain-node-websocket-endpoint", help = "Leafchain node WebSocket endpoint")]
     pub leafchain_node_websocket_endpoint: Option<http::Uri>,
+
+    #[clap(long = "allow-loopback-ip", help = "Allow to make connection with loopback IP address")]
+    pub allow_loopback_ip: bool,
 }

@@ -26,6 +26,7 @@ pub async fn run(config: Config) -> Result<()> {
             rootchain_node_websocket_endpoint,
             leafchain_name,
             leafchain_node_websocket_endpoint,
+            allow_loopback_ip,
         } = config;
 
         let leafchain_endpoint = match (leafchain_name, leafchain_node_websocket_endpoint) {
@@ -47,6 +48,7 @@ pub async fn run(config: Config) -> Result<()> {
             polling_interval: POLLING_INTERVAL,
             rootchain_endpoint,
             leafchain_endpoint,
+            allow_loopback_ip,
         }
     };
     let sidecar = kallax_sidecar::Sidecar::new(config).await?;
