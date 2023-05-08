@@ -150,6 +150,7 @@
 mod consts;
 mod error;
 mod initializer;
+mod session_key;
 mod sidecar;
 mod tracker;
 
@@ -183,6 +184,12 @@ pub enum Commands {
 
     #[command(about = "Show shell completions")]
     Completions { shell: Shell },
+
+    #[command(about = "Generate session keys")]
+    SessionKey {
+        #[clap(flatten)]
+        config: session_key::Config,
+    },
 
     #[command(about = "Run initializer for starting Substrate-based node")]
     Initializer {
@@ -221,6 +228,9 @@ impl Cli {
                 let bin_name = app.get_name().to_string();
                 clap_complete::generate(shell, &mut app, bin_name, &mut std::io::stdout());
                 Ok(())
+            }
+            Commands::SessionKey { config } => {
+                execute("Session key", async { session_key::run(config).await })
             }
             Commands::Initializer { config } => {
                 execute("Initializer", async { initializer::run(config).await })
