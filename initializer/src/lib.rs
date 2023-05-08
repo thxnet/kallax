@@ -297,18 +297,20 @@ pub async fn prepare(config: Config) -> Result<()> {
     .await?;
 
     // fetch leafchain `chain_spec` from tracker and save it
-    if let (Some(leafchain_id), Some(leafchain_spec_file_path)) =
-        (leafchain_id, leafchain_spec_file_path)
-    {
-        prepare_chain_spec(
-            leafchain_id,
-            BlockchainLayer::Leafchain,
-            leafchain_spec_file_path,
-            &tracker_client,
-        )
-        .await?;
-    } else {
-        tracing::warn!("Both `leafchain ID` and `leafchain spec file path` must be provided");
+    match (leafchain_id, leafchain_spec_file_path) {
+        (Some(leafchain_id), Some(leafchain_spec_file_path)) => {
+            prepare_chain_spec(
+                leafchain_id,
+                BlockchainLayer::Leafchain,
+                leafchain_spec_file_path,
+                &tracker_client,
+            )
+            .await?;
+        }
+        (Some(_), None) | (None, Some(_)) => {
+            tracing::warn!("Both `leafchain ID` and `leafchain spec file path` must be provided");
+        }
+        _ => {}
     }
 
     Ok(())
