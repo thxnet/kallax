@@ -31,7 +31,11 @@ impl SessionKey {
         junctions: Vec<String>,
         key_type_id: KeyTypeId,
     ) -> Self {
-        Self { phrase: SecretString::from(phrase.to_string()), junctions, key_type_id }
+        Self {
+            phrase: SecretString::from(phrase.to_string().trim().to_string()),
+            junctions,
+            key_type_id,
+        }
     }
 
     /// # Errors
@@ -45,12 +49,12 @@ impl SessionKey {
             Ok(pair.public().as_ref().to_vec())
         }
 
-        let suri_str = dbg!(format!(
+        let suri_str = format!(
             "{}//{}//{}",
             self.phrase.expose_secret().as_str(),
             self.junctions.iter().map(ToString::to_string).collect::<Vec<_>>().join("//"),
             self.key_type_id.name().expect("`name` must exist")
-        ));
+        );
         let file_name = {
             let public_key = {
                 match self.key_type_id.crypto_scheme() {
