@@ -158,7 +158,6 @@ use kallax_tracker_client::{
 };
 use snafu::ResultExt;
 use sp_application_crypto::KeyTypeId;
-use sp_core::DeriveJunction;
 
 pub use self::error::Error;
 use self::{
@@ -212,9 +211,9 @@ where
     })?;
 
     for key_type_id in SESSION_KEYS {
-        let session_key = SessionKey::from_phrase_with_junctions(
+        let session_key = SessionKey::from_phrase_with_hard_junctions(
             &phrase,
-            vec![DeriveJunction::hard(node_name.to_string())],
+            vec![node_name.to_string()],
             *key_type_id,
         );
 
