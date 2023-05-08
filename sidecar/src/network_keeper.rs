@@ -10,7 +10,7 @@ use crate::{
     error::{Error, Result},
 };
 
-type Hash = ();
+type Hash = sp_core::H256;
 type BlockNumber = u128;
 
 #[derive(Debug)]
@@ -62,12 +62,19 @@ impl NetworkKeeper {
         );
 
         // fetch peer addresses from local node
-        let current_peers = SystemApi::<Hash, BlockNumber>::system_peers(&substrate_client)
-            .await
-            .context(error::FetchPeersFromSubstrateNodeSnafu)?;
-        tracing::debug!(
-            "Current peers that local Substrate-based node connected: {current_peers:?}"
-        );
+        let _current_peers =
+            match SystemApi::<Hash, BlockNumber>::system_peers(&substrate_client).await {
+                Ok(peers) => {
+                    tracing::debug!(
+                        "Current peers that local Substrate-based node connected: {peers:?}"
+                    );
+                    peers
+                }
+                Err(err) => {
+                    tracing::error!("{err}");
+                    Vec::new()
+                }
+            };
 
         // fetch new peer addresses from tracker
         let potential_new_peers = {
