@@ -36,21 +36,14 @@ impl proto::RootchainPeerService for Service {
         &self,
         req: Request<proto::InsertRootchainPeerAddressRequest>,
     ) -> Result<Response<proto::InsertRootchainPeerAddressResponse>, Status> {
-        let remote_addr = req.remote_addr();
-
         let proto::InsertRootchainPeerAddressRequest { chain_id, address } = req.into_inner();
 
         let peer_address = {
             let address = address.ok_or_else(|| error::into_invalid_argument_status("address"))?;
-            let mut address = PeerAddress::try_from(address)
-                .map_err(|e| Status::invalid_argument(e.to_string()))?;
-
-            if let Some(remote_addr) = remote_addr {
-                address.try_make_public(remote_addr);
-            }
-
-            address
+            PeerAddress::try_from(address).map_err(|e| Status::invalid_argument(e.to_string()))?
         };
+
+        tracing::info!("Insert new peer `{peer_address}` to chain `{chain_id}`");
 
         self.peer_addresses
             .lock()
