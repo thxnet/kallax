@@ -16,7 +16,7 @@ type Hash = sp_core::H256;
 type BlockNumber = u128;
 
 #[derive(Debug)]
-pub struct NetworkKeeper {
+pub struct PeerDiscoverer {
     chain_id: String,
 
     blockchain_layer: BlockchainLayer,
@@ -25,12 +25,12 @@ pub struct NetworkKeeper {
 
     tracker_client: TrackerClient,
 
-    allow_loopback_ip: bool,
-
     substrate_client: Option<WsClient>,
+
+    allow_loopback_ip: bool,
 }
 
-impl NetworkKeeper {
+impl PeerDiscoverer {
     #[inline]
     #[must_use]
     pub const fn new(
