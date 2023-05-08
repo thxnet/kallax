@@ -13,6 +13,15 @@ use crate::error;
 #[derive(Clone, Debug, Default)]
 pub struct Service {
     peer_addresses: Arc<Mutex<HashMap<String, HashSet<PeerAddress>>>>,
+
+    allow_loopback_ip: bool,
+}
+
+impl Service {
+    #[must_use]
+    pub fn new(allow_loopback_ip: bool) -> Self {
+        Self { peer_addresses: Arc::default(), allow_loopback_ip }
+    }
 }
 
 #[tonic::async_trait]
@@ -42,6 +51,14 @@ impl proto::LeafchainPeerService for Service {
             let address = address.ok_or_else(|| error::into_invalid_argument_status("address"))?;
             PeerAddress::try_from(address).map_err(|e| Status::invalid_argument(e.to_string()))?
         };
+
+        if peer_address.is_lookback() && !self.allow_loopback_ip {
+            tracing::info!(
+                "New peer `{peer_address}` is in loopback network, skip to insert to chain \
+                 `{chain_id}`"
+            );
+            return Ok(Response::new(proto::InsertLeafchainPeerAddressResponse {}));
+        }
 
         tracing::info!("Insert new peer `{peer_address}` to chain `{chain_id}`");
 

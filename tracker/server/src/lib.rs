@@ -167,13 +167,15 @@ pub use self::error::{Error, Result};
 #[derive(Clone, Debug)]
 pub struct Config {
     pub listen_address: SocketAddr,
+
+    pub allow_loopback_ip: bool,
 }
 
 /// # Errors
 ///
 /// This function will return an error if the server fails to start.
 pub async fn serve_with_shutdown<R, L, F>(
-    Config { listen_address }: Config,
+    Config { listen_address, allow_loopback_ip }: Config,
     rootchain_spec_files: R,
     leafchain_spec_files: L,
     shutdown: F,
@@ -189,11 +191,15 @@ where
         .add_service(RootchainSpecServiceServer::new(rootchain_spec::Service::new(
             rootchain_spec_files,
         )))
-        .add_service(RootchainPeerServiceServer::new(rootchain_peer::Service::default()))
+        .add_service(RootchainPeerServiceServer::new(rootchain_peer::Service::new(
+            allow_loopback_ip,
+        )))
         .add_service(LeafchainSpecServiceServer::new(leafchain_spec::Service::new(
             leafchain_spec_files,
         )))
-        .add_service(LeafchainPeerServiceServer::new(leafchain_peer::Service::default()))
+        .add_service(LeafchainPeerServiceServer::new(leafchain_peer::Service::new(
+            allow_loopback_ip,
+        )))
         .serve_with_shutdown(listen_address, shutdown)
         .await
         .context(error::StartTonicServerSnafu)?;
