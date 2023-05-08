@@ -11,9 +11,9 @@ pub async fn run(config: Config) -> Result<()> {
         let Config {
             node_key_file_path,
             tracker_grpc_endpoint,
-            rootchain_name,
+            rootchain_id,
             rootchain_spec_file_path,
-            leafchain_name,
+            leafchain_id,
             leafchain_spec_file_path,
             keystore_directory_path,
             session_key_mnemonic_phrase,
@@ -22,9 +22,9 @@ pub async fn run(config: Config) -> Result<()> {
         kallax_initializer::Config {
             node_key_file_path,
             tracker_grpc_endpoint,
-            rootchain_name,
+            rootchain_id,
             rootchain_spec_file_path,
-            leafchain_name,
+            leafchain_id,
             leafchain_spec_file_path,
             keystore_directory_path,
             session_key_mnemonic_phrase,

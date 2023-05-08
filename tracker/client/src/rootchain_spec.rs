@@ -19,9 +19,7 @@ impl RootchainSpec for Client {
     where
         S: fmt::Display + Send + Sync,
     {
-        let mut client = proto::RootchainSpecServiceClient::new(self.channel.clone());
-
-        let resp = client
+        let resp = proto::RootchainSpecServiceClient::new(self.channel.clone())
             .get(proto::GetRootchainSpecRequest { chain_id: chain_id.to_string() })
             .await
             .map_err(|source| GetRootchainSpecError::Status { source })?;

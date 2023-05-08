@@ -19,9 +19,7 @@ impl LeafchainSpec for Client {
     where
         S: fmt::Display + Send + Sync,
     {
-        let mut client = proto::LeafchainSpecServiceClient::new(self.channel.clone());
-
-        let resp = client
+        let resp = proto::LeafchainSpecServiceClient::new(self.channel.clone())
             .get(proto::GetLeafchainSpecRequest { chain_id: chain_id.to_string() })
             .await
             .map_err(|source| GetLeafchainSpecError::Status { source })?;

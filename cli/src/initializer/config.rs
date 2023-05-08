@@ -10,14 +10,14 @@ pub struct Config {
     #[clap(long = "tracker-grpc-endpoint", help = "Tracker gRPC endpoint")]
     pub tracker_grpc_endpoint: http::Uri,
 
-    #[clap(long = "rootchain-name", help = "Rootchain name")]
-    pub rootchain_name: String,
+    #[clap(long = "rootchain-id", help = "Rootchain ID")]
+    pub rootchain_id: String,
 
     #[clap(long = "rootchain-spec-file-path", help = "Rootchain spec file path")]
     pub rootchain_spec_file_path: PathBuf,
 
-    #[clap(long = "leafchain-name", help = "Leafchain name")]
-    pub leafchain_name: Option<String>,
+    #[clap(long = "leafchain-id", help = "Leafchain ID")]
+    pub leafchain_id: Option<String>,
 
     #[clap(long = "leafchain-spec-file-path", help = "Leafchain spec file path")]
     pub leafchain_spec_file_path: Option<PathBuf>,
