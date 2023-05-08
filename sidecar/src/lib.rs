@@ -165,6 +165,8 @@ pub struct Config {
     pub rootchain_endpoint: ChainEndpoint,
 
     pub leafchain_endpoint: Option<ChainEndpoint>,
+
+    pub allow_loopback_ip: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -193,6 +195,7 @@ impl Sidecar {
             polling_interval,
             rootchain_endpoint,
             leafchain_endpoint,
+            allow_loopback_ip,
         } = config;
 
         let tracker_client = TrackerClient::new(TrackerClientConfig {
@@ -208,6 +211,7 @@ impl Sidecar {
                 BlockchainLayer::Rootchain,
                 websocket_endpoint,
                 tracker_client.clone(),
+                allow_loopback_ip,
             )
         };
 
@@ -218,6 +222,7 @@ impl Sidecar {
                     BlockchainLayer::Leafchain,
                     websocket_endpoint,
                     tracker_client,
+                    allow_loopback_ip,
                 )
             });
 
@@ -229,7 +234,8 @@ impl Sidecar {
         F: Future<Output = ()> + Send + Unpin,
     {
         let mut shutdown_signal = shutdown.into_stream();
-        let Self { polling_interval, rootchain_network_keeper, leafchain_network_keeper } = self;
+        let Self { polling_interval, mut rootchain_network_keeper, mut leafchain_network_keeper } =
+            self;
 
         loop {
             match future::select(
@@ -247,7 +253,7 @@ impl Sidecar {
                         tracing::warn!("Error occurs while operating Rootchain node, error: {err}");
                     }
 
-                    if let Some(ref leafchain_network_keeper) = leafchain_network_keeper {
+                    if let Some(ref mut leafchain_network_keeper) = leafchain_network_keeper {
                         if let Err(err) = leafchain_network_keeper.execute().await {
                             tracing::warn!(
                                 "Error occurs while operating Leafchain node, error: {err}"
