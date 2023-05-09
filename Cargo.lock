@@ -2846,14 +2846,14 @@ dependencies = [
 
 [[package]]
 name = "kallax"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "kallax-cli",
 ]
 
 [[package]]
 name = "kallax-cli"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "clap",
  "clap_complete",
@@ -2864,18 +2864,15 @@ dependencies = [
  "kallax-primitives",
  "kallax-sidecar",
  "kallax-tracker-server",
- "serde",
- "serde_json",
  "snafu",
  "tokio",
- "toml 0.7.3",
  "tracing",
  "tracing-subscriber 0.3.17",
 ]
 
 [[package]]
 name = "kallax-initializer"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "array-bytes 6.1.0",
  "futures",
@@ -2894,7 +2891,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-primitives"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "sc-network",
  "serde",
@@ -2904,7 +2901,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-sidecar"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "futures",
  "http",
@@ -2919,7 +2916,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-tracker-client"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "async-trait",
  "http",
@@ -2931,7 +2928,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-tracker-proto"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "kallax-primitives",
  "prost",
@@ -2943,7 +2940,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-tracker-server"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "kallax-primitives",
  "kallax-tracker-proto",
@@ -4600,7 +4597,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e17d47ce914bf4de440332250b0edd23ce48c005f59fab39d3335866b114f11a"
 dependencies = [
  "thiserror",
- "toml 0.5.11",
+ "toml",
 ]
 
 [[package]]
@@ -6306,15 +6303,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde_spanned"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0efd8caf556a6cebd3b285caf480045fcc1ac04f6bd786b09a6f11af30c4fcf4"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "sha-1"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7568,40 +7556,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "toml"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b403acf6f2bb0859c93c7f0d967cb4a75a7ac552100f9322faf64dc047669b21"
-dependencies = [
- "serde",
- "serde_spanned",
- "toml_datetime",
- "toml_edit",
-]
-
-[[package]]
-name = "toml_datetime"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ab8ed2edee10b50132aed5f331333428b011c99402b5a534154ed15746f9622"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "toml_edit"
-version = "0.19.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "239410c8609e8125456927e6707163a3b1fdb40561e4b803bc041f466ccfdc13"
-dependencies = [
- "indexmap",
- "serde",
- "serde_spanned",
- "toml_datetime",
- "winnow",
-]
-
-[[package]]
 name = "tonic"
 version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8272,7 +8226,7 @@ dependencies = [
  "rustix 0.36.13",
  "serde",
  "sha2 0.10.6",
- "toml 0.5.11",
+ "toml",
  "windows-sys 0.42.0",
  "zstd",
 ]
@@ -8893,15 +8847,6 @@ name = "windows_x86_64_msvc"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
-
-[[package]]
-name = "winnow"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69af645a61644c6dd379ade8b77cc87efb5393c988707bad12d3c8e00c50f669"
-dependencies = [
- "memchr",
-]
 
 [[package]]
 name = "winreg"

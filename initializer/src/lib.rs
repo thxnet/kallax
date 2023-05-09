@@ -158,7 +158,6 @@ use kallax_tracker_client::{
 };
 use snafu::ResultExt;
 use sp_application_crypto::KeyTypeId;
-use sp_core::DeriveJunction;
 
 pub use self::error::Error;
 use self::{
@@ -212,9 +211,9 @@ where
     })?;
 
     for key_type_id in SESSION_KEYS {
-        let session_key = SessionKey::from_phrase_with_junctions(
+        let session_key = SessionKey::from_phrase_with_hard_junctions(
             &phrase,
-            vec![DeriveJunction::hard(node_name.to_string())],
+            vec![node_name.to_string()],
             *key_type_id,
         );
 
@@ -297,18 +296,20 @@ pub async fn prepare(config: Config) -> Result<()> {
     .await?;
 
     // fetch leafchain `chain_spec` from tracker and save it
-    if let (Some(leafchain_id), Some(leafchain_spec_file_path)) =
-        (leafchain_id, leafchain_spec_file_path)
-    {
-        prepare_chain_spec(
-            leafchain_id,
-            BlockchainLayer::Leafchain,
-            leafchain_spec_file_path,
-            &tracker_client,
-        )
-        .await?;
-    } else {
-        tracing::warn!("Both `leafchain ID` and `leafchain spec file path` must be provided");
+    match (leafchain_id, leafchain_spec_file_path) {
+        (Some(leafchain_id), Some(leafchain_spec_file_path)) => {
+            prepare_chain_spec(
+                leafchain_id,
+                BlockchainLayer::Leafchain,
+                leafchain_spec_file_path,
+                &tracker_client,
+            )
+            .await?;
+        }
+        (Some(_), None) | (None, Some(_)) => {
+            tracing::warn!("Both `leafchain ID` and `leafchain spec file path` must be provided");
+        }
+        _ => {}
     }
 
     Ok(())

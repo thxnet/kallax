@@ -9,32 +9,33 @@ use std::{
 use sc_cli::CryptoScheme;
 use snafu::ResultExt;
 use sp_application_crypto::KeyTypeId;
-use sp_core::{
-    crypto::{ExposeSecret, SecretUri},
-    DeriveJunction,
-};
+use sp_core::crypto::{ExposeSecret, SecretString};
 
 use self::error::Result;
 pub use self::{error::Error, key_types::KeyTypeIdExt};
 
 #[derive(Clone, Debug)]
 pub struct SessionKey {
-    phrase: String,
-    junctions: Vec<DeriveJunction>,
+    phrase: SecretString,
+    junctions: Vec<String>,
     key_type_id: KeyTypeId,
 }
 
 impl SessionKey {
     pub fn from_phrase<S: fmt::Display>(phrase: S, key_type_id: KeyTypeId) -> Self {
-        Self::from_phrase_with_junctions(phrase, Vec::new(), key_type_id)
+        Self::from_phrase_with_hard_junctions(phrase, Vec::new(), key_type_id)
     }
 
-    pub fn from_phrase_with_junctions<S: fmt::Display>(
+    pub fn from_phrase_with_hard_junctions<S: fmt::Display>(
         phrase: S,
-        junctions: Vec<DeriveJunction>,
+        junctions: Vec<String>,
         key_type_id: KeyTypeId,
     ) -> Self {
-        Self { phrase: phrase.to_string(), junctions, key_type_id }
+        Self {
+            phrase: SecretString::from(phrase.to_string().trim().to_string()),
+            junctions,
+            key_type_id,
+        }
     }
 
     /// # Errors
@@ -48,29 +49,22 @@ impl SessionKey {
             Ok(pair.public().as_ref().to_vec())
         }
 
-        let secret_uri = SecretUri {
-            phrase: self.phrase.clone().into(),
-            junctions: {
-                let mut junctions = self.junctions.clone();
-                if let Some(name) = self.key_type_id.name() {
-                    junctions.push(DeriveJunction::hard(name));
-                }
-                junctions
-            },
-            password: None,
-        };
-
-        let suri_str = secret_uri.phrase.expose_secret().as_str();
+        let suri_str = format!(
+            "{}//{}//{}",
+            self.phrase.expose_secret().as_str(),
+            self.junctions.iter().map(ToString::to_string).collect::<Vec<_>>().join("//"),
+            self.key_type_id.name().expect("`name` must exist")
+        );
         let file_name = {
             let public_key = {
                 match self.key_type_id.crypto_scheme() {
                     CryptoScheme::Sr25519 => {
-                        extract_public_key::<sp_core::sr25519::Pair>(suri_str)?
+                        extract_public_key::<sp_core::sr25519::Pair>(&suri_str)?
                     }
                     CryptoScheme::Ed25519 => {
-                        extract_public_key::<sp_core::ed25519::Pair>(suri_str)?
+                        extract_public_key::<sp_core::ed25519::Pair>(&suri_str)?
                     }
-                    CryptoScheme::Ecdsa => extract_public_key::<sp_core::ecdsa::Pair>(suri_str)?,
+                    CryptoScheme::Ecdsa => extract_public_key::<sp_core::ecdsa::Pair>(&suri_str)?,
                 }
             };
 
@@ -84,7 +78,7 @@ impl SessionKey {
         let mut file_path = directory_path.as_ref().to_path_buf();
         file_path.push(file_name);
 
-        tokio::fs::write(&file_path, serde_json::to_vec(suri_str).expect("suri is valid JSON"))
+        tokio::fs::write(&file_path, serde_json::to_vec(&suri_str).expect("suri is valid JSON"))
             .await
             .with_context(|_| error::WriteFileSnafu { path: file_path.clone() })?;
 

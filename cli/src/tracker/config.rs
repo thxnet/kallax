@@ -17,4 +17,7 @@ pub struct Config {
 
     #[clap(long = "leafchain-spec-files", help = "Leafchain spec files")]
     pub leafchain_spec_files: Vec<PathBuf>,
+
+    #[clap(long = "allow-loopback-ip ", help = "Allow to track peers in loopback network")]
+    pub allow_loopback_ip: bool,
 }

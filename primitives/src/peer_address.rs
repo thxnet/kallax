@@ -1,4 +1,8 @@
-use std::{fmt, net::SocketAddr, str::FromStr};
+use std::{
+    fmt,
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    str::FromStr,
+};
 
 use sc_network::multiaddr::Protocol;
 use snafu::ResultExt;
@@ -9,6 +13,15 @@ use crate::{error, error::Error};
 pub struct PeerAddress(pub sc_network::Multiaddr);
 
 impl PeerAddress {
+    #[must_use]
+    pub fn is_lookback(&self) -> bool {
+        let is_ipv4_lookback =
+            self.0.iter().take(1).all(|component| component == Protocol::Ip4(Ipv4Addr::LOCALHOST));
+        let is_ipv6_lookback =
+            self.0.iter().take(1).all(|component| component == Protocol::Ip6(Ipv6Addr::LOCALHOST));
+        is_ipv4_lookback || is_ipv6_lookback
+    }
+
     pub fn try_make_public(&mut self, socket_addr: SocketAddr) {
         if socket_addr.ip().is_loopback() {
             return;

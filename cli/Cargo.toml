@@ -16,21 +16,12 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 futures = "0.3"
-tokio = { version = "1", features = [
-  "fs",
-  "io-util",
-  "rt-multi-thread",
-  "signal",
-] }
-
-serde = { version = "1", features = ["derive"] }
-serde_json = { version = "1", optional = true }
-toml = { version = "0.7", optional = true }
+tokio = { version = "1", features = ["fs", "io-util", "rt-multi-thread", "signal"] }
 
 http = "0.2"
 
 clap = { version = "4", features = ["derive", "env"] }
-clap_complete = { version = "4" }
+clap_complete = "4"
 exitcode = "1"
 snafu = "0.7"
 
