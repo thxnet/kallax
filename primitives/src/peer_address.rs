@@ -14,12 +14,12 @@ pub struct PeerAddress(pub sc_network::Multiaddr);
 
 impl PeerAddress {
     #[must_use]
-    pub fn is_lookback(&self) -> bool {
-        let is_ipv4_lookback =
+    pub fn is_loopback(&self) -> bool {
+        let is_ipv4_loopback =
             self.0.iter().take(1).all(|component| component == Protocol::Ip4(Ipv4Addr::LOCALHOST));
-        let is_ipv6_lookback =
+        let is_ipv6_loopback =
             self.0.iter().take(1).all(|component| component == Protocol::Ip6(Ipv6Addr::LOCALHOST));
-        is_ipv4_lookback || is_ipv6_lookback
+        is_ipv4_loopback || is_ipv6_loopback
     }
 
     pub fn try_make_public(&mut self, socket_addr: SocketAddr) {

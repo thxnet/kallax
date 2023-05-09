@@ -52,7 +52,7 @@ impl proto::RootchainPeerService for Service {
             PeerAddress::try_from(address).map_err(|e| Status::invalid_argument(e.to_string()))?
         };
 
-        if peer_address.is_lookback() && !self.allow_loopback_ip {
+        if peer_address.is_loopback() && !self.allow_loopback_ip {
             tracing::info!(
                 "New peer `{peer_address}` is in loopback network, skip to insert to chain \
                  `{chain_id}`"

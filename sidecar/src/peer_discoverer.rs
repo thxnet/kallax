@@ -141,7 +141,7 @@ impl PeerDiscoverer {
             } else {
                 potential_new_peers
                     .into_iter()
-                    .filter_map(|addr| if addr.is_lookback() { None } else { Some(addr) })
+                    .filter_map(|addr| if addr.is_loopback() { None } else { Some(addr) })
                     .collect()
             }
         };
