@@ -14,16 +14,13 @@ keywords.workspace = true
 [dependencies]
 tracing = "0.1"
 
-tokio = { version = "1", features = [
-  "rt-multi-thread",
-  "sync",
-] }
+tokio = { version = "1", features = ["rt-multi-thread", "sync"] }
 
 tonic = { version = "0.9", features = ["gzip"] }
 
-sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
-
 snafu = "0.7"
+
+sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 
 kallax-primitives = { path = "../../primitives" }
 kallax-tracker-proto = { path = "../proto" }
