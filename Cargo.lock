@@ -2879,7 +2879,7 @@ dependencies = [
  "http",
  "kallax-primitives",
  "kallax-tracker-client",
- "libp2p",
+ "libp2p 0.51.3",
  "sc-cli",
  "serde_json",
  "snafu",
@@ -3055,7 +3055,7 @@ dependencies = [
  "libp2p-ping",
  "libp2p-quic",
  "libp2p-request-response",
- "libp2p-swarm",
+ "libp2p-swarm 0.41.1",
  "libp2p-tcp",
  "libp2p-wasm-ext",
  "libp2p-webrtc",
@@ -3065,6 +3065,50 @@ dependencies = [
  "parking_lot 0.12.1",
  "pin-project",
  "smallvec",
+]
+
+[[package]]
+name = "libp2p"
+version = "0.51.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f210d259724eae82005b5c48078619b7745edb7b76de370b03f8ba59ea103097"
+dependencies = [
+ "bytes",
+ "futures",
+ "futures-timer",
+ "getrandom 0.2.9",
+ "instant",
+ "libp2p-allow-block-list",
+ "libp2p-connection-limits",
+ "libp2p-core 0.39.2",
+ "libp2p-identity",
+ "libp2p-swarm 0.42.2",
+ "multiaddr 0.17.1",
+ "pin-project",
+]
+
+[[package]]
+name = "libp2p-allow-block-list"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "510daa05efbc25184458db837f6f9a5143888f1caa742426d92e1833ddd38a50"
+dependencies = [
+ "libp2p-core 0.39.2",
+ "libp2p-identity",
+ "libp2p-swarm 0.42.2",
+ "void",
+]
+
+[[package]]
+name = "libp2p-connection-limits"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4caa33f1d26ed664c4fe2cca81a08c8e07d4c1c04f2f4ac7655c2dd85467fda0"
+dependencies = [
+ "libp2p-core 0.39.2",
+ "libp2p-identity",
+ "libp2p-swarm 0.42.2",
+ "void",
 ]
 
 [[package]]
@@ -3153,7 +3197,7 @@ dependencies = [
  "futures",
  "futures-timer",
  "libp2p-core 0.38.0",
- "libp2p-swarm",
+ "libp2p-swarm 0.41.1",
  "log",
  "lru",
  "prost",
@@ -3197,7 +3241,7 @@ dependencies = [
  "futures-timer",
  "instant",
  "libp2p-core 0.38.0",
- "libp2p-swarm",
+ "libp2p-swarm 0.41.1",
  "log",
  "prost",
  "prost-build",
@@ -3220,7 +3264,7 @@ dependencies = [
  "futures",
  "if-watch",
  "libp2p-core 0.38.0",
- "libp2p-swarm",
+ "libp2p-swarm 0.41.1",
  "log",
  "rand 0.8.5",
  "smallvec",
@@ -3240,7 +3284,7 @@ dependencies = [
  "libp2p-identify",
  "libp2p-kad",
  "libp2p-ping",
- "libp2p-swarm",
+ "libp2p-swarm 0.41.1",
  "prometheus-client",
 ]
 
@@ -3295,7 +3339,7 @@ dependencies = [
  "futures-timer",
  "instant",
  "libp2p-core 0.38.0",
- "libp2p-swarm",
+ "libp2p-swarm 0.41.1",
  "log",
  "rand 0.8.5",
  "void",
@@ -3333,7 +3377,7 @@ dependencies = [
  "futures",
  "instant",
  "libp2p-core 0.38.0",
- "libp2p-swarm",
+ "libp2p-swarm 0.41.1",
  "log",
  "rand 0.8.5",
  "smallvec",
@@ -3359,6 +3403,25 @@ dependencies = [
  "smallvec",
  "thiserror",
  "tokio",
+ "void",
+]
+
+[[package]]
+name = "libp2p-swarm"
+version = "0.42.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "903b3d592d7694e56204d211f29d31bc004be99386644ba8731fc3e3ef27b296"
+dependencies = [
+ "either",
+ "fnv",
+ "futures",
+ "futures-timer",
+ "instant",
+ "libp2p-core 0.39.2",
+ "libp2p-identity",
+ "log",
+ "rand 0.8.5",
+ "smallvec",
  "void",
 ]
 
@@ -5357,7 +5420,7 @@ dependencies = [
  "clap",
  "fdlimit",
  "futures",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "names",
  "parity-scale-codec",
@@ -5447,7 +5510,7 @@ dependencies = [
  "async-trait",
  "futures",
  "futures-timer",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "mockall",
  "parking_lot 0.12.1",
@@ -5578,7 +5641,7 @@ dependencies = [
  "futures",
  "futures-timer",
  "ip_network",
- "libp2p",
+ "libp2p 0.50.1",
  "linked_hash_set",
  "log",
  "lru",
@@ -5614,7 +5677,7 @@ source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.40#98
 dependencies = [
  "cid",
  "futures",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "prost",
  "prost-build",
@@ -5638,7 +5701,7 @@ dependencies = [
  "bytes",
  "futures",
  "futures-timer",
- "libp2p",
+ "libp2p 0.50.1",
  "parity-scale-codec",
  "prost-build",
  "sc-consensus",
@@ -5662,7 +5725,7 @@ source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.40#98
 dependencies = [
  "array-bytes 4.2.0",
  "futures",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "parity-scale-codec",
  "prost",
@@ -5687,7 +5750,7 @@ dependencies = [
  "fork-tree",
  "futures",
  "futures-timer",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "lru",
  "mockall",
@@ -5718,7 +5781,7 @@ source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.40#98
 dependencies = [
  "array-bytes 4.2.0",
  "futures",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "parity-scale-codec",
  "pin-project",
@@ -5743,7 +5806,7 @@ dependencies = [
  "futures-timer",
  "hyper",
  "hyper-rustls",
- "libp2p",
+ "libp2p 0.50.1",
  "num_cpus",
  "once_cell",
  "parity-scale-codec",
@@ -5768,7 +5831,7 @@ version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.40#98f2e3451c9143278ec53c6718940aeabcd3b68a"
 dependencies = [
  "futures",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "sc-utils",
  "serde_json",
@@ -5984,7 +6047,7 @@ source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.40#98
 dependencies = [
  "chrono",
  "futures",
- "libp2p",
+ "libp2p 0.50.1",
  "log",
  "parking_lot 0.12.1",
  "pin-project",
