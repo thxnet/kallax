@@ -3,6 +3,7 @@ version = "0.0.0"
 authors = ["THXLAB PTE. LTD. <contact@thxlab.io>"]
 homepage = "https://thxnet.org/"
 repository = "https://github.com/thxnet/kallax"
+readme = "README.md"
 license = "GPL-3.0-only"
 edition = "2021"
 description = "Utilities for setting up and managing Substrate-based blockchains"
@@ -11,7 +12,7 @@ keywords = ["substrate"]
 
 [package]
 name = "kallax"
-readme = "README.md"
+readme.workspace = true
 version.workspace = true
 authors.workspace = true
 homepage.workspace = true
