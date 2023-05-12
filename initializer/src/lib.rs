@@ -283,6 +283,7 @@ pub async fn prepare(config: Config) -> Result<()> {
     // generate session keys from mnemonic phrases or insert the existed keys
     prepare_session_keys(keystore_directory_path, session_key_mnemonic_phrase, node_name).await?;
 
+    tracing::info!("Try to connect `Tracker` with endpoint `{tracker_grpc_endpoint}`");
     let tracker_client =
         TrackerClient::new(TrackerClientConfig { grpc_endpoint: tracker_grpc_endpoint }).await?;
 
