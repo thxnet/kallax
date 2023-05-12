@@ -179,8 +179,8 @@ pub struct Config {
     pub leafchain_spec_file_path: Option<PathBuf>,
 
     pub keystore_directory_path: PathBuf,
-    pub session_key_mnemonic_phrase: String,
-    pub node_name: String,
+    pub session_key_mnemonic_phrase: Option<String>,
+    pub node_name: Option<String>,
 }
 
 /// # Errors
@@ -281,8 +281,18 @@ pub async fn prepare(config: Config) -> Result<()> {
     tracing::info!("Created node key with peer ID `{}`", node_key.peer_id());
 
     // generate session keys from mnemonic phrases or insert the existed keys
-    prepare_session_keys(keystore_directory_path, session_key_mnemonic_phrase, node_name).await?;
+    match (session_key_mnemonic_phrase, node_name) {
+        (Some(session_key_mnemonic_phrase), Some(node_name)) => {
+            prepare_session_keys(keystore_directory_path, session_key_mnemonic_phrase, node_name)
+                .await?;
+        }
+        (Some(_), None) | (None, Some(_)) => {
+            tracing::error!("Both `session key mnemonic phrase` and `node name` must be provided");
+        }
+        (None, None) => {}
+    }
 
+    tracing::info!("Try to connect `Tracker` with endpoint `{tracker_grpc_endpoint}`");
     let tracker_client =
         TrackerClient::new(TrackerClientConfig { grpc_endpoint: tracker_grpc_endpoint }).await?;
 

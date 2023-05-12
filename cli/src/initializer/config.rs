@@ -32,8 +32,8 @@ pub struct Config {
         env = consts::KALLAX_SESSION_KEY_MNEMONIC_PHRASE_ENV,
         help = "Session key mnemonic phrase"
     )]
-    pub session_key_mnemonic_phrase: String,
+    pub session_key_mnemonic_phrase: Option<String>,
 
     #[clap(long = "node-name", help = "Node name")]
-    pub node_name: String,
+    pub node_name: Option<String>,
 }

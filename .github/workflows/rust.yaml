@@ -12,6 +12,7 @@ on:
 
   pull_request:
     paths:
+      - "*/src/**"
       - ".github/**"
       - "src/**"
       - Cargo.lock
