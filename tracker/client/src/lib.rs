@@ -182,7 +182,9 @@ impl Client {
             .expect("`grpc_endpoint` is a valid URL; qed")
             .connect()
             .await
-            .context(error::ConnectToTrackerGrpcSnafu)?;
+            .with_context(|_| error::ConnectToTrackerGrpcSnafu {
+                endpoint: grpc_endpoint.clone(),
+            })?;
         Ok(Self { channel })
     }
 }

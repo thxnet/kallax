@@ -33,6 +33,6 @@ impl NodeKey {
     #[inline]
     #[must_use]
     pub fn peer_id(&self) -> String {
-        PublicKey::Ed25519(self.keypair.public()).to_peer_id().to_string()
+        PublicKey::from(self.keypair.public()).to_peer_id().to_string()
     }
 }
