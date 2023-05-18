@@ -61,10 +61,12 @@ pub async fn run(config: Config) -> Result<()> {
     let rootchain_specs = {
         let mut specs = load_chain_spec_files(rootchain_spec_files.iter()).await;
         specs.push(
-            ChainSpec::try_from(
-                include_bytes!("chain-specs/testnet.rootchain.thx.raw.json").as_ref(),
-            )
-            .expect("`testnet.rootchain.thx.raw.json` is a valid spec"),
+            ChainSpec::try_from(include_bytes!("chain-specs/mainnet.rootchain.raw.json").as_ref())
+                .expect("`mainnet.rootchain.raw.json` is a valid spec"),
+        );
+        specs.push(
+            ChainSpec::try_from(include_bytes!("chain-specs/testnet.rootchain.raw.json").as_ref())
+                .expect("`testnet.rootchain.raw.json` is a valid spec"),
         );
         specs
     };
