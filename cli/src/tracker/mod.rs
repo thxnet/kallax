@@ -72,6 +72,7 @@ pub async fn run(config: Config) -> Result<()> {
     };
     let leafchain_specs = {
         let mut specs = load_chain_spec_files(leafchain_spec_files.iter()).await;
+        // chain_specs of testnet
         specs.push(
             ChainSpec::try_from(
                 include_bytes!("chain-specs/testnet.leafchain.thx.raw.json").as_ref(),
@@ -84,6 +85,21 @@ pub async fn run(config: Config) -> Result<()> {
                 include_bytes!("chain-specs/testnet.leafchain.lmt.raw.json").as_ref(),
             )
             .expect("`testnet.leafchain.lmt.raw.json` is a valid spec"),
+        );
+
+        // chain_specs of mainnet
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/mainnet.leafchain.thx.raw.json").as_ref(),
+            )
+            .expect("`mainnet.leafchain.thx.raw.json` is a valid spec"),
+        );
+
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/mainnet.leafchain.lmt.raw.json").as_ref(),
+            )
+            .expect("`mainnet.leafchain.lmt.raw.json` is a valid spec"),
         );
         specs
     };
