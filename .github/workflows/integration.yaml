@@ -5,16 +5,19 @@ on:
     branches:
       - main
       - develop
-      - release/*
-      - hotfix/*
-      - feature/*
       - ci/*
+      - feat/*
+      - feature/*
+      - hotfix/*
+      - release/*
     tags:
       - v*
   pull_request:
 
 env:
   CI: 1
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
 
 concurrency:
   group: image-${{ github.ref }}
@@ -24,9 +27,6 @@ jobs:
   image:
     name: Build and publish images
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -34,6 +34,7 @@ jobs:
           - release
     outputs:
       version: ${{ steps.meta.outputs.version }}
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -44,21 +45,18 @@ jobs:
         with:
           version: latest
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Login to the GitHub Container Registry
+        uses: docker/login-action@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-west-2
-
-      - name: Login to Amazon ECR
-        uses: aws-actions/amazon-ecr-login@v1
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup container metadata
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: 886360478228.dkr.ecr.us-west-2.amazonaws.com/thxnet/kallax
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=schedule
             type=ref,event=branch
