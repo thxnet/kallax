@@ -15,7 +15,8 @@ LABEL description="Container image for Kallax" \
     io.thxnet.image.type="final" \
     io.thxnet.image.authors="contact@thxlab.io" \
     io.thxnet.image.vendor="thxlab.io" \
-    io.thxnet.image.description="Utilities for setting up and managing Substrate-based blockchains"
+    io.thxnet.image.description="Utilities for setting up and managing Substrate-based blockchains" \
+    org.opencontainers.image.source="https://github.com/thxnet/kallax"
 
 COPY --from=builder /build/target/release/kallax /usr/local/bin
 
