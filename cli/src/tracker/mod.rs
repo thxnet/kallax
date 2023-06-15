@@ -87,6 +87,20 @@ pub async fn run(config: Config) -> Result<()> {
             .expect("`testnet.leafchain.lmt.raw.json` is a valid spec"),
         );
 
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/testnet.leafchain.txd.raw.json").as_ref(),
+            )
+            .expect("`testnet.leafchain.txd.raw.json` is a valid spec"),
+        );
+
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/testnet.leafchain.sand.raw.json").as_ref(),
+            )
+            .expect("`testnet.leafchain.sand.raw.json` is a valid spec"),
+        );
+
         // chain_specs of mainnet
         specs.push(
             ChainSpec::try_from(
