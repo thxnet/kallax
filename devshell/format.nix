@@ -1,31 +1,29 @@
 { pkgs, }:
 
-pkgs.runCommand "check-format"
+pkgs.runCommandNoCC "check-format"
 {
   buildInputs = with pkgs; [
-    fd
+    shellcheck
+
+    hclfmt
     nixpkgs-fmt
     nodePackages.prettier
-    shellcheck
     shfmt
+    taplo
+    treefmt
   ];
 } ''
-  echo "Checking Nix format with \`nixpkgs-fmt\`"
-  nixpkgs-fmt --check ${./..}
-  echo
-
-  echo "Checking shell script format with \`shfmt\`"
-  shfmt -d ${./..}
-  echo
-
-  # TODO:uncomment the following lines if there is shell script in this repository
-  # echo "Checking shell script with \`shellcheck\`"
-  # shfmt -f ${./..} | xargs shellcheck -s bash
-  # echo
-
-  echo "Checking JavaScript, TypeScript, Markdown, JSON, YAML format with \`prettier\`"
-  fd --glob '**/*.{css,html,js,json,jsx,md,mdx,scss,ts,yaml}' ${./..} | xargs prettier --check
-  echo
+  treefmt \
+    --allow-missing-formatter \
+    --fail-on-change \
+    --no-cache \
+    --formatters \
+      prettier \
+      nix \
+      shell \
+      hcl \
+      toml \
+    -C ${./..}
 
   # it worked!
   touch $out

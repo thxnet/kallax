@@ -33,13 +33,15 @@ pkgs.mkShell {
 
     protobuf
 
-    treefmt
-
     jq
+
+    hclfmt
     nixpkgs-fmt
-    shfmt
     nodePackages.prettier
     shellcheck
+    shfmt
+    taplo
+    treefmt
   ] ++ lib.optionals stdenv.isDarwin [
     iconv
 
