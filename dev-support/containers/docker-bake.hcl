@@ -1,31 +1,31 @@
 variable "TAG" {
-    default = "develop"
+  default = "develop"
 }
 
 variable "REPOSITORY" {
-    default = "ghcr.io"
+  default = "ghcr.io"
 }
 
 variable "DEBUG" {
-    default = "0"
+  default = "0"
 }
 
 group "default" {
-    targets = [
-        "kallax",
-    ]
+  targets = [
+    "kallax",
+  ]
 }
 
 target "base" {
-    dockerfile = "dev-support/containers/debian/Containerfile"
-    args = {
-      DEBUG = "${DEBUG}"
-    }
-    platforms = ["linux/amd64"]
+  dockerfile = "dev-support/containers/debian/Containerfile"
+  args = {
+    DEBUG = "${DEBUG}"
+  }
+  platforms = ["linux/amd64"]
 }
 
 target "kallax" {
-    inherits = ["base"]
-    target = "kallax"
-    tags = ["${REPOSITORY}/thxnet/kallax:${TAG}"]
+  inherits = ["base"]
+  target   = "kallax"
+  tags     = ["${REPOSITORY}/thxnet/kallax:${TAG}"]
 }
