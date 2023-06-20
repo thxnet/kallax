@@ -1,24 +1,31 @@
 # syntax=docker/dockerfile:1.4
 
 # This is the build stage for kallax. Here we create the binary in a temporary image.
-FROM ghcr.io/thxnet/ci-containers/substrate-based:build-2023.05.20-41956af as builder
+FROM substrate-based AS builder
 
 WORKDIR /build
 COPY . /build
 
+RUN <<EOF
+#!/usr/bin/env bash
+
+apt-get update
+apt-get install -y wget unzip
+
+wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v23.2/protoc-23.2-linux-x86_64.zip
+unzip -o -d /usr/ /tmp/protoc.zip
+rm -fv /tmp/protoc.zip
+
+protoc --version
+
+EOF
+
 RUN cargo build --locked --release
 
 # This is the 2nd stage: a very small image where we copy the kallax binary."
-FROM docker.io/library/ubuntu:22.04 as kallax
+FROM ubuntu AS kallax
 
-LABEL description="Container image for Kallax" \
-    io.thxnet.image.type="final" \
-    io.thxnet.image.authors="contact@thxlab.io" \
-    io.thxnet.image.vendor="thxlab.io" \
-    io.thxnet.image.description="Utilities for setting up and managing Substrate-based blockchains" \
-    org.opencontainers.image.source="https://github.com/thxnet/kallax"
-
-COPY --from=builder /build/target/release/kallax /usr/local/bin
+COPY --from=builder /build/target/release/kallax /usr/local/bin/kallax
 
 RUN <<EOF
 #!/usr/bin/env bash
