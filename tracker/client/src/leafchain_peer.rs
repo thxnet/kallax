@@ -5,7 +5,10 @@ use kallax_primitives::PeerAddress;
 use kallax_tracker_proto as proto;
 
 use crate::{
-    error::{GetLeafchainPeerAddressError, InsertLeafchainPeerAddressError},
+    error::{
+        ClearLeafchainPeerAddressError, GetLeafchainPeerAddressError,
+        InsertLeafchainPeerAddressError,
+    },
     Client,
 };
 
@@ -25,6 +28,8 @@ pub trait LeafchainPeer {
     ) -> Result<(), InsertLeafchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync;
+
+    async fn clear(&self) -> Result<(), ClearLeafchainPeerAddressError>;
 }
 
 #[async_trait]
@@ -63,6 +68,15 @@ impl LeafchainPeer for Client {
             })
             .await
             .map_err(|source| InsertLeafchainPeerAddressError::Status { source })?;
+
+        Ok(())
+    }
+
+    async fn clear(&self) -> Result<(), ClearLeafchainPeerAddressError> {
+        proto::LeafchainPeerServiceClient::new(self.channel.clone())
+            .clear(())
+            .await
+            .map_err(|source| ClearLeafchainPeerAddressError::Status { source })?;
 
         Ok(())
     }
