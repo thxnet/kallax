@@ -2902,6 +2902,7 @@ dependencies = [
 name = "kallax-primitives"
 version = "0.0.0"
 dependencies = [
+ "multibase",
  "sc-network",
  "serde",
  "serde_json",
