@@ -76,8 +76,6 @@ jobs:
         with:
           pull: true
           push: true
-          set: |
-            base.args.DEBUG=${{ matrix.mode == 'debug' && '1' || '0' }}
           files: |
             ./dev-support/containers/docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}

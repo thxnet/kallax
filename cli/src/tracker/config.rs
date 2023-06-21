@@ -18,6 +18,16 @@ pub struct Config {
     #[clap(long = "leafchain-spec-files", help = "Leafchain spec files")]
     pub leafchain_spec_files: Vec<PathBuf>,
 
-    #[clap(long = "allow-loopback-ip ", help = "Allow to track peers in loopback network")]
-    pub allow_loopback_ip: bool,
+    #[clap(
+        long = "allow-peer-in-loopback-network",
+        help = "Allow to track peers in loopback network"
+    )]
+    pub allow_peer_in_loopback_network: bool,
+
+    #[clap(
+        long = "peer-time-to-live",
+        default_value = consts::TRACKER_DEFAULT_PEER_TIME_TO_LIVE_SECONDS.to_string(),
+        help = "Time-to-live of Peer in seconds"
+    )]
+    pub peer_time_to_live: u64,
 }

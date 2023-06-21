@@ -6,9 +6,15 @@ mod rootchain_spec;
 use snafu::{Backtrace, Snafu};
 
 pub use self::{
-    leafchain_peer::{GetLeafchainPeerAddressError, InsertLeafchainPeerAddressError},
+    leafchain_peer::{
+        ClearLeafchainPeerAddressError, GetLeafchainPeerAddressError,
+        InsertLeafchainPeerAddressError,
+    },
     leafchain_spec::GetLeafchainSpecError,
-    rootchain_peer::{GetRootchainPeerAddressError, InsertRootchainPeerAddressError},
+    rootchain_peer::{
+        ClearRootchainPeerAddressError, GetRootchainPeerAddressError,
+        InsertRootchainPeerAddressError,
+    },
     rootchain_spec::GetRootchainSpecError,
 };
 

@@ -33,3 +33,16 @@ impl fmt::Display for InsertRootchainPeerAddressError {
         }
     }
 }
+
+#[derive(Debug)]
+pub enum ClearRootchainPeerAddressError {
+    Status { source: tonic::Status },
+}
+
+impl fmt::Display for ClearRootchainPeerAddressError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Status { source } => source.fmt(f),
+        }
+    }
+}

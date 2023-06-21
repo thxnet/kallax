@@ -148,12 +148,10 @@
 )]
 
 mod error;
-mod leafchain_peer;
-mod leafchain_spec;
-mod rootchain_peer;
-mod rootchain_spec;
+mod grpc;
+mod peer_address_book;
 
-use std::{future::Future, net::SocketAddr};
+use std::{net::SocketAddr, time::Duration};
 
 use kallax_primitives::ChainSpec;
 use kallax_tracker_proto::{
@@ -163,46 +161,90 @@ use kallax_tracker_proto::{
 use snafu::ResultExt;
 
 pub use self::error::{Error, Result};
+use crate::peer_address_book::PeerAddressBook;
 
 #[derive(Clone, Debug)]
 pub struct Config {
     pub listen_address: SocketAddr,
 
-    pub allow_loopback_ip: bool,
+    pub allow_peer_in_loopback_network: bool,
+
+    pub peer_time_to_live: Duration,
 }
 
 /// # Errors
 ///
 /// This function will return an error if the server fails to start.
-pub async fn serve_with_shutdown<R, L, F>(
-    Config { listen_address, allow_loopback_ip }: Config,
+// SAFETY: https://github.com/rust-lang/rust-clippy/pull/10203
+#[allow(clippy::redundant_pub_crate)]
+pub async fn serve<R, L>(
+    Config { listen_address, allow_peer_in_loopback_network, peer_time_to_live }: Config,
     rootchain_spec_files: R,
     leafchain_spec_files: L,
-    shutdown: F,
 ) -> Result<()>
 where
-    R: IntoIterator<Item = ChainSpec>,
-    L: IntoIterator<Item = ChainSpec>,
-    F: Future<Output = ()> + Send + Unpin,
+    R: IntoIterator<Item = ChainSpec> + Send + 'static,
+    L: IntoIterator<Item = ChainSpec> + Send + 'static,
 {
-    tracing::info!("Listen Tracker on {listen_address}");
+    let lifecycle_manager = sigfinn::LifecycleManager::new();
 
-    tonic::transport::Server::builder()
-        .add_service(RootchainSpecServiceServer::new(rootchain_spec::Service::new(
-            rootchain_spec_files,
-        )))
-        .add_service(RootchainPeerServiceServer::new(rootchain_peer::Service::new(
-            allow_loopback_ip,
-        )))
-        .add_service(LeafchainSpecServiceServer::new(leafchain_spec::Service::new(
-            leafchain_spec_files,
-        )))
-        .add_service(LeafchainPeerServiceServer::new(leafchain_peer::Service::new(
-            allow_loopback_ip,
-        )))
-        .serve_with_shutdown(listen_address, shutdown)
-        .await
-        .context(error::StartTonicServerSnafu)?;
+    let rootchain_peer_address_book = PeerAddressBook::with_ttl(peer_time_to_live);
+    let leafchain_peer_address_book = PeerAddressBook::with_ttl(peer_time_to_live);
+
+    let _handle = lifecycle_manager
+        .spawn("gRPC", {
+            let rootchain_peer_address_book = rootchain_peer_address_book.clone();
+            let leafchain_peer_address_book = leafchain_peer_address_book.clone();
+
+            move |shutdown| async move {
+                tracing::info!("Listen Tracker on {listen_address}");
+                let server = tonic::transport::Server::builder()
+                    .add_service(RootchainSpecServiceServer::new(
+                        grpc::rootchain_spec::Service::new(rootchain_spec_files),
+                    ))
+                    .add_service(RootchainPeerServiceServer::new(
+                        grpc::rootchain_peer::Service::new(
+                            allow_peer_in_loopback_network,
+                            rootchain_peer_address_book,
+                        ),
+                    ))
+                    .add_service(LeafchainSpecServiceServer::new(
+                        grpc::leafchain_spec::Service::new(leafchain_spec_files),
+                    ))
+                    .add_service(LeafchainPeerServiceServer::new(
+                        grpc::leafchain_peer::Service::new(
+                            allow_peer_in_loopback_network,
+                            leafchain_peer_address_book,
+                        ),
+                    ))
+                    .serve_with_shutdown(listen_address, shutdown);
+
+                match server.await.context(error::StartTonicServerSnafu) {
+                    Ok(_) => sigfinn::ExitStatus::Success,
+                    Err(err) => sigfinn::ExitStatus::Failure(err),
+                }
+            }
+        })
+        .spawn("Peer address book flusher", move |shutdown| async move {
+            tokio::pin!(shutdown);
+            let mut interval = tokio::time::interval(peer_time_to_live);
+
+            loop {
+                tokio::select! {
+                  _ = &mut shutdown => break,
+                  _ = interval.tick() => {
+                    rootchain_peer_address_book.flush().await;
+                    leafchain_peer_address_book.flush().await;
+                  }
+                }
+            }
+
+            sigfinn::ExitStatus::Success
+        });
+
+    if let Ok(Err(err)) = lifecycle_manager.serve().await {
+        return Err(err);
+    }
 
     Ok(())
 }

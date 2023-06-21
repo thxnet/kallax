@@ -6,7 +6,8 @@
 **/target/
 *.sw[op]
 
-.github
+.git/
+.github/
 dev-support/
 docs/
 

@@ -2902,6 +2902,7 @@ dependencies = [
 name = "kallax-primitives"
 version = "0.0.0"
 dependencies = [
+ "multibase",
  "sc-network",
  "serde",
  "serde_json",
@@ -2916,6 +2917,7 @@ dependencies = [
  "http",
  "kallax-primitives",
  "kallax-tracker-client",
+ "sigfinn",
  "snafu",
  "sp-core",
  "substrate-rpc-client",
@@ -2954,7 +2956,9 @@ dependencies = [
  "kallax-primitives",
  "kallax-tracker-proto",
  "sc-network",
+ "sigfinn",
  "snafu",
+ "time 0.3.20",
  "tokio",
  "tonic",
  "tracing",
@@ -6561,6 +6565,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
 
 [[package]]
+name = "sigfinn"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "70c5827fbcd1bcd389928d9a6c846e8413e515566b85ba8b18c375d9f2917502"
+dependencies = [
+ "futures",
+ "snafu",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "signal-hook-registry"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6613,6 +6629,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb0656e7e3ffb70f6c39b3c2a86332bb74aa3c679da781642590f3c1118c5045"
 dependencies = [
  "doc-comment",
+ "futures-core",
+ "pin-project",
  "snafu-derive",
 ]
 

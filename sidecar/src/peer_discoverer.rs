@@ -81,8 +81,8 @@ impl PeerDiscoverer {
         );
 
         // fetch peer addresses from local node
-        let current_peers =
-            match SystemApi::<Hash, BlockNumber>::system_peers(&substrate_client).await {
+        let current_reserved_peers =
+            match SystemApi::<Hash, BlockNumber>::system_reserved_peers(&substrate_client).await {
                 Ok(peers) => {
                     tracing::debug!(
                         "Current peers that local Substrate-based node connected: {peers:?}"
@@ -94,10 +94,12 @@ impl PeerDiscoverer {
                     Vec::new()
                 }
             };
+        tracing::debug!("Current reserved peers: {current_reserved_peers:?}");
 
         // fetch new peer addresses from tracker
         let mut potential_new_peers = {
             let blockchain_layer = self.blockchain_layer;
+
             match blockchain_layer {
                 BlockchainLayer::Rootchain => {
                     RootchainPeer::get(&self.tracker_client, &self.chain_id)
@@ -113,28 +115,36 @@ impl PeerDiscoverer {
                 }
             }
         };
+        tracing::debug!("Peers advertised from tracker: {potential_new_peers:?}");
+
+        let stalled_peers = {
+            let potential_new_peers =
+                potential_new_peers.iter().map(PeerAddress::id).collect::<HashSet<_>>();
+            let mut stalled = current_reserved_peers.clone();
+            stalled.retain(|current_peer| !potential_new_peers.contains(current_peer));
+            stalled
+        };
 
         // filter out new peer addresses
         let new_peers = {
             // remove local node addresses
-            for addr in &listen_addresses {
-                potential_new_peers.remove(addr);
-            }
+            potential_new_peers.retain(|addr| !listen_addresses.contains(addr));
+
+            // remove stalled peer addresses
+            potential_new_peers.retain(|addr| !stalled_peers.contains(&addr.id()));
 
             // remove known peers
             let mut to_remove: HashSet<PeerAddress> = HashSet::new();
-            for peer_info in current_peers {
+            for peer_id in current_reserved_peers {
                 to_remove.extend(
                     potential_new_peers
                         .iter()
-                        .filter(|addr| addr.to_string().contains(&peer_info.peer_id))
+                        .filter(|addr| addr.to_string().contains(&peer_id))
                         .map(Clone::clone),
                 );
             }
 
-            for addr in to_remove {
-                potential_new_peers.remove(&addr);
-            }
+            potential_new_peers.retain(|addr| !to_remove.contains(addr));
 
             if self.allow_loopback_ip {
                 potential_new_peers
@@ -148,7 +158,7 @@ impl PeerDiscoverer {
 
         // add new peer addresses into local node
         if new_peers.is_empty() {
-            tracing::info!("No new peer will be advertised to local Substrate-based node");
+            tracing::debug!("No new peer will be advertised to local Substrate-based node");
         } else {
             tracing::info!(
                 "New peers that will be advertised to local Substrate-based node: {new_peers:?}"
@@ -163,6 +173,25 @@ impl PeerDiscoverer {
             if let Err(err) = futures::future::try_join_all(add_reserved_peers_futs).await {
                 tracing::error!(
                     "Error occurs while advertising new peers to Substrate-based node, error: \
+                     {err}"
+                );
+            }
+        }
+
+        // remove stalled peer addresses in local node
+        if stalled_peers.is_empty() {
+            tracing::debug!("No stalled peer will be removed from local Substrate-based node");
+        } else {
+            tracing::info!(
+                "Stalled peers are removing from local Substrate-based node: {stalled_peers:?}"
+            );
+            let remove_reserved_peers_futs = stalled_peers.into_iter().map(|addr| {
+                SystemApi::<Hash, BlockNumber>::system_remove_reserved_peer(&substrate_client, addr)
+            });
+
+            if let Err(err) = futures::future::try_join_all(remove_reserved_peers_futs).await {
+                tracing::error!(
+                    "Error occurs while removing stalled peers from Substrate-based node, error: \
                      {err}"
                 );
             }

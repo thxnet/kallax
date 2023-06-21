@@ -1,26 +1,20 @@
-use std::{
-    collections::{HashMap, HashSet},
-    sync::Arc,
-};
-
 use kallax_primitives::PeerAddress;
 use kallax_tracker_proto as proto;
-use tokio::sync::Mutex;
 use tonic::{Request, Response, Status};
 
-use crate::error;
+use crate::{error, peer_address_book::PeerAddressBook};
 
 #[derive(Clone, Debug, Default)]
 pub struct Service {
-    peer_addresses: Arc<Mutex<HashMap<String, HashSet<PeerAddress>>>>,
-
     allow_loopback_ip: bool,
+
+    peer_address_book: PeerAddressBook,
 }
 
 impl Service {
     #[must_use]
-    pub fn new(allow_loopback_ip: bool) -> Self {
-        Self { peer_addresses: Arc::default(), allow_loopback_ip }
+    pub const fn new(allow_loopback_ip: bool, peer_address_book: PeerAddressBook) -> Self {
+        Self { allow_loopback_ip, peer_address_book }
     }
 }
 
@@ -32,11 +26,13 @@ impl proto::RootchainPeerService for Service {
     ) -> Result<Response<proto::GetRootchainPeerAddressesResponse>, Status> {
         let chain_id = req.into_inner().chain_id;
 
-        let addresses = {
-            self.peer_addresses.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
-                addresses.iter().cloned().map(proto::PeerAddress::from).collect()
-            })
-        };
+        let addresses = self
+            .peer_address_book
+            .fetch_peers(&chain_id)
+            .await
+            .into_iter()
+            .map(proto::PeerAddress::from)
+            .collect();
 
         Ok(Response::new(proto::GetRootchainPeerAddressesResponse { addresses }))
     }
@@ -63,13 +59,13 @@ impl proto::RootchainPeerService for Service {
 
         tracing::info!("Insert new peer `{peer_address}` to chain `{chain_id}`");
 
-        self.peer_addresses
-            .lock()
-            .await
-            .entry(chain_id)
-            .or_insert_with(HashSet::new)
-            .insert(peer_address);
+        self.peer_address_book.insert(chain_id, peer_address).await;
 
         Ok(Response::new(proto::InsertRootchainPeerAddressResponse {}))
+    }
+
+    async fn clear(&self, _req: Request<()>) -> Result<Response<()>, Status> {
+        self.peer_address_book.clear().await;
+        Ok(Response::new(()))
     }
 }

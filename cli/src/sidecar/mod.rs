@@ -3,10 +3,7 @@ mod error;
 
 use std::time::Duration;
 
-use futures::FutureExt;
 use kallax_sidecar::ChainEndpoint;
-use snafu::ResultExt;
-use tokio::signal::unix::{signal, SignalKind};
 
 pub use self::{
     config::Config,
@@ -51,32 +48,8 @@ pub async fn run(config: Config) -> Result<()> {
             allow_loopback_ip,
         }
     };
-    let sidecar = kallax_sidecar::Sidecar::new(config).await?;
 
-    let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<()>();
-
-    let sidecar_handle = tokio::spawn(async move {
-        let shutdown_signal = async move {
-            rx.recv().await;
-        }
-        .boxed();
-        sidecar.serve_with_shutdown(shutdown_signal).await;
-    });
-
-    tracing::debug!("Create UNIX signal listener for `SIGTERM`");
-    let mut sigterm =
-        signal(SignalKind::terminate()).context(error::CreateUnixSignalListenerSnafu)?;
-    tracing::debug!("Create UNIX signal listener for `SIGINT`");
-    let mut sigint =
-        signal(SignalKind::interrupt()).context(error::CreateUnixSignalListenerSnafu)?;
-
-    tracing::debug!("Wait for shutdown signal");
-    drop(futures::future::select(sigterm.recv().boxed(), sigint.recv().boxed()).await);
-
-    // send shutdown signal to unbounded channel receiver by dropping the sender
-    drop(tx);
-
-    sidecar_handle.await.context(error::JoinTaskHandleSnafu)?;
+    kallax_sidecar::serve(config).await?;
 
     Ok(())
 }

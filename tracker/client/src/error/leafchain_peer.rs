@@ -33,3 +33,16 @@ impl fmt::Display for InsertLeafchainPeerAddressError {
         }
     }
 }
+
+#[derive(Debug)]
+pub enum ClearLeafchainPeerAddressError {
+    Status { source: tonic::Status },
+}
+
+impl fmt::Display for ClearLeafchainPeerAddressError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Status { source } => source.fmt(f),
+        }
+    }
+}

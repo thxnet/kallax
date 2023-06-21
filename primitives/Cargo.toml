@@ -15,6 +15,7 @@ keywords.workspace   = true
 serde      = "1"
 serde_json = "1"
 
-snafu = "0.7"
+multibase = "0.9"
+snafu     = "0.7"
 
 sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
