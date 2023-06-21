@@ -25,6 +25,7 @@ concurrency:
 
 jobs:
   image:
+    if: ${{ github.actor != 'dependabot'}}
     name: Build and publish images
     runs-on: ubuntu-latest
     strategy:
