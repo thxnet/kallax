@@ -2888,7 +2888,7 @@ dependencies = [
  "http",
  "kallax-primitives",
  "kallax-tracker-client",
- "libp2p 0.52.0",
+ "libp2p 0.52.1",
  "sc-cli",
  "serde_json",
  "snafu",
@@ -3082,9 +3082,9 @@ dependencies = [
 
 [[package]]
 name = "libp2p"
-version = "0.52.0"
+version = "0.52.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "265b12faeb6ea2e770644ed98ba0e563d326088f8ba5a31080be772cb2800513"
+checksum = "38039ba2df4f3255842050845daef4a004cc1f26da03dbc645535088b51910ef"
 dependencies = [
  "bytes",
  "futures",
