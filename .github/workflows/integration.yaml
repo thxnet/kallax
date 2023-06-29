@@ -18,6 +18,10 @@ env:
   CI: 1
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  MINIO_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY_ID }}
+  MINIO_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_ACCESS_KEY }}
+  SCCACHE_BUCKET: sccache
+  SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
 
 concurrency:
   group: image-${{ github.ref }}
@@ -76,6 +80,13 @@ jobs:
         with:
           pull: true
           push: true
+          set: |
+            kallax.args.AWS_ACCESS_KEY_ID=${{ env.MINIO_ACCESS_KEY_ID }}
+            kallax.args.AWS_SECRET_ACCESS_KEY=${{ env.MINIO_SECRET_ACCESS_KEY }}
+            kallax.args.SCCACHE_BUCKET=${{ env.SCCACHE_BUCKET }}
+            kallax.args.SCCACHE_ENDPOINT=${{ env.SCCACHE_ENDPOINT }}
+            kallax.args.SCCACHE_S3_USE_SSL=false
+
           files: |
             ./dev-support/containers/docker-bake.hcl
             ${{ steps.meta.outputs.bake-file }}
