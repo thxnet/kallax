@@ -1,7 +1,11 @@
 # syntax=docker/dockerfile:1.4
 
+FROM sccache AS sccache
+
 # This is the build stage for kallax. Here we create the binary in a temporary image.
 FROM substrate-based AS builder
+
+COPY --from=sccache /usr/bin/sccache /usr/bin/sccache
 
 WORKDIR /build
 COPY . /build
@@ -19,6 +23,13 @@ rm -fv /tmp/protoc.zip
 protoc --version
 
 EOF
+
+ARG RUSTC_WRAPPER="/usr/bin/sccache"
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG SCCACHE_BUCKET
+ARG SCCACHE_ENDPOINT
+ARG SCCACHE_S3_USE_SSL
 
 RUN cargo build --locked --release
 
