@@ -1,0 +1,58 @@
+# syntax=docker/dockerfile:1.4
+
+FROM sccache AS sccache
+
+# This is the build stage for kallax. Here we create the binary in a temporary image.
+FROM substrate-based AS builder
+
+COPY --from=sccache /usr/bin/sccache /usr/bin/sccache
+
+WORKDIR /build
+COPY . /build
+
+RUN <<EOF
+#!/usr/bin/env bash
+
+apt-get update
+apt-get install -y wget unzip
+
+wget -O /tmp/protoc.zip https://github.com/protocolbuffers/protobuf/releases/download/v23.2/protoc-23.2-linux-x86_64.zip
+unzip -o -d /usr/ /tmp/protoc.zip
+rm -fv /tmp/protoc.zip
+
+protoc --version
+
+EOF
+
+ARG RUSTC_WRAPPER="/usr/bin/sccache"
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+ARG SCCACHE_BUCKET
+ARG SCCACHE_ENDPOINT
+ARG SCCACHE_S3_USE_SSL
+
+RUN cargo build --locked --release
+
+# This is the 2nd stage: a very small image where we copy the kallax binary."
+FROM ubuntu AS kallax
+
+COPY --from=builder /build/target/release/kallax /usr/local/bin/kallax
+
+RUN <<EOF
+#!/usr/bin/env bash
+
+set -eu
+
+useradd -m -u 1000 -U -s /bin/sh -d /kallax thxnet
+
+# unclutter and minimize the attack surface
+rm -rf /usr/bin /usr/sbin
+
+# check if executable works in this container
+/usr/local/bin/kallax --version
+
+EOF
+
+USER thxnet
+
+ENTRYPOINT ["/usr/local/bin/kallax"]

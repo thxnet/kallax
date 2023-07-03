@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package kallax.tracker;
+
+import "google/protobuf/empty.proto";
+
+import "PeerAddress.proto";
+
+service LeafchainPeerService {
+  rpc Get(GetLeafchainPeerAddressesRequest)
+      returns (GetLeafchainPeerAddressesResponse);
+
+  rpc Insert(InsertLeafchainPeerAddressRequest)
+      returns (InsertLeafchainPeerAddressResponse);
+
+  rpc Clear(google.protobuf.Empty) returns (google.protobuf.Empty);
+}
+
+message GetLeafchainPeerAddressesRequest { string chain_id = 1; }
+message GetLeafchainPeerAddressesResponse {
+  repeated PeerAddress addresses = 1;
+}
+
+message InsertLeafchainPeerAddressRequest {
+  string chain_id = 1;
+  PeerAddress address = 2;
+}
+message InsertLeafchainPeerAddressResponse {}

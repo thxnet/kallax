@@ -1,0 +1,42 @@
+[workspace.package]
+version     = "0.1.0"
+authors     = ["THXLAB PTE. LTD. <contact@thxlab.io>"]
+homepage    = "https://thxnet.org/"
+repository  = "https://github.com/thxnet/kallax"
+readme      = "README.md"
+license     = "GPL-3.0-only"
+edition     = "2021"
+description = "Utilities for setting up and managing Substrate-based blockchains"
+categories  = ["command-line-utilities"]
+keywords    = ["substrate"]
+
+[package]
+name                  = "kallax"
+readme.workspace      = true
+version.workspace     = true
+authors.workspace     = true
+homepage.workspace    = true
+repository.workspace  = true
+license.workspace     = true
+edition.workspace     = true
+description.workspace = true
+categories.workspace  = true
+keywords.workspace    = true
+
+[[bin]]
+name = "kallax"
+path = "src/main.rs"
+
+[dependencies]
+kallax-cli = { path = "cli" }
+
+[workspace]
+members = [
+  "cli",
+  "initializer",
+  "primitives",
+  "sidecar",
+  "tracker/client",
+  "tracker/proto",
+  "tracker/server",
+]

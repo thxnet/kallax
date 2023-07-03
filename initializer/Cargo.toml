@@ -1,0 +1,34 @@
+[package]
+name                 = "kallax-initializer"
+description          = "Node initializer for starting Substrate-base node"
+version.workspace    = true
+authors.workspace    = true
+homepage.workspace   = true
+readme.workspace     = true
+repository.workspace = true
+license.workspace    = true
+edition.workspace    = true
+categories.workspace = true
+keywords.workspace   = true
+
+[dependencies]
+tracing = "0.1"
+
+futures = "0.3"
+tokio   = { version = "1", features = ["fs", "rt-multi-thread"] }
+
+http = "0.2"
+
+libp2p = "0.52"
+
+serde_json = "1"
+
+array-bytes = "6"
+snafu       = "0.7"
+
+sc-cli                = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sp-application-crypto = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+sp-core               = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
+
+kallax-primitives     = { path = "../primitives" }
+kallax-tracker-client = { path = "../tracker/client" }

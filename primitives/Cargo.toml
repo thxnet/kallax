@@ -1,0 +1,21 @@
+[package]
+name                 = "kallax-primitives"
+description          = "Shareable types"
+version.workspace    = true
+authors.workspace    = true
+homepage.workspace   = true
+readme.workspace     = true
+repository.workspace = true
+license.workspace    = true
+edition.workspace    = true
+categories.workspace = true
+keywords.workspace   = true
+
+[dependencies]
+serde      = "1"
+serde_json = "1"
+
+multibase = "0.9"
+snafu     = "0.7"
+
+sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
