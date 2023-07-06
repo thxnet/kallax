@@ -4,6 +4,7 @@
 , rustPlatform
 , llvmPackages_15
 , protobuf
+, rocksdb
 }:
 
 rustPlatform.buildRustPackage {
@@ -30,4 +31,6 @@ rustPlatform.buildRustPackage {
   PROTOC_INCLUDE = "${protobuf}/include";
 
   LIBCLANG_PATH = "${llvmPackages_15.libclang.lib}/lib";
+
+  ROCKSDB_LIB_DIR = "${rocksdb}/lib";
 }

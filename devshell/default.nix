@@ -54,6 +54,8 @@ pkgs.mkShell {
 
   LIBCLANG_PATH = "${pkgs.llvmPackages_15.libclang.lib}/lib";
 
+  ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
+
   shellHook = ''
     export NIX_PATH="nixpkgs=${pkgs.path}"
   '';
