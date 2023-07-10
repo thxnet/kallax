@@ -2,8 +2,9 @@
 , version
 , lib
 , rustPlatform
-, llvmPackages
+, llvmPackages_15
 , protobuf
+, rocksdb
 }:
 
 rustPlatform.buildRustPackage {
@@ -20,8 +21,8 @@ rustPlatform.buildRustPackage {
   };
 
   nativeBuildInputs = [
-    llvmPackages.clang
-    llvmPackages.libclang
+    llvmPackages_15.clang
+    llvmPackages_15.libclang
   ];
 
   doCheck = false;
@@ -29,5 +30,7 @@ rustPlatform.buildRustPackage {
   PROTOC = "${protobuf}/bin/protoc";
   PROTOC_INCLUDE = "${protobuf}/include";
 
-  LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
+  LIBCLANG_PATH = "${llvmPackages_15.libclang.lib}/lib";
+
+  ROCKSDB_LIB_DIR = "${rocksdb}/lib";
 }
