@@ -41,7 +41,8 @@ impl proto::LeafchainPeerService for Service {
         &self,
         req: Request<proto::InsertLeafchainPeerAddressRequest>,
     ) -> Result<Response<proto::InsertLeafchainPeerAddressResponse>, Status> {
-        let proto::InsertLeafchainPeerAddressRequest { chain_id, address } = req.into_inner();
+        let proto::InsertLeafchainPeerAddressRequest { chain_id, address, exposed_port } =
+            req.into_inner();
 
         let peer_address = {
             let address = address.ok_or_else(|| error::into_invalid_argument_status("address"))?;
@@ -57,7 +58,10 @@ impl proto::LeafchainPeerService for Service {
         }
 
         tracing::info!("Insert new peer `{peer_address}` to chain `{chain_id}`");
-        self.peer_address_book.insert(chain_id, peer_address).await;
+
+        self.peer_address_book
+            .insert(chain_id, peer_address, exposed_port.and_then(|p| u16::try_from(p).ok()))
+            .await;
 
         Ok(Response::new(proto::InsertLeafchainPeerAddressResponse {}))
     }

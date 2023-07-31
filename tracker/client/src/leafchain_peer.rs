@@ -25,6 +25,7 @@ pub trait LeafchainPeer {
         &self,
         chain_name: S,
         addr: &PeerAddress,
+        exposed_port: Option<u16>,
     ) -> Result<(), InsertLeafchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync;
@@ -57,6 +58,7 @@ impl LeafchainPeer for Client {
         &self,
         chain_id: S,
         addr: &PeerAddress,
+        exposed_port: Option<u16>,
     ) -> Result<(), InsertLeafchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync,
@@ -65,6 +67,7 @@ impl LeafchainPeer for Client {
             .insert(proto::InsertLeafchainPeerAddressRequest {
                 chain_id: chain_id.to_string(),
                 address: Some(addr.clone().into()),
+                exposed_port: exposed_port.map(u32::from),
             })
             .await
             .map_err(|source| InsertLeafchainPeerAddressError::Status { source })?;

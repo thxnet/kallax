@@ -24,5 +24,6 @@ message GetRootchainPeerAddressesResponse {
 message InsertRootchainPeerAddressRequest {
   string chain_id = 1;
   PeerAddress address = 2;
+  optional uint32 exposed_port = 3;
 }
 message InsertRootchainPeerAddressResponse {}

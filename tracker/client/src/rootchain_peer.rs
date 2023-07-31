@@ -25,6 +25,7 @@ pub trait RootchainPeer {
         &self,
         chain_id: S,
         addr: &PeerAddress,
+        exposed_port: Option<u16>,
     ) -> Result<(), InsertRootchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync;
@@ -57,6 +58,7 @@ impl RootchainPeer for Client {
         &self,
         chain_id: S,
         addr: &PeerAddress,
+        exposed_port: Option<u16>,
     ) -> Result<(), InsertRootchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync,
@@ -65,6 +67,7 @@ impl RootchainPeer for Client {
             .insert(proto::InsertRootchainPeerAddressRequest {
                 chain_id: chain_id.to_string(),
                 address: Some(addr.clone().into()),
+                exposed_port: exposed_port.map(u32::from),
             })
             .await
             .map_err(|source| InsertRootchainPeerAddressError::Status { source })?;
