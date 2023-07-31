@@ -44,6 +44,27 @@ impl PeerAddressBook {
         })
     }
 
+    pub async fn fetch_exposed_peers<ChainId, DomainName>(
+        &self,
+        chain_id: ChainId,
+        domain_name: DomainName,
+    ) -> Vec<PeerAddress>
+    where
+        ChainId: fmt::Display,
+        DomainName: fmt::Display,
+    {
+        let chain_id = chain_id.to_string();
+        self.books.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
+            addresses
+                .iter()
+                .filter_map(|(PeerAddressWithExposedPort { address, exposed_port }, _)| {
+                    exposed_port
+                        .map_or(None, |exposed_port| address.exposed(&domain_name, exposed_port))
+                })
+                .collect()
+        })
+    }
+
     #[allow(dead_code)]
     pub async fn insert_reserved<ChainId>(
         &self,

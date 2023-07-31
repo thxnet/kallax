@@ -151,9 +151,11 @@ mod chain_spec_list;
 mod error;
 mod grpc;
 mod peer_address_book;
+mod web;
 
 use std::{net::SocketAddr, time::Duration};
 
+use axum::http::StatusCode;
 use kallax_primitives::{BlockchainLayer, ChainSpec};
 use kallax_tracker_proto::{
     LeafchainPeerServiceServer, LeafchainSpecServiceServer, RootchainPeerServiceServer,
@@ -161,12 +163,18 @@ use kallax_tracker_proto::{
 };
 use snafu::ResultExt;
 
-use self::chain_spec_list::ChainSpecList;
 pub use self::error::{Error, Result};
-use crate::peer_address_book::PeerAddressBook;
+use self::web::extension::{DomainName, LeafchainSpecList};
+use crate::{
+    chain_spec_list::ChainSpecList,
+    peer_address_book::PeerAddressBook,
+    web::extension::{LeafchainPeerAddressBook, RootchainPeerAddressBook, RootchainSpecList},
+};
 
 #[derive(Clone, Debug)]
 pub struct Config {
+    pub exposed_domain_name: String,
+
     pub api_listen_address: SocketAddr,
 
     pub grpc_listen_address: SocketAddr,
@@ -183,6 +191,7 @@ pub struct Config {
 #[allow(clippy::redundant_pub_crate)]
 pub async fn serve<R, L>(
     Config {
+        exposed_domain_name,
         api_listen_address,
         grpc_listen_address,
         allow_peer_in_loopback_network,
@@ -204,13 +213,48 @@ where
 
     let _handle = lifecycle_manager
         .spawn("API", {
-            let _rootchain_peer_address_book = rootchain_peer_address_book.clone();
-            let _leafchain_peer_address_book = leafchain_peer_address_book.clone();
+            let domain_name = DomainName(exposed_domain_name);
+            let rootchain_peer_address_book =
+                RootchainPeerAddressBook(rootchain_peer_address_book.clone());
+            let rootchain_spec_list = RootchainSpecList(rootchain_spec_list.clone());
+            let leafchain_peer_address_book =
+                LeafchainPeerAddressBook(leafchain_peer_address_book.clone());
+            let leafchain_spec_list = LeafchainSpecList(leafchain_spec_list.clone());
 
-            move |_shutdown| async move {
-                tracing::info!("Listen API service on {api_listen_address}");
+            move |shutdown| async move {
+                let middleware_stack = tower::ServiceBuilder::new()
+                    .layer(tower_http::trace::TraceLayer::new_for_http())
+                    .layer(tower_http::compression::CompressionLayer::new());
 
-                sigfinn::ExitStatus::Success
+                let router = self::web::controller::api_v1_router()
+                    .layer(axum::Extension(domain_name))
+                    .layer(axum::Extension(rootchain_spec_list))
+                    .layer(axum::Extension(rootchain_peer_address_book))
+                    .layer(axum::Extension(leafchain_spec_list))
+                    .layer(axum::Extension(leafchain_peer_address_book))
+                    .layer(middleware_stack)
+                    .fallback(api_fallback)
+                    .into_make_service_with_connect_info::<SocketAddr>();
+
+                tracing::info!("Listen API service endpoint on {api_listen_address}");
+
+                match axum::Server::try_bind(&api_listen_address)
+                    .context(error::StartApiServerSnafu)
+                {
+                    Ok(server) => match server
+                        .serve(router)
+                        .with_graceful_shutdown(shutdown)
+                        .await
+                        .context(error::ServeApiServerSnafu)
+                    {
+                        Ok(_) => {
+                            tracing::info!("Web server is shut down gracefully");
+                            sigfinn::ExitStatus::Success
+                        }
+                        Err(err) => sigfinn::ExitStatus::Failure(err),
+                    },
+                    Err(err) => sigfinn::ExitStatus::Failure(err),
+                }
             }
         })
         .spawn("gRPC", {
@@ -269,3 +313,6 @@ where
 
     Ok(())
 }
+
+#[allow(clippy::unused_async)]
+async fn api_fallback(_uri: axum::http::Uri) -> StatusCode { StatusCode::NOT_FOUND }
