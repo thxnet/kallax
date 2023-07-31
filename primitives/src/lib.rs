@@ -147,6 +147,8 @@ mod chain_spec;
 mod error;
 mod peer_address;
 
+use std::fmt;
+
 pub use self::{chain_spec::ChainSpec, error::Error, peer_address::PeerAddress};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
@@ -157,8 +159,30 @@ pub enum BlockchainComponent {
     OfflineWorker,
 }
 
+impl fmt::Display for BlockchainComponent {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let data = match self {
+            Self::Rootchain => "Rootchain",
+            Self::Leafchain => "Leafchain",
+            Self::Bridge => "Bridge",
+            Self::OfflineWorker => "Offline Worker",
+        };
+        f.write_str(data)
+    }
+}
+
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum BlockchainLayer {
     Rootchain,
     Leafchain,
+}
+
+impl fmt::Display for BlockchainLayer {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let data = match self {
+            Self::Rootchain => "Rootchain",
+            Self::Leafchain => "Leafchain",
+        };
+        f.write_str(data)
+    }
 }
