@@ -24,6 +24,8 @@ pub async fn run(config: Config) -> Result<()> {
             leafchain_id,
             leafchain_node_websocket_endpoint,
             allow_loopback_ip,
+            exposed_rootchain_p2p_port,
+            exposed_leafchain_p2p_port,
         } = config;
 
         let leafchain_endpoint = match (leafchain_id, leafchain_node_websocket_endpoint) {
@@ -46,6 +48,8 @@ pub async fn run(config: Config) -> Result<()> {
             rootchain_endpoint,
             leafchain_endpoint,
             allow_loopback_ip,
+            exposed_rootchain_p2p_port,
+            exposed_leafchain_p2p_port,
         }
     };
 
