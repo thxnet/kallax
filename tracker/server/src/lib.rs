@@ -147,25 +147,29 @@
     )
 )]
 
+mod chain_spec_list;
 mod error;
 mod grpc;
 mod peer_address_book;
 
 use std::{net::SocketAddr, time::Duration};
 
-use kallax_primitives::ChainSpec;
+use kallax_primitives::{BlockchainLayer, ChainSpec};
 use kallax_tracker_proto::{
     LeafchainPeerServiceServer, LeafchainSpecServiceServer, RootchainPeerServiceServer,
     RootchainSpecServiceServer,
 };
 use snafu::ResultExt;
 
+use self::chain_spec_list::ChainSpecList;
 pub use self::error::{Error, Result};
 use crate::peer_address_book::PeerAddressBook;
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub listen_address: SocketAddr,
+    pub api_listen_address: SocketAddr,
+
+    pub grpc_listen_address: SocketAddr,
 
     pub allow_peer_in_loopback_network: bool,
 
@@ -178,29 +182,46 @@ pub struct Config {
 // SAFETY: https://github.com/rust-lang/rust-clippy/pull/10203
 #[allow(clippy::redundant_pub_crate)]
 pub async fn serve<R, L>(
-    Config { listen_address, allow_peer_in_loopback_network, peer_time_to_live }: Config,
+    Config {
+        api_listen_address,
+        grpc_listen_address,
+        allow_peer_in_loopback_network,
+        peer_time_to_live,
+    }: Config,
     rootchain_spec_files: R,
     leafchain_spec_files: L,
 ) -> Result<()>
 where
-    R: IntoIterator<Item = ChainSpec> + Send + 'static,
-    L: IntoIterator<Item = ChainSpec> + Send + 'static,
+    R: IntoIterator<Item = ChainSpec> + Clone + Send + 'static,
+    L: IntoIterator<Item = ChainSpec> + Clone + Send + 'static,
 {
     let lifecycle_manager = sigfinn::LifecycleManager::new();
 
     let rootchain_peer_address_book = PeerAddressBook::with_ttl(peer_time_to_live);
     let leafchain_peer_address_book = PeerAddressBook::with_ttl(peer_time_to_live);
+    let rootchain_spec_list = ChainSpecList::new(BlockchainLayer::Rootchain, rootchain_spec_files);
+    let leafchain_spec_list = ChainSpecList::new(BlockchainLayer::Leafchain, leafchain_spec_files);
 
     let _handle = lifecycle_manager
+        .spawn("API", {
+            let _rootchain_peer_address_book = rootchain_peer_address_book.clone();
+            let _leafchain_peer_address_book = leafchain_peer_address_book.clone();
+
+            move |_shutdown| async move {
+                tracing::info!("Listen API service on {api_listen_address}");
+
+                sigfinn::ExitStatus::Success
+            }
+        })
         .spawn("gRPC", {
             let rootchain_peer_address_book = rootchain_peer_address_book.clone();
             let leafchain_peer_address_book = leafchain_peer_address_book.clone();
 
             move |shutdown| async move {
-                tracing::info!("Listen Tracker on {listen_address}");
+                tracing::info!("Listen gRPC service on {grpc_listen_address}");
                 let server = tonic::transport::Server::builder()
                     .add_service(RootchainSpecServiceServer::new(
-                        grpc::rootchain_spec::Service::new(rootchain_spec_files),
+                        grpc::rootchain_spec::Service::new(rootchain_spec_list),
                     ))
                     .add_service(RootchainPeerServiceServer::new(
                         grpc::rootchain_peer::Service::new(
@@ -209,7 +230,7 @@ where
                         ),
                     ))
                     .add_service(LeafchainSpecServiceServer::new(
-                        grpc::leafchain_spec::Service::new(leafchain_spec_files),
+                        grpc::leafchain_spec::Service::new(leafchain_spec_list),
                     ))
                     .add_service(LeafchainPeerServiceServer::new(
                         grpc::leafchain_peer::Service::new(
@@ -217,7 +238,7 @@ where
                             leafchain_peer_address_book,
                         ),
                     ))
-                    .serve_with_shutdown(listen_address, shutdown);
+                    .serve_with_shutdown(grpc_listen_address, shutdown);
 
                 match server.await.context(error::StartTonicServerSnafu) {
                     Ok(_) => sigfinn::ExitStatus::Success,
