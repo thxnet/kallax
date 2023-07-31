@@ -28,6 +28,8 @@ pub struct PeerDiscoverer {
     substrate_client: Option<WsClient>,
 
     allow_loopback_ip: bool,
+
+    exposed_port: Option<u16>,
 }
 
 impl PeerDiscoverer {
@@ -39,6 +41,7 @@ impl PeerDiscoverer {
         substrate_websocket_endpoint: http::Uri,
         tracker_client: TrackerClient,
         allow_loopback_ip: bool,
+        exposed_port: Option<u16>,
     ) -> Self {
         Self {
             chain_id,
@@ -47,6 +50,7 @@ impl PeerDiscoverer {
             tracker_client,
             allow_loopback_ip,
             substrate_client: None,
+            exposed_port,
         }
     }
 
@@ -204,14 +208,24 @@ impl PeerDiscoverer {
             match blockchain_layer {
                 BlockchainLayer::Rootchain => {
                     futures::future::try_join_all(listen_addresses.iter().map(|local_address| {
-                        RootchainPeer::insert(&self.tracker_client, &self.chain_id, local_address)
+                        RootchainPeer::insert(
+                            &self.tracker_client,
+                            &self.chain_id,
+                            local_address,
+                            self.exposed_port,
+                        )
                     }))
                     .await
                     .map_err(|e| e.to_string())
                 }
                 BlockchainLayer::Leafchain => {
                     futures::future::try_join_all(listen_addresses.iter().map(|local_address| {
-                        LeafchainPeer::insert(&self.tracker_client, &self.chain_id, local_address)
+                        LeafchainPeer::insert(
+                            &self.tracker_client,
+                            &self.chain_id,
+                            local_address,
+                            self.exposed_port,
+                        )
                     }))
                     .await
                     .map_err(|e| e.to_string())

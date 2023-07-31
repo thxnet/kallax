@@ -167,6 +167,10 @@ pub struct Config {
     pub leafchain_endpoint: Option<ChainEndpoint>,
 
     pub allow_loopback_ip: bool,
+
+    pub exposed_rootchain_p2p_port: Option<u16>,
+
+    pub exposed_leafchain_p2p_port: Option<u16>,
 }
 
 #[derive(Clone, Debug)]
@@ -187,6 +191,8 @@ pub async fn serve(config: Config) -> Result<()> {
         rootchain_endpoint,
         leafchain_endpoint,
         allow_loopback_ip,
+        exposed_rootchain_p2p_port,
+        exposed_leafchain_p2p_port,
     } = config;
 
     let tracker_client =
@@ -203,6 +209,7 @@ pub async fn serve(config: Config) -> Result<()> {
                 rootchain_endpoint.websocket_endpoint,
                 tracker_client.clone(),
                 allow_loopback_ip,
+                exposed_rootchain_p2p_port,
             );
             let mut leafchain_peer_discoverer = leafchain_endpoint.map(move |endpoint| {
                 PeerDiscoverer::new(
@@ -211,6 +218,7 @@ pub async fn serve(config: Config) -> Result<()> {
                     endpoint.websocket_endpoint,
                     tracker_client,
                     allow_loopback_ip,
+                    exposed_leafchain_p2p_port,
                 )
             });
 
