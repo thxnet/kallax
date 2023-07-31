@@ -30,10 +30,15 @@
             ];
           };
 
-          rustToolchain = fenix.packages.${system}.fromToolchainFile {
-            file = ./rust-toolchain.toml;
-            sha256 = "sha256-NtTO8TcANetJgeDCGOWaUZBqQn+kQH7rzYRgf8W9T+o=";
-          };
+          rustToolchain = with fenix.packages.${system}; combine [
+            stable.rustc
+            stable.cargo
+            stable.clippy
+            stable.rust-src
+            stable.rust-std
+
+            default.rustfmt
+          ];
 
           rustPlatform = pkgs.makeRustPlatform {
             cargo = rustToolchain;
