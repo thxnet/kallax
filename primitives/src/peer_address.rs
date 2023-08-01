@@ -22,6 +22,30 @@ impl PeerAddress {
         is_ipv4_loopback || is_ipv6_loopback
     }
 
+    pub fn exposed<DomainName>(&self, domain_name: DomainName, port: u16) -> Option<Self>
+    where
+        DomainName: fmt::Display,
+    {
+        let new_addr = self
+            .0
+            .replace(0, |protocol| {
+                if matches!(protocol, Protocol::Ip4(..) | Protocol::Ip6(..)) {
+                    Some(Protocol::Dns(domain_name.to_string().into()))
+                } else {
+                    None
+                }
+            })?
+            .replace(1, |protocol| {
+                if matches!(protocol, Protocol::Tcp(..)) {
+                    Some(Protocol::Tcp(port))
+                } else {
+                    None
+                }
+            })?;
+
+        Some(Self(new_addr))
+    }
+
     pub fn try_make_public(&mut self, socket_addr: SocketAddr) {
         if socket_addr.ip().is_loopback() {
             return;
@@ -67,4 +91,23 @@ impl FromStr for PeerAddress {
 
 impl fmt::Display for PeerAddress {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{}", self.0) }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::PeerAddress;
+
+    #[test]
+    fn test_exposed() {
+        let addr = PeerAddress::from_str(
+            "/ip4/127.0.0.1/tcp/50001/p2p/12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo",
+        )
+        .unwrap();
+        let exposed = addr.exposed("node.testnet.thxnet.org", 54321);
+        let expected = "/dns/node.testnet.thxnet.org/tcp/54321/p2p/\
+                        12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo";
+        assert_eq!(expected, exposed.unwrap().to_string());
+    }
 }
