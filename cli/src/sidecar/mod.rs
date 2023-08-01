@@ -3,6 +3,7 @@ mod error;
 
 use std::time::Duration;
 
+use kallax_primitives::ExternalEndpoint;
 use kallax_sidecar::ChainEndpoint;
 
 pub use self::{
@@ -24,8 +25,10 @@ pub async fn run(config: Config) -> Result<()> {
             leafchain_id,
             leafchain_node_websocket_endpoint,
             allow_loopback_ip,
-            exposed_rootchain_p2p_port,
-            exposed_leafchain_p2p_port,
+            external_rootchain_p2p_host,
+            external_rootchain_p2p_port,
+            external_leafchain_p2p_host,
+            external_leafchain_p2p_port,
         } = config;
 
         let leafchain_endpoint = match (leafchain_id, leafchain_node_websocket_endpoint) {
@@ -42,14 +45,21 @@ pub async fn run(config: Config) -> Result<()> {
             websocket_endpoint: rootchain_node_websocket_endpoint,
         };
 
+        let external_rootchain_p2p_endpoint = external_rootchain_p2p_host.map(|host| {
+            ExternalEndpoint { host, port: external_rootchain_p2p_port.unwrap_or_default() }
+        });
+        let external_leafchain_p2p_endpoint = external_leafchain_p2p_host.map(|host| {
+            ExternalEndpoint { host, port: external_leafchain_p2p_port.unwrap_or_default() }
+        });
+
         kallax_sidecar::Config {
             tracker_grpc_endpoint,
             polling_interval: POLLING_INTERVAL,
             rootchain_endpoint,
             leafchain_endpoint,
             allow_loopback_ip,
-            exposed_rootchain_p2p_port,
-            exposed_leafchain_p2p_port,
+            external_rootchain_p2p_endpoint,
+            external_leafchain_p2p_endpoint,
         }
     };
 

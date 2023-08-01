@@ -21,14 +21,26 @@ pub struct Config {
     pub allow_loopback_ip: bool,
 
     #[clap(
-        long = "exposed-rootchain-p2p-port",
-        help = "Port for exposing the P2P network port of Rootchain"
+        long = "external-rootchain-p2p-host",
+        help = "External host name for exposing the P2P network of Rootchain"
     )]
-    pub exposed_rootchain_p2p_port: Option<u16>,
+    pub external_rootchain_p2p_host: Option<String>,
 
     #[clap(
-        long = "exposed-leafchain-p2p-port",
-        help = "Port for exposing the P2P network port of Leafchain"
+        long = "external-rootchain-p2p-port",
+        help = "External port for exposing the P2P network port of Rootchain"
     )]
-    pub exposed_leafchain_p2p_port: Option<u16>,
+    pub external_rootchain_p2p_port: Option<u16>,
+
+    #[clap(
+        long = "external-leafchain-p2p-port",
+        help = "External host name for exposing the P2P network of Leafchain"
+    )]
+    pub external_leafchain_p2p_host: Option<String>,
+
+    #[clap(
+        long = "external-leafchain-p2p-port",
+        help = "External port for exposing the P2P network port of Leafchain"
+    )]
+    pub external_leafchain_p2p_port: Option<u16>,
 }

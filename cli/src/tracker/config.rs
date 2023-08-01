@@ -6,9 +6,6 @@ use crate::consts;
 
 #[derive(Args, Debug)]
 pub struct Config {
-    #[clap(long = "exposed-domain-name", default_value = "0.0.0.0", help = "Exposed domain name")]
-    pub exposed_domain_name: String,
-
     #[clap(long = "api-listen-address", default_value = "0.0.0.0", help = "API Listen address")]
     pub api_listen_address: IpAddr,
 

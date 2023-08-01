@@ -44,7 +44,6 @@ where
 
 pub async fn run(config: Config) -> Result<()> {
     let Config {
-        exposed_domain_name,
         api_listen_address,
         api_listen_port,
         grpc_listen_address,
@@ -59,7 +58,6 @@ pub async fn run(config: Config) -> Result<()> {
         let grpc_listen_address = SocketAddr::from((grpc_listen_address, grpc_listen_port));
         let peer_time_to_live = Duration::from_secs(peer_time_to_live);
         kallax_tracker_server::Config {
-            exposed_domain_name,
             api_listen_address,
             grpc_listen_address,
             allow_peer_in_loopback_network,
