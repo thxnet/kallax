@@ -164,7 +164,7 @@ use kallax_tracker_proto::{
 use snafu::ResultExt;
 
 pub use self::error::{Error, Result};
-use self::web::extension::{DomainName, LeafchainSpecList};
+use self::web::extension::LeafchainSpecList;
 use crate::{
     chain_spec_list::ChainSpecList,
     peer_address_book::PeerAddressBook,
@@ -173,8 +173,6 @@ use crate::{
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub exposed_domain_name: String,
-
     pub api_listen_address: SocketAddr,
 
     pub grpc_listen_address: SocketAddr,
@@ -191,7 +189,6 @@ pub struct Config {
 #[allow(clippy::redundant_pub_crate)]
 pub async fn serve<R, L>(
     Config {
-        exposed_domain_name,
         api_listen_address,
         grpc_listen_address,
         allow_peer_in_loopback_network,
@@ -213,7 +210,6 @@ where
 
     let _handle = lifecycle_manager
         .spawn("API", {
-            let domain_name = DomainName(exposed_domain_name);
             let rootchain_peer_address_book =
                 RootchainPeerAddressBook(rootchain_peer_address_book.clone());
             let rootchain_spec_list = RootchainSpecList(rootchain_spec_list.clone());
@@ -227,7 +223,6 @@ where
                     .layer(tower_http::compression::CompressionLayer::new());
 
                 let router = self::web::controller::api_v1_router()
-                    .layer(axum::Extension(domain_name))
                     .layer(axum::Extension(rootchain_spec_list))
                     .layer(axum::Extension(rootchain_peer_address_book))
                     .layer(axum::Extension(leafchain_spec_list))

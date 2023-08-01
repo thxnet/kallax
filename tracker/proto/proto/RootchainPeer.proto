@@ -4,6 +4,7 @@ package kallax.tracker;
 
 import "google/protobuf/empty.proto";
 
+import "ExternalEndpoint.proto";
 import "PeerAddress.proto";
 
 service RootchainPeerService {
@@ -24,6 +25,7 @@ message GetRootchainPeerAddressesResponse {
 message InsertRootchainPeerAddressRequest {
   string chain_id = 1;
   PeerAddress address = 2;
-  optional uint32 exposed_port = 3;
+  optional ExternalEndpoint external_endpoint = 3;
+
 }
 message InsertRootchainPeerAddressResponse {}

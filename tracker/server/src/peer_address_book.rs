@@ -1,17 +1,17 @@
 use std::{collections::HashMap, fmt, sync::Arc};
 
-use kallax_primitives::PeerAddress;
+use kallax_primitives::ExternalEndpoint;
 use time::Duration;
 use tokio::sync::Mutex;
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-pub struct PeerAddressWithExposedPort {
-    address: PeerAddress,
+struct PeerAddress {
+    address: kallax_primitives::PeerAddress,
 
-    exposed_port: Option<u16>,
+    external: Option<ExternalEndpoint>,
 }
 
-type PeerAddresses = HashMap<PeerAddressWithExposedPort, Option<time::OffsetDateTime>>;
+type PeerAddresses = HashMap<PeerAddress, Option<time::OffsetDateTime>>;
 
 #[derive(Clone, Debug)]
 pub struct PeerAddressBook {
@@ -34,7 +34,10 @@ impl PeerAddressBook {
 }
 
 impl PeerAddressBook {
-    pub async fn fetch_peers<ChainId>(&self, chain_id: ChainId) -> Vec<PeerAddress>
+    pub async fn fetch_peers<ChainId>(
+        &self,
+        chain_id: ChainId,
+    ) -> Vec<kallax_primitives::PeerAddress>
     where
         ChainId: fmt::Display,
     {
@@ -44,22 +47,21 @@ impl PeerAddressBook {
         })
     }
 
-    pub async fn fetch_exposed_peers<ChainId, DomainName>(
+    pub async fn fetch_exposed_peers<ChainId>(
         &self,
         chain_id: ChainId,
-        domain_name: DomainName,
-    ) -> Vec<PeerAddress>
+    ) -> Vec<kallax_primitives::PeerAddress>
     where
         ChainId: fmt::Display,
-        DomainName: fmt::Display,
     {
         let chain_id = chain_id.to_string();
         self.books.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
             addresses
                 .iter()
-                .filter_map(|(PeerAddressWithExposedPort { address, exposed_port }, _)| {
-                    exposed_port
-                        .map_or(None, |exposed_port| address.exposed(&domain_name, exposed_port))
+                .filter_map(|(PeerAddress { address, external }, _)| {
+                    external
+                        .as_ref()
+                        .and_then(|external_endpoint| address.exposed(external_endpoint))
                 })
                 .collect()
         })
@@ -69,8 +71,8 @@ impl PeerAddressBook {
     pub async fn insert_reserved<ChainId>(
         &self,
         chain_id: ChainId,
-        peer_address: PeerAddress,
-        exposed_port: Option<u16>,
+        peer_address: kallax_primitives::PeerAddress,
+        external_endpoint: Option<ExternalEndpoint>,
     ) where
         ChainId: fmt::Display,
     {
@@ -80,20 +82,20 @@ impl PeerAddressBook {
             .await
             .entry(chain_id)
             .or_insert_with(HashMap::new)
-            .insert(PeerAddressWithExposedPort { address: peer_address, exposed_port }, None);
+            .insert(PeerAddress { address: peer_address, external: external_endpoint }, None);
     }
 
     pub async fn insert<ChainId>(
         &self,
         chain_id: ChainId,
-        peer_address: PeerAddress,
-        exposed_port: Option<u16>,
+        peer_address: kallax_primitives::PeerAddress,
+        external_endpoint: Option<ExternalEndpoint>,
     ) where
         ChainId: fmt::Display,
     {
         let chain_id = chain_id.to_string();
         self.books.lock().await.entry(chain_id).or_insert_with(HashMap::new).insert(
-            PeerAddressWithExposedPort { address: peer_address, exposed_port },
+            PeerAddress { address: peer_address, external: external_endpoint },
             Some(time::OffsetDateTime::now_utc()),
         );
     }
@@ -106,19 +108,16 @@ impl PeerAddressBook {
         let mut books = self.books.lock().await;
 
         for (_, book) in &mut books.iter_mut() {
-            book.retain(
-                |PeerAddressWithExposedPort { address: peer_address, exposed_port: _ },
-                 last_update_time| {
-                    last_update_time.map_or(true, |last_update_time| {
-                        if (now - last_update_time) < self.ttl {
-                            true
-                        } else {
-                            tracing::info!("`{peer_address}` is stalled, removing it");
-                            false
-                        }
-                    })
-                },
-            );
+            book.retain(|PeerAddress { address, .. }, last_update_time| {
+                last_update_time.map_or(true, |last_update_time| {
+                    if (now - last_update_time) < self.ttl {
+                        true
+                    } else {
+                        tracing::info!("`{address}` is stalled, removing it");
+                        false
+                    }
+                })
+            });
         }
         tracing::info!("Flushing stalled peer addresses completed");
     }

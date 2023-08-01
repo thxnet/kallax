@@ -7,7 +7,7 @@ use axum::{
     TypedHeader,
 };
 
-use crate::web::extension::{DomainName, LeafchainPeerAddressBook, LeafchainSpecList};
+use crate::web::extension::{LeafchainPeerAddressBook, LeafchainSpecList};
 
 #[derive(Clone, Debug)]
 pub enum GetChainSpecError {
@@ -38,17 +38,10 @@ pub async fn get_chain_spec(
 
 pub async fn get_peers(
     Extension(LeafchainPeerAddressBook(book)): Extension<LeafchainPeerAddressBook>,
-    Extension(DomainName(domain_name)): Extension<DomainName>,
     Path(chain_id): Path<String>,
 ) -> (StatusCode, Json<Vec<String>>) {
     (
         StatusCode::OK,
-        Json(
-            book.fetch_exposed_peers(chain_id, &domain_name)
-                .await
-                .into_iter()
-                .map(|a| a.to_string())
-                .collect(),
-        ),
+        Json(book.fetch_exposed_peers(chain_id).await.into_iter().map(|a| a.to_string()).collect()),
     )
 }
