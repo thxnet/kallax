@@ -145,11 +145,15 @@
 
 mod chain_spec;
 mod error;
+mod external_endpoint;
 mod peer_address;
 
 use std::fmt;
 
-pub use self::{chain_spec::ChainSpec, error::Error, peer_address::PeerAddress};
+pub use self::{
+    chain_spec::ChainSpec, error::Error, external_endpoint::ExternalEndpoint,
+    peer_address::PeerAddress,
+};
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
 pub enum BlockchainComponent {

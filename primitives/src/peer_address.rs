@@ -7,7 +7,7 @@ use std::{
 use sc_network::multiaddr::Protocol;
 use snafu::ResultExt;
 
-use crate::{error, error::Error};
+use crate::{error, error::Error, ExternalEndpoint};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct PeerAddress(pub sc_network::Multiaddr);
@@ -22,22 +22,20 @@ impl PeerAddress {
         is_ipv4_loopback || is_ipv6_loopback
     }
 
-    pub fn exposed<DomainName>(&self, domain_name: DomainName, port: u16) -> Option<Self>
-    where
-        DomainName: fmt::Display,
-    {
+    #[must_use]
+    pub fn exposed(&self, ExternalEndpoint { host, port }: &ExternalEndpoint) -> Option<Self> {
         let new_addr = self
             .0
             .replace(0, |protocol| {
                 if matches!(protocol, Protocol::Ip4(..) | Protocol::Ip6(..)) {
-                    Some(Protocol::Dns(domain_name.to_string().into()))
+                    Some(Protocol::Dns(host.to_string().into()))
                 } else {
                     None
                 }
             })?
             .replace(1, |protocol| {
                 if matches!(protocol, Protocol::Tcp(..)) {
-                    Some(Protocol::Tcp(port))
+                    Some(Protocol::Tcp(*port))
                 } else {
                     None
                 }
@@ -97,7 +95,7 @@ impl fmt::Display for PeerAddress {
 mod tests {
     use std::str::FromStr;
 
-    use crate::PeerAddress;
+    use crate::{ExternalEndpoint, PeerAddress};
 
     #[test]
     fn test_exposed() {
@@ -105,7 +103,10 @@ mod tests {
             "/ip4/127.0.0.1/tcp/50001/p2p/12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo",
         )
         .unwrap();
-        let exposed = addr.exposed("node.testnet.thxnet.org", 54321);
+        let exposed = addr.exposed(&ExternalEndpoint {
+            host: "node.testnet.thxnet.org".to_string(),
+            port: 54321,
+        });
         let expected = "/dns/node.testnet.thxnet.org/tcp/54321/p2p/\
                         12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo";
         assert_eq!(expected, exposed.unwrap().to_string());
