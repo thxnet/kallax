@@ -1,6 +1,6 @@
 use std::{collections::HashSet, str::FromStr};
 
-use kallax_primitives::{BlockchainLayer, PeerAddress};
+use kallax_primitives::{BlockchainLayer, ExternalEndpoint, PeerAddress};
 use kallax_tracker_client::{Client as TrackerClient, LeafchainPeer, RootchainPeer};
 use snafu::ResultExt;
 use substrate_rpc_client::{
@@ -29,7 +29,7 @@ pub struct PeerDiscoverer {
 
     allow_loopback_ip: bool,
 
-    exposed_port: Option<u16>,
+    external_endpoint: Option<ExternalEndpoint>,
 }
 
 impl PeerDiscoverer {
@@ -41,7 +41,7 @@ impl PeerDiscoverer {
         substrate_websocket_endpoint: http::Uri,
         tracker_client: TrackerClient,
         allow_loopback_ip: bool,
-        exposed_port: Option<u16>,
+        external_endpoint: Option<ExternalEndpoint>,
     ) -> Self {
         Self {
             chain_id,
@@ -50,7 +50,7 @@ impl PeerDiscoverer {
             tracker_client,
             allow_loopback_ip,
             substrate_client: None,
-            exposed_port,
+            external_endpoint,
         }
     }
 
@@ -212,7 +212,7 @@ impl PeerDiscoverer {
                             &self.tracker_client,
                             &self.chain_id,
                             local_address,
-                            self.exposed_port,
+                            &self.external_endpoint,
                         )
                     }))
                     .await
@@ -224,7 +224,7 @@ impl PeerDiscoverer {
                             &self.tracker_client,
                             &self.chain_id,
                             local_address,
-                            self.exposed_port,
+                            &self.external_endpoint,
                         )
                     }))
                     .await
