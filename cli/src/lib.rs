@@ -278,3 +278,34 @@ fn init_tracing() {
     // subscriber
     tracing_subscriber::registry().with(filter_layer).with(fmt_layer).init();
 }
+
+#[cfg(test)]
+mod tests {
+    use clap::Parser;
+
+    use crate::{Cli, Commands};
+
+    #[test]
+    fn test_command_version() {
+        match Cli::parse_from(["program_name", "version"]).commands {
+            Commands::Version => (),
+            _ => panic!(),
+        }
+    }
+
+    #[test]
+    fn test_command_sidecar() {
+        match Cli::parse_from([
+            "program_name",
+            "sidecar",
+            "--tracker-grpc-endpoint=http://kallax-tracker.mainnet.svc.cluster.local:80",
+            "--rootchain-id=mainnet",
+            "--rootchain-node-websocket-endpoint=ws://127.0.0.1:50002",
+        ])
+        .commands
+        {
+            Commands::Sidecar { config: _ } => (),
+            _ => panic!(),
+        }
+    }
+}
