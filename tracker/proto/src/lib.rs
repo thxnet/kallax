@@ -190,17 +190,6 @@ pub use self::proto::{
     PeerAddress,
 };
 
-impl TryFrom<proto::ExternalEndpoint> for primitives::ExternalEndpoint {
-    type Error = primitives::Error;
-
-    fn try_from(
-        proto::ExternalEndpoint { host, port }: proto::ExternalEndpoint,
-    ) -> Result<Self, Self::Error> {
-        let port = u16::try_from(port).unwrap_or_default();
-        Ok(Self { host, port })
-    }
-}
-
 impl TryFrom<proto::PeerAddress> for primitives::PeerAddress {
     type Error = primitives::Error;
 
@@ -212,6 +201,17 @@ impl TryFrom<proto::PeerAddress> for primitives::PeerAddress {
 impl From<primitives::PeerAddress> for proto::PeerAddress {
     fn from(primitives::PeerAddress(address): primitives::PeerAddress) -> Self {
         Self { address: address.to_string() }
+    }
+}
+
+impl TryFrom<proto::ExternalEndpoint> for primitives::ExternalEndpoint {
+    type Error = primitives::Error;
+
+    fn try_from(
+        proto::ExternalEndpoint { host, port }: proto::ExternalEndpoint,
+    ) -> Result<Self, Self::Error> {
+        let port = u16::try_from(port).unwrap_or_default();
+        Ok(Self { host, port })
     }
 }
 
