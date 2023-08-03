@@ -7,7 +7,7 @@ use std::{
 use sc_network::multiaddr::Protocol;
 use snafu::ResultExt;
 
-use crate::{error, error::Error};
+use crate::{error, error::Error, ExternalEndpoint};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub struct PeerAddress(pub sc_network::Multiaddr);
@@ -20,6 +20,28 @@ impl PeerAddress {
         let is_ipv6_loopback =
             self.0.iter().take(1).all(|component| component == Protocol::Ip6(Ipv6Addr::LOCALHOST));
         is_ipv4_loopback || is_ipv6_loopback
+    }
+
+    #[must_use]
+    pub fn exposed(&self, ExternalEndpoint { host, port }: &ExternalEndpoint) -> Option<Self> {
+        let new_addr = self
+            .0
+            .replace(0, |protocol| {
+                if matches!(protocol, Protocol::Ip4(..) | Protocol::Ip6(..)) {
+                    Some(Protocol::Dns(host.to_string().into()))
+                } else {
+                    None
+                }
+            })?
+            .replace(1, |protocol| {
+                if matches!(protocol, Protocol::Tcp(..)) {
+                    Some(Protocol::Tcp(*port))
+                } else {
+                    None
+                }
+            })?;
+
+        Some(Self(new_addr))
     }
 
     pub fn try_make_public(&mut self, socket_addr: SocketAddr) {
@@ -67,4 +89,26 @@ impl FromStr for PeerAddress {
 
 impl fmt::Display for PeerAddress {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { write!(f, "{}", self.0) }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::{ExternalEndpoint, PeerAddress};
+
+    #[test]
+    fn test_exposed() {
+        let addr = PeerAddress::from_str(
+            "/ip4/127.0.0.1/tcp/50001/p2p/12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo",
+        )
+        .unwrap();
+        let exposed = addr.exposed(&ExternalEndpoint {
+            host: "node.testnet.thxnet.org".to_string(),
+            port: 54321,
+        });
+        let expected = "/dns/node.testnet.thxnet.org/tcp/54321/p2p/\
+                        12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo";
+        assert_eq!(expected, exposed.unwrap().to_string());
+    }
 }

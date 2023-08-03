@@ -44,18 +44,22 @@ where
 
 pub async fn run(config: Config) -> Result<()> {
     let Config {
-        listen_address,
-        listen_port,
+        api_listen_address,
+        api_listen_port,
+        grpc_listen_address,
+        grpc_listen_port,
         rootchain_spec_files,
         leafchain_spec_files,
         allow_peer_in_loopback_network,
         peer_time_to_live,
     } = config;
     let config = {
-        let listen_address = SocketAddr::from((listen_address, listen_port));
+        let api_listen_address = SocketAddr::from((api_listen_address, api_listen_port));
+        let grpc_listen_address = SocketAddr::from((grpc_listen_address, grpc_listen_port));
         let peer_time_to_live = Duration::from_secs(peer_time_to_live);
         kallax_tracker_server::Config {
-            listen_address,
+            api_listen_address,
+            grpc_listen_address,
             allow_peer_in_loopback_network,
             peer_time_to_live,
         }

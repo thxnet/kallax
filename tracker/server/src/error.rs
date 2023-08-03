@@ -9,6 +9,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[snafu(display("Error occurs while starting tonic server, error: {source}"))]
     StartTonicServer { source: tonic::transport::Error, backtrace: Backtrace },
+
+    #[snafu(display("Error occurs while starting api server, error: {source}"))]
+    StartApiServer { source: hyper::Error },
+
+    #[snafu(display("Error occurs while serving api server, error: {source}"))]
+    ServeApiServer { source: hyper::Error },
 }
 
 #[must_use]

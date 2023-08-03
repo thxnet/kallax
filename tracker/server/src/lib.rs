@@ -147,13 +147,16 @@
     )
 )]
 
+mod chain_spec_list;
 mod error;
 mod grpc;
 mod peer_address_book;
+mod web;
 
 use std::{net::SocketAddr, time::Duration};
 
-use kallax_primitives::ChainSpec;
+use axum::http::StatusCode;
+use kallax_primitives::{BlockchainLayer, ChainSpec};
 use kallax_tracker_proto::{
     LeafchainPeerServiceServer, LeafchainSpecServiceServer, RootchainPeerServiceServer,
     RootchainSpecServiceServer,
@@ -161,11 +164,18 @@ use kallax_tracker_proto::{
 use snafu::ResultExt;
 
 pub use self::error::{Error, Result};
-use crate::peer_address_book::PeerAddressBook;
+use self::web::extension::LeafchainSpecList;
+use crate::{
+    chain_spec_list::ChainSpecList,
+    peer_address_book::PeerAddressBook,
+    web::extension::{LeafchainPeerAddressBook, RootchainPeerAddressBook, RootchainSpecList},
+};
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub listen_address: SocketAddr,
+    pub api_listen_address: SocketAddr,
+
+    pub grpc_listen_address: SocketAddr,
 
     pub allow_peer_in_loopback_network: bool,
 
@@ -178,29 +188,79 @@ pub struct Config {
 // SAFETY: https://github.com/rust-lang/rust-clippy/pull/10203
 #[allow(clippy::redundant_pub_crate)]
 pub async fn serve<R, L>(
-    Config { listen_address, allow_peer_in_loopback_network, peer_time_to_live }: Config,
+    Config {
+        api_listen_address,
+        grpc_listen_address,
+        allow_peer_in_loopback_network,
+        peer_time_to_live,
+    }: Config,
     rootchain_spec_files: R,
     leafchain_spec_files: L,
 ) -> Result<()>
 where
-    R: IntoIterator<Item = ChainSpec> + Send + 'static,
-    L: IntoIterator<Item = ChainSpec> + Send + 'static,
+    R: IntoIterator<Item = ChainSpec> + Clone + Send + 'static,
+    L: IntoIterator<Item = ChainSpec> + Clone + Send + 'static,
 {
     let lifecycle_manager = sigfinn::LifecycleManager::new();
 
     let rootchain_peer_address_book = PeerAddressBook::with_ttl(peer_time_to_live);
     let leafchain_peer_address_book = PeerAddressBook::with_ttl(peer_time_to_live);
+    let rootchain_spec_list = ChainSpecList::new(BlockchainLayer::Rootchain, rootchain_spec_files);
+    let leafchain_spec_list = ChainSpecList::new(BlockchainLayer::Leafchain, leafchain_spec_files);
 
     let _handle = lifecycle_manager
+        .spawn("API", {
+            let rootchain_peer_address_book =
+                RootchainPeerAddressBook(rootchain_peer_address_book.clone());
+            let rootchain_spec_list = RootchainSpecList(rootchain_spec_list.clone());
+            let leafchain_peer_address_book =
+                LeafchainPeerAddressBook(leafchain_peer_address_book.clone());
+            let leafchain_spec_list = LeafchainSpecList(leafchain_spec_list.clone());
+
+            move |shutdown| async move {
+                let middleware_stack = tower::ServiceBuilder::new()
+                    .layer(tower_http::trace::TraceLayer::new_for_http())
+                    .layer(tower_http::compression::CompressionLayer::new());
+
+                let router = self::web::controller::api_v1_router()
+                    .layer(axum::Extension(rootchain_spec_list))
+                    .layer(axum::Extension(rootchain_peer_address_book))
+                    .layer(axum::Extension(leafchain_spec_list))
+                    .layer(axum::Extension(leafchain_peer_address_book))
+                    .layer(middleware_stack)
+                    .fallback(api_fallback)
+                    .into_make_service_with_connect_info::<SocketAddr>();
+
+                tracing::info!("Listen API service endpoint on {api_listen_address}");
+
+                match axum::Server::try_bind(&api_listen_address)
+                    .context(error::StartApiServerSnafu)
+                {
+                    Ok(server) => match server
+                        .serve(router)
+                        .with_graceful_shutdown(shutdown)
+                        .await
+                        .context(error::ServeApiServerSnafu)
+                    {
+                        Ok(_) => {
+                            tracing::info!("Web server is shut down gracefully");
+                            sigfinn::ExitStatus::Success
+                        }
+                        Err(err) => sigfinn::ExitStatus::Failure(err),
+                    },
+                    Err(err) => sigfinn::ExitStatus::Failure(err),
+                }
+            }
+        })
         .spawn("gRPC", {
             let rootchain_peer_address_book = rootchain_peer_address_book.clone();
             let leafchain_peer_address_book = leafchain_peer_address_book.clone();
 
             move |shutdown| async move {
-                tracing::info!("Listen Tracker on {listen_address}");
+                tracing::info!("Listen gRPC service on {grpc_listen_address}");
                 let server = tonic::transport::Server::builder()
                     .add_service(RootchainSpecServiceServer::new(
-                        grpc::rootchain_spec::Service::new(rootchain_spec_files),
+                        grpc::rootchain_spec::Service::new(rootchain_spec_list),
                     ))
                     .add_service(RootchainPeerServiceServer::new(
                         grpc::rootchain_peer::Service::new(
@@ -209,7 +269,7 @@ where
                         ),
                     ))
                     .add_service(LeafchainSpecServiceServer::new(
-                        grpc::leafchain_spec::Service::new(leafchain_spec_files),
+                        grpc::leafchain_spec::Service::new(leafchain_spec_list),
                     ))
                     .add_service(LeafchainPeerServiceServer::new(
                         grpc::leafchain_peer::Service::new(
@@ -217,7 +277,7 @@ where
                             leafchain_peer_address_book,
                         ),
                     ))
-                    .serve_with_shutdown(listen_address, shutdown);
+                    .serve_with_shutdown(grpc_listen_address, shutdown);
 
                 match server.await.context(error::StartTonicServerSnafu) {
                     Ok(_) => sigfinn::ExitStatus::Success,
@@ -248,3 +308,6 @@ where
 
     Ok(())
 }
+
+#[allow(clippy::unused_async)]
+async fn api_fallback(_uri: axum::http::Uri) -> StatusCode { StatusCode::NOT_FOUND }

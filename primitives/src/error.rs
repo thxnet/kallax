@@ -11,6 +11,9 @@ pub enum Error {
     #[snafu(display("Invalid peer address `{value}`, error: {source}"))]
     InvalidPeerAddress { value: String, source: sc_network::multiaddr::Error },
 
+    #[snafu(display("Invalid endpoint `{value}`"))]
+    InvalidEndpoint { value: String },
+
     #[snafu(display("Failed to deserialize chain spec, error: {source}"))]
     DeserializeChainSpec { source: serde_json::Error },
 

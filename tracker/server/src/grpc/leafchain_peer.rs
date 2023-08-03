@@ -1,4 +1,4 @@
-use kallax_primitives::PeerAddress;
+use kallax_primitives::{ExternalEndpoint, PeerAddress};
 use kallax_tracker_proto as proto;
 use tonic::{Request, Response, Status};
 
@@ -41,7 +41,8 @@ impl proto::LeafchainPeerService for Service {
         &self,
         req: Request<proto::InsertLeafchainPeerAddressRequest>,
     ) -> Result<Response<proto::InsertLeafchainPeerAddressResponse>, Status> {
-        let proto::InsertLeafchainPeerAddressRequest { chain_id, address } = req.into_inner();
+        let proto::InsertLeafchainPeerAddressRequest { chain_id, address, external_endpoint } =
+            req.into_inner();
 
         let peer_address = {
             let address = address.ok_or_else(|| error::into_invalid_argument_status("address"))?;
@@ -57,7 +58,14 @@ impl proto::LeafchainPeerService for Service {
         }
 
         tracing::info!("Insert new peer `{peer_address}` to chain `{chain_id}`");
-        self.peer_address_book.insert(chain_id, peer_address).await;
+
+        self.peer_address_book
+            .insert(
+                chain_id,
+                peer_address,
+                external_endpoint.and_then(|p| ExternalEndpoint::try_from(p).ok()),
+            )
+            .await;
 
         Ok(Response::new(proto::InsertLeafchainPeerAddressResponse {}))
     }

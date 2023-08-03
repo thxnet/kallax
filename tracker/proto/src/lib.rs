@@ -181,13 +181,25 @@ pub use self::proto::{
     rootchain_peer_service_server::{RootchainPeerService, RootchainPeerServiceServer},
     rootchain_spec_service_client::RootchainSpecServiceClient,
     rootchain_spec_service_server::{RootchainSpecService, RootchainSpecServiceServer},
-    GetLeafchainPeerAddressesRequest, GetLeafchainPeerAddressesResponse, GetLeafchainSpecRequest,
-    GetLeafchainSpecResponse, GetRootchainPeerAddressesRequest, GetRootchainPeerAddressesResponse,
-    GetRootchainSpecRequest, GetRootchainSpecResponse, InsertLeafchainPeerAddressRequest,
-    InsertLeafchainPeerAddressResponse, InsertLeafchainSpecRequest, InsertLeafchainSpecResponse,
-    InsertRootchainPeerAddressRequest, InsertRootchainPeerAddressResponse,
-    InsertRootchainSpecRequest, InsertRootchainSpecResponse, PeerAddress,
+    ExternalEndpoint, GetLeafchainPeerAddressesRequest, GetLeafchainPeerAddressesResponse,
+    GetLeafchainSpecRequest, GetLeafchainSpecResponse, GetRootchainPeerAddressesRequest,
+    GetRootchainPeerAddressesResponse, GetRootchainSpecRequest, GetRootchainSpecResponse,
+    InsertLeafchainPeerAddressRequest, InsertLeafchainPeerAddressResponse,
+    InsertLeafchainSpecRequest, InsertLeafchainSpecResponse, InsertRootchainPeerAddressRequest,
+    InsertRootchainPeerAddressResponse, InsertRootchainSpecRequest, InsertRootchainSpecResponse,
+    PeerAddress,
 };
+
+impl TryFrom<proto::ExternalEndpoint> for primitives::ExternalEndpoint {
+    type Error = primitives::Error;
+
+    fn try_from(
+        proto::ExternalEndpoint { host, port }: proto::ExternalEndpoint,
+    ) -> Result<Self, Self::Error> {
+        let port = u16::try_from(port).unwrap_or_default();
+        Ok(Self { host, port })
+    }
+}
 
 impl TryFrom<proto::PeerAddress> for primitives::PeerAddress {
     type Error = primitives::Error;
@@ -200,5 +212,12 @@ impl TryFrom<proto::PeerAddress> for primitives::PeerAddress {
 impl From<primitives::PeerAddress> for proto::PeerAddress {
     fn from(primitives::PeerAddress(address): primitives::PeerAddress) -> Self {
         Self { address: address.to_string() }
+    }
+}
+
+impl From<primitives::ExternalEndpoint> for proto::ExternalEndpoint {
+    fn from(primitives::ExternalEndpoint { host, port }: primitives::ExternalEndpoint) -> Self {
+        let port = u32::from(port);
+        Self { host, port }
     }
 }
