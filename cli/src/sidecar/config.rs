@@ -33,7 +33,7 @@ pub struct Config {
     pub external_rootchain_p2p_port: Option<u16>,
 
     #[clap(
-        long = "external-leafchain-p2p-port",
+        long = "external-leafchain-p2p-host",
         help = "External host name for exposing the P2P network of Leafchain"
     )]
     pub external_leafchain_p2p_host: Option<String>,
