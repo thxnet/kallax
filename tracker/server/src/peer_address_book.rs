@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fmt, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+    sync::Arc,
+};
 
 use kallax_primitives::ExternalEndpoint;
 use time::Duration;
@@ -63,6 +67,8 @@ impl PeerAddressBook {
                         .as_ref()
                         .and_then(|external_endpoint| address.exposed(external_endpoint))
                 })
+                .collect::<HashSet<_>>()
+                .into_iter()
                 .collect()
         })
     }
