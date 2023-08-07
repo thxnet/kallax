@@ -9,7 +9,7 @@ use snafu::ResultExt;
 
 use crate::{error, error::Error, ExternalEndpoint};
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct PeerAddress(pub sc_network::Multiaddr);
 
 impl PeerAddress {
