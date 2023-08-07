@@ -28,8 +28,8 @@ pkgs.mkShell {
 
     zlib
 
-    llvmPackages_15.clang
-    llvmPackages_15.libclang
+    llvmPackages.clang
+    llvmPackages.libclang
 
     protobuf
 
@@ -52,7 +52,7 @@ pkgs.mkShell {
   PROTOC = "${pkgs.protobuf}/bin/protoc";
   PROTOC_INCLUDE = "${pkgs.protobuf}/include";
 
-  LIBCLANG_PATH = "${pkgs.llvmPackages_15.libclang.lib}/lib";
+  LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
 
   ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
 
