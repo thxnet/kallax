@@ -25,5 +25,5 @@ snafu = "0.7"
 sp-core              = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 substrate-rpc-client = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 
-kallax-primitives     = { path = "../primitives" }
-kallax-tracker-client = { path = "../tracker/client" }
+kallax-primitives          = { path = "../primitives" }
+kallax-tracker-grpc-client = { path = "../tracker/grpc-client" }

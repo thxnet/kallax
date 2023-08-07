@@ -6,7 +6,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[snafu(visibility(pub))]
 pub enum Error {
     #[snafu(display("Error occurs while connecting tracker: `{uri}`, error: {source}"))]
-    ConnectTracker { uri: http::Uri, source: kallax_tracker_client::Error },
+    ConnectTracker { uri: http::Uri, source: kallax_tracker_grpc_client::Error },
 
     #[snafu(display(
         "Error occurs while connecting Substrate-based node: `{uri}`, error: {error}"
@@ -25,5 +25,5 @@ pub enum Error {
     FetchPeersFromSubstrateNode { source: substrate_rpc_client::Error },
 
     #[snafu(display("Error occurs while fetching peer addresses from Tracker, error: {source}"))]
-    GetPeerAddressesFromTracker { source: kallax_tracker_client::Error },
+    GetPeerAddressesFromTracker { source: kallax_tracker_grpc_client::Error },
 }
