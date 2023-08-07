@@ -60,7 +60,7 @@ impl PeerAddressBook {
     {
         let chain_id = chain_id.to_string();
         self.books.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
-            addresses
+            let mut addresses = addresses
                 .iter()
                 .filter_map(|(PeerAddress { address, external }, _)| {
                     external
@@ -69,7 +69,9 @@ impl PeerAddressBook {
                 })
                 .collect::<HashSet<_>>()
                 .into_iter()
-                .collect()
+                .collect::<Vec<_>>();
+            addresses.sort_unstable();
+            addresses
         })
     }
 
