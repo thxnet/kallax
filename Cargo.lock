@@ -2948,14 +2948,14 @@ dependencies = [
 
 [[package]]
 name = "kallax"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kallax-cli",
 ]
 
 [[package]]
 name = "kallax-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "clap_complete",
@@ -2974,7 +2974,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-initializer"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "array-bytes 6.1.0",
  "futures",
@@ -2993,7 +2993,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-primitives"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "multibase",
  "sc-network",
@@ -3004,7 +3004,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-sidecar"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "futures",
  "http",
@@ -3020,7 +3020,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-tracker-client"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "http",
@@ -3032,7 +3032,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-tracker-proto"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "kallax-primitives",
  "prost",
@@ -3044,7 +3044,7 @@ dependencies = [
 
 [[package]]
 name = "kallax-tracker-server"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "axum",
  "hyper",
