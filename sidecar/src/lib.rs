@@ -149,7 +149,7 @@ mod peer_discoverer;
 use std::time::Duration;
 
 use futures::{future, future::Either, FutureExt, StreamExt};
-use kallax_primitives::BlockchainLayer;
+use kallax_primitives::{BlockchainLayer, ExternalEndpoint};
 use kallax_tracker_client::{Client as TrackerClient, Config as TrackerClientConfig};
 use snafu::ResultExt;
 
@@ -167,6 +167,10 @@ pub struct Config {
     pub leafchain_endpoint: Option<ChainEndpoint>,
 
     pub allow_loopback_ip: bool,
+
+    pub external_rootchain_p2p_endpoint: Option<ExternalEndpoint>,
+
+    pub external_leafchain_p2p_endpoint: Option<ExternalEndpoint>,
 }
 
 #[derive(Clone, Debug)]
@@ -187,6 +191,8 @@ pub async fn serve(config: Config) -> Result<()> {
         rootchain_endpoint,
         leafchain_endpoint,
         allow_loopback_ip,
+        external_rootchain_p2p_endpoint,
+        external_leafchain_p2p_endpoint,
     } = config;
 
     let tracker_client =
@@ -203,6 +209,7 @@ pub async fn serve(config: Config) -> Result<()> {
                 rootchain_endpoint.websocket_endpoint,
                 tracker_client.clone(),
                 allow_loopback_ip,
+                external_rootchain_p2p_endpoint,
             );
             let mut leafchain_peer_discoverer = leafchain_endpoint.map(move |endpoint| {
                 PeerDiscoverer::new(
@@ -211,6 +218,7 @@ pub async fn serve(config: Config) -> Result<()> {
                     endpoint.websocket_endpoint,
                     tracker_client,
                     allow_loopback_ip,
+                    external_leafchain_p2p_endpoint,
                 )
             });
 

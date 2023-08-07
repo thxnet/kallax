@@ -1,7 +1,7 @@
 use std::{collections::HashSet, fmt};
 
 use async_trait::async_trait;
-use kallax_primitives::PeerAddress;
+use kallax_primitives::{ExternalEndpoint, PeerAddress};
 use kallax_tracker_proto as proto;
 
 use crate::{
@@ -25,6 +25,7 @@ pub trait RootchainPeer {
         &self,
         chain_id: S,
         addr: &PeerAddress,
+        external_endpoint: &Option<ExternalEndpoint>,
     ) -> Result<(), InsertRootchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync;
@@ -57,6 +58,7 @@ impl RootchainPeer for Client {
         &self,
         chain_id: S,
         addr: &PeerAddress,
+        external_endpoint: &Option<ExternalEndpoint>,
     ) -> Result<(), InsertRootchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync,
@@ -65,6 +67,7 @@ impl RootchainPeer for Client {
             .insert(proto::InsertRootchainPeerAddressRequest {
                 chain_id: chain_id.to_string(),
                 address: Some(addr.clone().into()),
+                external_endpoint: external_endpoint.clone().map(proto::ExternalEndpoint::from),
             })
             .await
             .map_err(|source| InsertRootchainPeerAddressError::Status { source })?;

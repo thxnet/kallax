@@ -1,8 +1,19 @@
-use std::{collections::HashMap, fmt, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    fmt,
+    sync::Arc,
+};
 
-use kallax_primitives::PeerAddress;
+use kallax_primitives::ExternalEndpoint;
 use time::Duration;
 use tokio::sync::Mutex;
+
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+struct PeerAddress {
+    address: kallax_primitives::PeerAddress,
+
+    external: Option<ExternalEndpoint>,
+}
 
 type PeerAddresses = HashMap<PeerAddress, Option<time::OffsetDateTime>>;
 
@@ -27,19 +38,48 @@ impl PeerAddressBook {
 }
 
 impl PeerAddressBook {
-    pub async fn fetch_peers<ChainId>(&self, chain_id: ChainId) -> Vec<PeerAddress>
+    pub async fn fetch_peers<ChainId>(
+        &self,
+        chain_id: ChainId,
+    ) -> Vec<kallax_primitives::PeerAddress>
     where
         ChainId: fmt::Display,
     {
         let chain_id = chain_id.to_string();
         self.books.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
-            addresses.iter().map(|(addr, _)| addr.clone()).collect()
+            addresses.iter().map(|(addr, _)| addr.address.clone()).collect()
+        })
+    }
+
+    pub async fn fetch_exposed_peers<ChainId>(
+        &self,
+        chain_id: ChainId,
+    ) -> Vec<kallax_primitives::PeerAddress>
+    where
+        ChainId: fmt::Display,
+    {
+        let chain_id = chain_id.to_string();
+        self.books.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
+            addresses
+                .iter()
+                .filter_map(|(PeerAddress { address, external }, _)| {
+                    external
+                        .as_ref()
+                        .and_then(|external_endpoint| address.exposed(external_endpoint))
+                })
+                .collect::<HashSet<_>>()
+                .into_iter()
+                .collect()
         })
     }
 
     #[allow(dead_code)]
-    pub async fn insert_reserved<ChainId>(&self, chain_id: ChainId, peer_address: PeerAddress)
-    where
+    pub async fn insert_reserved<ChainId>(
+        &self,
+        chain_id: ChainId,
+        peer_address: kallax_primitives::PeerAddress,
+        external_endpoint: Option<ExternalEndpoint>,
+    ) where
         ChainId: fmt::Display,
     {
         let chain_id = chain_id.to_string();
@@ -48,20 +88,22 @@ impl PeerAddressBook {
             .await
             .entry(chain_id)
             .or_insert_with(HashMap::new)
-            .insert(peer_address, None);
+            .insert(PeerAddress { address: peer_address, external: external_endpoint }, None);
     }
 
-    pub async fn insert<ChainId>(&self, chain_id: ChainId, peer_address: PeerAddress)
-    where
+    pub async fn insert<ChainId>(
+        &self,
+        chain_id: ChainId,
+        peer_address: kallax_primitives::PeerAddress,
+        external_endpoint: Option<ExternalEndpoint>,
+    ) where
         ChainId: fmt::Display,
     {
         let chain_id = chain_id.to_string();
-        self.books
-            .lock()
-            .await
-            .entry(chain_id)
-            .or_insert_with(HashMap::new)
-            .insert(peer_address, Some(time::OffsetDateTime::now_utc()));
+        self.books.lock().await.entry(chain_id).or_insert_with(HashMap::new).insert(
+            PeerAddress { address: peer_address, external: external_endpoint },
+            Some(time::OffsetDateTime::now_utc()),
+        );
     }
 
     pub async fn flush(&self) {
@@ -72,12 +114,12 @@ impl PeerAddressBook {
         let mut books = self.books.lock().await;
 
         for (_, book) in &mut books.iter_mut() {
-            book.retain(|peer_address, last_update_time| {
+            book.retain(|PeerAddress { address, .. }, last_update_time| {
                 last_update_time.map_or(true, |last_update_time| {
                     if (now - last_update_time) < self.ttl {
                         true
                     } else {
-                        tracing::info!("`{peer_address}` is stalled, removing it");
+                        tracing::info!("`{address}` is stalled, removing it");
                         false
                     }
                 })

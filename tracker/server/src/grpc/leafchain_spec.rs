@@ -1,35 +1,15 @@
-use std::{collections::HashMap, sync::Arc};
-
 use kallax_primitives::ChainSpec;
 use kallax_tracker_proto as proto;
-use tokio::sync::Mutex;
 use tonic::{Request, Response, Status};
 
-#[derive(Default)]
+use crate::chain_spec_list::ChainSpecList;
+
 pub struct Service {
-    chain_specs: Arc<Mutex<HashMap<String, ChainSpec>>>,
+    chain_spec_list: ChainSpecList,
 }
 
 impl Service {
-    pub fn new<C>(chain_specs: C) -> Self
-    where
-        C: IntoIterator<Item = ChainSpec>,
-    {
-        let chain_specs = Arc::new(Mutex::new(
-            chain_specs
-                .into_iter()
-                .map(|chain_spec| {
-                    let id = chain_spec.id().to_string();
-                    tracing::info!(
-                        "Leafchain spec `{id}` is loaded, file size: {}",
-                        chain_spec.as_ref().len()
-                    );
-                    (id, chain_spec)
-                })
-                .collect(),
-        ));
-        Self { chain_specs }
-    }
+    pub const fn new(chain_spec_list: ChainSpecList) -> Self { Self { chain_spec_list } }
 }
 
 #[tonic::async_trait]
@@ -43,7 +23,7 @@ impl proto::LeafchainSpecService for Service {
         let spec = ChainSpec::try_from(spec.as_ref())
             .map_err(|e| Status::invalid_argument(e.to_string()))?;
 
-        if self.chain_specs.lock().await.insert(chain_id.clone(), spec).is_some() {
+        if self.chain_spec_list.insert(&chain_id, spec).await {
             tracing::warn!("Leafchain spec `{chain_id}` is replaced by a new one");
         } else {
             tracing::info!("Leafchain spec `{chain_id}` is added");
@@ -58,7 +38,7 @@ impl proto::LeafchainSpecService for Service {
     ) -> Result<Response<proto::GetLeafchainSpecResponse>, Status> {
         let chain_id = req.into_inner().chain_id;
 
-        if let Some(spec) = self.chain_specs.lock().await.get(&chain_id) {
+        if let Some(spec) = self.chain_spec_list.get(&chain_id).await {
             Ok(Response::new(proto::GetLeafchainSpecResponse {
                 chain_id,
                 spec: spec.as_ref().to_vec(),

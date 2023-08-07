@@ -19,4 +19,28 @@ pub struct Config {
 
     #[clap(long = "allow-loopback-ip", help = "Allow to make connection with loopback IP address")]
     pub allow_loopback_ip: bool,
+
+    #[clap(
+        long = "external-rootchain-p2p-host",
+        help = "External host name for exposing the P2P network of Rootchain"
+    )]
+    pub external_rootchain_p2p_host: Option<String>,
+
+    #[clap(
+        long = "external-rootchain-p2p-port",
+        help = "External port for exposing the P2P network port of Rootchain"
+    )]
+    pub external_rootchain_p2p_port: Option<u16>,
+
+    #[clap(
+        long = "external-leafchain-p2p-host",
+        help = "External host name for exposing the P2P network of Leafchain"
+    )]
+    pub external_leafchain_p2p_host: Option<String>,
+
+    #[clap(
+        long = "external-leafchain-p2p-port",
+        help = "External port for exposing the P2P network port of Leafchain"
+    )]
+    pub external_leafchain_p2p_port: Option<u16>,
 }

@@ -6,11 +6,17 @@ use crate::consts;
 
 #[derive(Args, Debug)]
 pub struct Config {
-    #[clap(long = "listen-address", default_value = "0.0.0.0", help = "Listen address")]
-    pub listen_address: IpAddr,
+    #[clap(long = "api-listen-address", default_value = "0.0.0.0", help = "API Listen address")]
+    pub api_listen_address: IpAddr,
 
-    #[clap(long = "listen-port", default_value = consts::TRACKER_DEFAULT_PORT.to_string(), help = "Listen port")]
-    pub listen_port: u16,
+    #[clap(long = "api-listen-port", default_value = consts::TRACKER_API_DEFAULT_PORT.to_string(), help = "API Listen port")]
+    pub api_listen_port: u16,
+
+    #[clap(long = "grpc-listen-address", default_value = "0.0.0.0", help = "gRPC Listen address")]
+    pub grpc_listen_address: IpAddr,
+
+    #[clap(long = "grpc-listen-port", default_value = consts::TRACKER_GRPC_DEFAULT_PORT.to_string(), help = "gRPC Listen port")]
+    pub grpc_listen_port: u16,
 
     #[clap(long = "rootchain-spec-files", help = "Rootchain spec files")]
     pub rootchain_spec_files: Vec<PathBuf>,
