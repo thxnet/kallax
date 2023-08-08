@@ -153,7 +153,7 @@ use std::{
 };
 
 use kallax_primitives::BlockchainLayer;
-use kallax_tracker_client::{
+use kallax_tracker_grpc_client::{
     Client as TrackerClient, Config as TrackerClientConfig, LeafchainSpec, RootchainSpec,
 };
 use snafu::ResultExt;

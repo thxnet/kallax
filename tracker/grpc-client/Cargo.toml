@@ -1,6 +1,6 @@
 [package]
-name                 = "kallax-tracker-client"
-description          = "Tracker client"
+name                 = "kallax-tracker-grpc-client"
+description          = "Tracker gRPC client"
 version.workspace    = true
 authors.workspace    = true
 homepage.workspace   = true

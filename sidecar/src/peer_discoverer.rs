@@ -1,7 +1,7 @@
 use std::{collections::HashSet, str::FromStr};
 
 use kallax_primitives::{BlockchainLayer, ExternalEndpoint, PeerAddress};
-use kallax_tracker_client::{Client as TrackerClient, LeafchainPeer, RootchainPeer};
+use kallax_tracker_grpc_client::{Client as TrackerClient, LeafchainPeer, RootchainPeer};
 use snafu::ResultExt;
 use substrate_rpc_client::{
     ws_client as connect_substrate_websocket_endpoint, SystemApi, WsClient,

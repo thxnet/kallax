@@ -14,7 +14,7 @@ pub enum Error {
     SessionKey { source: crate::session_key::Error },
 
     #[snafu(display("{source}"))]
-    Tracker { source: kallax_tracker_client::Error },
+    Tracker { source: kallax_tracker_grpc_client::Error },
 
     #[snafu(display("Error occurs while creating directory `{}`, error: {source}", path.display()))]
     CreateDirectory { path: PathBuf, source: std::io::Error },
@@ -34,6 +34,6 @@ impl From<crate::session_key::Error> for Error {
     fn from(source: crate::session_key::Error) -> Self { Self::SessionKey { source } }
 }
 
-impl From<kallax_tracker_client::Error> for Error {
-    fn from(source: kallax_tracker_client::Error) -> Self { Self::Tracker { source } }
+impl From<kallax_tracker_grpc_client::Error> for Error {
+    fn from(source: kallax_tracker_grpc_client::Error) -> Self { Self::Tracker { source } }
 }

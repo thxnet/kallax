@@ -36,7 +36,7 @@ members = [
   "initializer",
   "primitives",
   "sidecar",
-  "tracker/client",
+  "tracker/grpc-client",
   "tracker/proto",
   "tracker/server",
 ]

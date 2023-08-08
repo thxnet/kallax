@@ -2980,7 +2980,7 @@ dependencies = [
  "futures",
  "http",
  "kallax-primitives",
- "kallax-tracker-client",
+ "kallax-tracker-grpc-client",
  "libp2p 0.52.1",
  "sc-cli",
  "serde_json",
@@ -3009,7 +3009,7 @@ dependencies = [
  "futures",
  "http",
  "kallax-primitives",
- "kallax-tracker-client",
+ "kallax-tracker-grpc-client",
  "sigfinn",
  "snafu",
  "sp-core",
@@ -3019,7 +3019,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "kallax-tracker-client"
+name = "kallax-tracker-grpc-client"
 version = "0.2.0"
 dependencies = [
  "async-trait",

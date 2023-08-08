@@ -150,7 +150,7 @@ use std::time::Duration;
 
 use futures::{future, future::Either, FutureExt, StreamExt};
 use kallax_primitives::{BlockchainLayer, ExternalEndpoint};
-use kallax_tracker_client::{Client as TrackerClient, Config as TrackerClientConfig};
+use kallax_tracker_grpc_client::{Client as TrackerClient, Config as TrackerClientConfig};
 use snafu::ResultExt;
 
 pub use self::error::{Error, Result};
