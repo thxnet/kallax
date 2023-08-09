@@ -1,0 +1,24 @@
+[package]
+name                 = "kallax-tracker-api-client"
+description          = "Tracker API client"
+version.workspace    = true
+authors.workspace    = true
+homepage.workspace   = true
+readme.workspace     = true
+repository.workspace = true
+license.workspace    = true
+edition.workspace    = true
+categories.workspace = true
+keywords.workspace   = true
+
+[dependencies]
+async-trait = "0.1"
+
+reqwest = "0.11"
+
+http = "0.2"
+
+snafu = "0.7"
+
+kallax-primitives    = { path = "../../primitives" }
+kallax-tracker-proto = { path = "../proto" }

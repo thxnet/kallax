@@ -150,6 +150,7 @@
 mod consts;
 mod error;
 mod initializer;
+mod network_broker;
 mod session_key;
 mod sidecar;
 mod tracker;
@@ -203,6 +204,12 @@ pub enum Commands {
         config: sidecar::Config,
     },
 
+    #[command(about = "Run network broker for Substrate-based node which is out of Kubernetes")]
+    NetworkBroker {
+        #[clap(flatten)]
+        config: network_broker::Config,
+    },
+
     #[command(about = "Run tracker for Substrate-based node")]
     Tracker {
         #[clap(flatten)]
@@ -237,6 +244,9 @@ impl Cli {
             }
             Commands::Sidecar { config } => {
                 execute("Sidecar", async { sidecar::run(config).await })
+            }
+            Commands::NetworkBroker { config } => {
+                execute("Network Broker", async { network_broker::run(config).await })
             }
             Commands::Tracker { config } => {
                 execute("Tracker", async { tracker::run(config).await })
