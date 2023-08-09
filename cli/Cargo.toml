@@ -30,7 +30,11 @@ clap_complete = "4"
 exitcode      = "1"
 snafu         = "0.7"
 
+serde      = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+
 kallax-initializer    = { path = "../initializer" }
 kallax-primitives     = { path = "../primitives" }
 kallax-sidecar        = { path = "../sidecar" }
+kallax-network-broker = { path = "../network-broker" }
 kallax-tracker-server = { path = "../tracker/server" }
