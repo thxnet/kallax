@@ -1,5 +1,6 @@
 mod config;
 mod error;
+mod lib;
 
 use std::time::Duration;
 
@@ -7,8 +8,9 @@ use kallax_network_broker::NodeConfig;
 use serde_yaml::{self};
 
 pub use self::{
-    config::{Config, Thxnet},
+    config::Config,
     error::{Error, Result},
+    lib::Thxnet,
 };
 
 const POLLING_INTERVAL: Duration = Duration::from_millis(1000);
