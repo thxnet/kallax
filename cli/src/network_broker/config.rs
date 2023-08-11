@@ -16,12 +16,12 @@ pub struct Config {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ThxnetConfig {
+pub struct Thxnet {
     pub mainnet: Option<Mainnet>,
     pub testnet: Option<Testnet>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Mainnet {
     pub rootchain: Option<Rootchain>,
@@ -29,7 +29,7 @@ pub struct Mainnet {
     pub lmt: Option<Leafchain>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Testnet {
     pub rootchain: Option<Rootchain>,
@@ -39,14 +39,14 @@ pub struct Testnet {
     pub sand: Option<Leafchain>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Rootchain {
     pub validators: Option<Vec<RootchainNode>>,
     pub archives: Option<Vec<RootchainNode>>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Leafchain {
     pub collators: Option<Vec<LeafchainNode>>,
@@ -79,10 +79,47 @@ pub struct LeafchainNode {
     pub external_leafchain_p2p_port: Option<u16>,
 }
 
+impl Thxnet {
+    pub fn nodes_config(&self) -> Vec<NodeConfig> {
+        let mut nodes_config: Vec<NodeConfig> = vec![];
+        let Thxnet { mainnet, testnet } = self;
+        mainnet.clone().map(|net| {
+            let mut config = net.nodes_config();
+            nodes_config.append(&mut config);
+        });
+
+        testnet.clone().map(|net| {
+            let mut config = net.nodes_config();
+            nodes_config.append(&mut config);
+        });
+        nodes_config
+    }
+}
+
 impl Mainnet {
     pub const LMT_ID: &str = "lmt_mainnet";
     pub const ROOTCHAIN_ID: &str = "thxnet_mainnet";
     pub const THX_ID: &str = "thx_mainnet";
+
+    pub fn nodes_config(&self) -> Vec<NodeConfig> {
+        let mut nodes_config: Vec<NodeConfig> = vec![];
+        let Mainnet { rootchain, thx, lmt } = self;
+        rootchain.clone().map(|chain| {
+            let mut config = chain.nodes_config(Mainnet::ROOTCHAIN_ID.to_owned());
+            nodes_config.append(&mut config);
+        });
+        thx.clone().map(|chain| {
+            let config = &mut chain
+                .nodes_config(Mainnet::ROOTCHAIN_ID.to_owned(), Mainnet::THX_ID.to_owned());
+            nodes_config.append(config);
+        });
+        lmt.clone().map(|chain| {
+            let config = &mut chain
+                .nodes_config(Mainnet::ROOTCHAIN_ID.to_owned(), Mainnet::LMT_ID.to_owned());
+            nodes_config.append(config);
+        });
+        nodes_config
+    }
 }
 
 impl Testnet {
@@ -91,6 +128,36 @@ impl Testnet {
     pub const SAND_ID: &str = "lmt_testnet";
     pub const THX_ID: &str = "thx_testnet";
     pub const TXD_ID: &str = "thx_testnet";
+
+    pub fn nodes_config(&self) -> Vec<NodeConfig> {
+        let mut nodes_config: Vec<NodeConfig> = vec![];
+        let Testnet { rootchain, thx, lmt, txd, sand } = self;
+        rootchain.clone().map(|chain| {
+            let mut config = chain.nodes_config(Testnet::ROOTCHAIN_ID.to_owned());
+            nodes_config.append(&mut config);
+        });
+        thx.clone().map(|chain| {
+            let config = &mut chain
+                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::THX_ID.to_owned());
+            nodes_config.append(config);
+        });
+        lmt.clone().map(|chain| {
+            let config = &mut chain
+                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::LMT_ID.to_owned());
+            nodes_config.append(config);
+        });
+        txd.clone().map(|chain| {
+            let config = &mut chain
+                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::TXD_ID.to_owned());
+            nodes_config.append(config);
+        });
+        sand.clone().map(|chain| {
+            let config = &mut chain
+                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::SAND_ID.to_owned());
+            nodes_config.append(config);
+        });
+        nodes_config
+    }
 }
 
 impl Rootchain {
