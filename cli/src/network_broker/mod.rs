@@ -22,7 +22,7 @@ const CONFIG_PATH: &str = "./network-broker.yaml";
 /// This function returns an error if the network-broker is not created.
 pub async fn run(config: Config) -> Result<()> {
     let config = {
-        let Config { tracker_grpc_endpoint, file } = config;
+        let Config { tracker_api_endpoint, file } = config;
 
         tracing::info!("Read config: {file:?}");
 
@@ -34,7 +34,7 @@ pub async fn run(config: Config) -> Result<()> {
         tracing::info!("{nodes_config:?}");
 
         kallax_network_broker::Config {
-            tracker_grpc_endpoint,
+            tracker_api_endpoint,
             polling_interval: POLLING_INTERVAL,
             nodes: nodes_config,
         }

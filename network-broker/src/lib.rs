@@ -158,7 +158,7 @@ use self::peer_discoverer::PeerDiscoverer;
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub tracker_grpc_endpoint: http::Uri,
+    pub tracker_api_endpoint: http::Uri,
 
     pub polling_interval: Duration,
 
@@ -195,12 +195,12 @@ pub struct PeerDiscoverers {
 /// This function returns an error if the server is not connected.
 #[allow(clippy::significant_drop_tightening)]
 pub async fn serve(config: Config) -> Result<()> {
-    let Config { tracker_grpc_endpoint, polling_interval, nodes } = config;
+    let Config { tracker_api_endpoint, polling_interval, nodes } = config;
 
     let tracker_client =
-        TrackerClient::new(TrackerClientConfig { grpc_endpoint: tracker_grpc_endpoint.clone() })
+        TrackerClient::new(TrackerClientConfig { grpc_endpoint: tracker_api_endpoint.clone() })
             .await
-            .with_context(|_| error::ConnectTrackerSnafu { uri: tracker_grpc_endpoint })?;
+            .with_context(|_| error::ConnectTrackerSnafu { uri: tracker_api_endpoint })?;
 
     let lifecycle_manager = sigfinn::LifecycleManager::new();
     let _handle = lifecycle_manager.spawn("Network-Broker", {
