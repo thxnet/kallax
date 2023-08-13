@@ -12,18 +12,27 @@ testnet:
     archives:
       - wsEndpoint: 192.168.0.1:50551
         allowLoopbackIp: true
-        external_p2p_host: test.thxnet.io
-        external_p2p_port: 51551
+        externalP2pEndpoint:
+          host: test.thxnet.io
+          port: 51551
   thx:
     collators:
       - rootchainWsEndpoint: 192.168.0.1:50551
         leafchainWsEndpoint: 192.168.0.1:50551
         allowLoopbackIp: true
-        external_p2p_host: test.thxnet.io
-        external_p2p_port: 51551
+        externalRootchainP2pEndpoint:
+          host: test.thxnet.io
+          port: 51551
+        externalLeafchainP2pEndpoint:
+          host: test.thxnet.io
+          port: 51551
     archives:
       - rootchainWsEndpoint: 192.168.0.1:50551
         leafchainWsEndpoint: 192.168.0.1:50551
         allowLoopbackIp: true
-        external_p2p_host: test.thxnet.io
-        external_p2p_port: 51551
+        externalRootchainP2pEndpoint:
+          host: test.thxnet.io
+          port: 51551
+        externalLeafchainP2pEndpoint:
+          host: test.thxnet.io
+          port: 51551
