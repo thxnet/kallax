@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  testnet-archive1:
+    container_name: testnet-archive1
+    image: ghcr.io/thxnet/rootchain:latest
+    restart: unless-stopped
+    ports:
+      - 50001:50001
+      - 50002:50002
+      - 50003:50003
+    volumes:
+      - $HOME/Project/kallax/example/network-broker:/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command: >
+      --chain="/data/chain-spec.json"
+      --name testnet-archive1
+      --base-path /data/nodes/testnet-archive1
+      --allow-private-ip
+      --discover-local
+      --port 50001
+      --ws-port 50002
+      --rpc-port 50003
+      --rpc-cors all
+      --ws-external
+      --rpc-external
+      --rpc-methods unsafe

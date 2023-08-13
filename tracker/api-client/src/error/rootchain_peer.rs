@@ -4,14 +4,18 @@ use std::fmt;
 pub enum GetRootchainPeerAddressError {
     Primitives { source: kallax_primitives::Error },
 
-    Error { source: reqwest::Error },
+    Reqwest { source: reqwest::Error },
+    UrlParse { source: url::ParseError },
+    UrlCanNotBeBase { source: () },
 }
 
 impl fmt::Display for GetRootchainPeerAddressError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::Primitives { source } => source.fmt(f),
-            Self::Error { source } => source.fmt(f),
+            Self::Reqwest { source } => source.fmt(f),
+            Self::UrlParse { source } => source.fmt(f),
+            Self::UrlCanNotBeBase { source: _ } => "()".fmt(f),
         }
     }
 }
