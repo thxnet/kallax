@@ -26,4 +26,5 @@ sp-core              = { git = "https://github.com/paritytech/substrate", branch
 substrate-rpc-client = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 
 kallax-primitives          = { path = "../primitives" }
+kallax-tracker-api-client  = { path = "../tracker/api-client" }
 kallax-tracker-grpc-client = { path = "../tracker/grpc-client" }

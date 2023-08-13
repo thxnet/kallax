@@ -149,18 +149,12 @@
 
 mod error;
 mod leafchain_peer;
-mod leafchain_spec;
 mod rootchain_peer;
-mod rootchain_spec;
-
-use snafu::ResultExt;
 
 pub use self::{
     error::{Error, Result},
     leafchain_peer::LeafchainPeer,
-    leafchain_spec::LeafchainSpec,
     rootchain_peer::RootchainPeer,
-    rootchain_spec::RootchainSpec,
 };
 
 #[derive(Clone, Debug)]
@@ -178,7 +172,7 @@ impl Client {
     /// # Errors
     ///
     /// This function will an error if the server is not connected.
-    pub async fn new(Config { api_endpoint }: Config) -> Result<Self> {
+    pub fn new(Config { api_endpoint }: Config) -> Result<Self> {
         let client = reqwest::Client::new();
         Ok(Self { client, api_endpoint })
     }

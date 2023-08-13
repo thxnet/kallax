@@ -150,7 +150,7 @@ use std::time::Duration;
 
 use futures::{future, future::Either, FutureExt, StreamExt};
 use kallax_primitives::{BlockchainLayer, ExternalEndpoint};
-use kallax_tracker_grpc_client::{Client as TrackerClient, Config as TrackerClientConfig};
+use kallax_tracker_api_client::{Client as TrackerClient, Config as TrackerClientConfig};
 use snafu::ResultExt;
 
 pub use self::error::{Error, Result};
@@ -198,8 +198,7 @@ pub async fn serve(config: Config) -> Result<()> {
     let Config { tracker_api_endpoint, polling_interval, nodes } = config;
 
     let tracker_client =
-        TrackerClient::new(TrackerClientConfig { grpc_endpoint: tracker_api_endpoint.clone() })
-            .await
+        TrackerClient::new(TrackerClientConfig { api_endpoint: tracker_api_endpoint.clone() })
             .with_context(|_| error::ConnectTrackerSnafu { uri: tracker_api_endpoint })?;
 
     let lifecycle_manager = sigfinn::LifecycleManager::new();

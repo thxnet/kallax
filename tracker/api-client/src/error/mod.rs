@@ -1,21 +1,10 @@
 mod leafchain_peer;
-mod leafchain_spec;
 mod rootchain_peer;
-mod rootchain_spec;
 
 use snafu::{Backtrace, Snafu};
 
 pub use self::{
-    leafchain_peer::{
-        ClearLeafchainPeerAddressError, GetLeafchainPeerAddressError,
-        InsertLeafchainPeerAddressError,
-    },
-    leafchain_spec::GetLeafchainSpecError,
-    rootchain_peer::{
-        ClearRootchainPeerAddressError, GetRootchainPeerAddressError,
-        InsertRootchainPeerAddressError,
-    },
-    rootchain_spec::GetRootchainSpecError,
+    leafchain_peer::GetLeafchainPeerAddressError, rootchain_peer::GetRootchainPeerAddressError,
 };
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -26,9 +15,5 @@ pub enum Error {
     #[snafu(display(
         "Error occurs while connecting to tracker endpoint `{endpoint}`, error: {source}"
     ))]
-    ConnectToTrackerGrpc {
-        endpoint: http::Uri,
-        source: tonic::transport::Error,
-        backtrace: Backtrace,
-    },
+    ConnectToTrackerApi { endpoint: http::Uri, source: reqwest::Error, backtrace: Backtrace },
 }
