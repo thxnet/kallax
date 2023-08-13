@@ -3063,6 +3063,7 @@ dependencies = [
  "futures",
  "http",
  "kallax-primitives",
+ "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
  "sigfinn",
  "snafu",
@@ -3090,6 +3091,7 @@ dependencies = [
  "futures",
  "http",
  "kallax-primitives",
+ "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
  "sigfinn",
  "snafu",
@@ -3108,6 +3110,8 @@ dependencies = [
  "kallax-primitives",
  "kallax-tracker-proto",
  "reqwest",
+ "serde",
+ "serde_json",
  "snafu",
 ]
 

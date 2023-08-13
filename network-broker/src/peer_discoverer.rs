@@ -1,7 +1,7 @@
 use std::{collections::HashSet, str::FromStr};
 
 use kallax_primitives::{BlockchainLayer, ExternalEndpoint, PeerAddress};
-use kallax_tracker_grpc_client::{Client as TrackerClient, LeafchainPeer, RootchainPeer};
+use kallax_tracker_api_client::{Client as TrackerClient, LeafchainPeer, RootchainPeer};
 use snafu::ResultExt;
 use substrate_rpc_client::{
     ws_client as connect_substrate_websocket_endpoint, SystemApi, WsClient,
@@ -29,7 +29,8 @@ pub struct PeerDiscoverer {
 
     allow_loopback_ip: bool,
 
-    external_endpoint: Option<ExternalEndpoint>,
+    // TODO: remove if not necessary on Network-broker
+    pub external_endpoint: Option<ExternalEndpoint>,
 }
 
 impl PeerDiscoverer {
@@ -199,42 +200,6 @@ impl PeerDiscoverer {
                      {err}"
                 );
             }
-        }
-
-        // advertise local address via tracker
-        tracing::info!("Advertise local address via tracker");
-        let res = {
-            let blockchain_layer = self.blockchain_layer;
-            match blockchain_layer {
-                BlockchainLayer::Rootchain => {
-                    futures::future::try_join_all(listen_addresses.iter().map(|local_address| {
-                        RootchainPeer::insert(
-                            &self.tracker_client,
-                            &self.chain_id,
-                            local_address,
-                            &self.external_endpoint,
-                        )
-                    }))
-                    .await
-                    .map_err(|e| e.to_string())
-                }
-                BlockchainLayer::Leafchain => {
-                    futures::future::try_join_all(listen_addresses.iter().map(|local_address| {
-                        LeafchainPeer::insert(
-                            &self.tracker_client,
-                            &self.chain_id,
-                            local_address,
-                            &self.external_endpoint,
-                        )
-                    }))
-                    .await
-                    .map_err(|e| e.to_string())
-                }
-            }
-        };
-
-        if let Err(err) = res {
-            tracing::error!("Error occurs while advertising peers to Tracker, error: {err}");
         }
 
         self.substrate_client = Some(substrate_client);

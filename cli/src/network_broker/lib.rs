@@ -73,16 +73,18 @@ pub struct P2pEndpoint {
 impl Thxnet {
     pub fn nodes_config(&self) -> Vec<NodeConfig> {
         let mut nodes_config: Vec<NodeConfig> = vec![];
-        let Thxnet { mainnet, testnet } = self;
-        mainnet.clone().map(|net| {
-            let mut config = net.nodes_config();
-            nodes_config.append(&mut config);
-        });
+        let Self { mainnet, testnet } = self;
 
-        testnet.clone().map(|net| {
+        if let Some(net) = mainnet.clone() {
             let mut config = net.nodes_config();
             nodes_config.append(&mut config);
-        });
+        }
+
+        if let Some(net) = testnet.clone() {
+            let mut config = net.nodes_config();
+            nodes_config.append(&mut config);
+        }
+
         nodes_config
     }
 }
@@ -94,21 +96,23 @@ impl Mainnet {
 
     pub fn nodes_config(&self) -> Vec<NodeConfig> {
         let mut nodes_config: Vec<NodeConfig> = vec![];
-        let Mainnet { rootchain, thx, lmt } = self;
-        rootchain.clone().map(|chain| {
-            let mut config = chain.nodes_config(Mainnet::ROOTCHAIN_ID.to_owned());
+        let Self { rootchain, thx, lmt } = self;
+
+        if let Some(chain) = rootchain.clone() {
+            let mut config = chain.nodes_config(Self::ROOTCHAIN_ID);
             nodes_config.append(&mut config);
-        });
-        thx.clone().map(|chain| {
-            let config = &mut chain
-                .nodes_config(Mainnet::ROOTCHAIN_ID.to_owned(), Mainnet::THX_ID.to_owned());
+        }
+
+        if let Some(chain) = thx.clone() {
+            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::THX_ID);
             nodes_config.append(config);
-        });
-        lmt.clone().map(|chain| {
-            let config = &mut chain
-                .nodes_config(Mainnet::ROOTCHAIN_ID.to_owned(), Mainnet::LMT_ID.to_owned());
+        }
+
+        if let Some(chain) = lmt.clone() {
+            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::LMT_ID);
             nodes_config.append(config);
-        });
+        }
+
         nodes_config
     }
 }
@@ -122,44 +126,45 @@ impl Testnet {
 
     pub fn nodes_config(&self) -> Vec<NodeConfig> {
         let mut nodes_config: Vec<NodeConfig> = vec![];
-        let Testnet { rootchain, thx, lmt, txd, sand } = self;
-        rootchain.clone().map(|chain| {
-            let mut config = chain.nodes_config(Testnet::ROOTCHAIN_ID.to_owned());
+        let Self { rootchain, thx, lmt, txd, sand } = self;
+
+        if let Some(chain) = rootchain.clone() {
+            let mut config = chain.nodes_config(Self::ROOTCHAIN_ID);
             nodes_config.append(&mut config);
-        });
-        thx.clone().map(|chain| {
-            let config = &mut chain
-                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::THX_ID.to_owned());
+        }
+
+        if let Some(chain) = thx.clone() {
+            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::THX_ID);
             nodes_config.append(config);
-        });
-        lmt.clone().map(|chain| {
-            let config = &mut chain
-                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::LMT_ID.to_owned());
+        }
+
+        if let Some(chain) = lmt.clone() {
+            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::LMT_ID);
             nodes_config.append(config);
-        });
-        txd.clone().map(|chain| {
-            let config = &mut chain
-                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::TXD_ID.to_owned());
+        }
+
+        if let Some(chain) = txd.clone() {
+            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::TXD_ID);
             nodes_config.append(config);
-        });
-        sand.clone().map(|chain| {
-            let config = &mut chain
-                .nodes_config(Testnet::ROOTCHAIN_ID.to_owned(), Testnet::SAND_ID.to_owned());
+        }
+
+        if let Some(chain) = sand.clone() {
+            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::SAND_ID);
             nodes_config.append(config);
-        });
+        }
         nodes_config
     }
 }
 
 impl Rootchain {
-    pub fn nodes_config(&self, rootchain_id: String) -> Vec<NodeConfig> {
+    pub fn nodes_config(&self, rootchain_id: &str) -> Vec<NodeConfig> {
         if self.validators.is_none() && self.archives.is_none() {
             return vec![];
         }
 
         let mut rootchain_nodes: Vec<RootchainNode> = vec![];
 
-        let Rootchain { validators, archives } = self;
+        let Self { validators, archives } = self;
 
         if validators.is_some() {
             let nodes = validators.clone();
@@ -174,15 +179,15 @@ impl Rootchain {
         rootchain_nodes
             .into_iter()
             .map(|RootchainNode { ws_endpoint, mut allow_loopback_ip, external_p2p_endpoint }| {
-                let external_rootchain_p2p_endpoint = if external_p2p_endpoint.is_some() {
-                    let P2pEndpoint { host, port } = external_p2p_endpoint.unwrap();
-                    Some(ExternalEndpoint { host, port })
-                } else {
-                    None
-                };
+                let external_rootchain_p2p_endpoint =
+                    if let Some(P2pEndpoint { host, port }) = external_p2p_endpoint {
+                        Some(ExternalEndpoint { host, port })
+                    } else {
+                        None
+                    };
                 NodeConfig {
                     rootchain_endpoint: ChainEndpoint {
-                        chain_id: rootchain_id.to_owned(),
+                        chain_id: rootchain_id.to_string(),
                         websocket_endpoint: ws_endpoint.parse::<http::Uri>().unwrap(),
                     },
                     leafchain_endpoint: None,
@@ -196,14 +201,14 @@ impl Rootchain {
 }
 
 impl Leafchain {
-    pub fn nodes_config(&self, rootchain_id: String, leafchain_id: String) -> Vec<NodeConfig> {
+    pub fn nodes_config(&self, rootchain_id: &str, leafchain_id: &str) -> Vec<NodeConfig> {
         if self.collators.is_none() && self.archives.is_none() {
             return vec![];
         }
 
         let mut leafchain_nodes: Vec<LeafchainNode> = vec![];
 
-        let Leafchain { collators, archives } = self;
+        let Self { collators, archives } = self;
 
         if collators.is_some() {
             let nodes: Option<Vec<LeafchainNode>> = collators.clone();
@@ -225,31 +230,27 @@ impl Leafchain {
                      external_rootchain_p2p_endpoint,
                      external_leafchain_p2p_endpoint,
                  }| {
-                    let external_rootchain_p2p_endpoint = if external_rootchain_p2p_endpoint
-                        .is_some()
-                    {
-                        let P2pEndpoint { host, port } = external_rootchain_p2p_endpoint.unwrap();
-                        Some(ExternalEndpoint { host, port })
-                    } else {
-                        None
-                    };
+                    let external_rootchain_p2p_endpoint =
+                        if let Some(P2pEndpoint { host, port }) = external_rootchain_p2p_endpoint {
+                            Some(ExternalEndpoint { host, port })
+                        } else {
+                            None
+                        };
 
-                    let external_leafchain_p2p_endpoint = if external_leafchain_p2p_endpoint
-                        .is_some()
-                    {
-                        let P2pEndpoint { host, port } = external_leafchain_p2p_endpoint.unwrap();
-                        Some(ExternalEndpoint { host, port })
-                    } else {
-                        None
-                    };
+                    let external_leafchain_p2p_endpoint =
+                        if let Some(P2pEndpoint { host, port }) = external_leafchain_p2p_endpoint {
+                            Some(ExternalEndpoint { host, port })
+                        } else {
+                            None
+                        };
 
                     NodeConfig {
                         rootchain_endpoint: ChainEndpoint {
-                            chain_id: rootchain_id.to_owned(),
+                            chain_id: rootchain_id.to_string(),
                             websocket_endpoint: rootchain_ws_endpoint.parse::<http::Uri>().unwrap(),
                         },
                         leafchain_endpoint: Some(ChainEndpoint {
-                            chain_id: leafchain_id.to_owned(),
+                            chain_id: leafchain_id.to_string(),
                             websocket_endpoint: leafchain_ws_endpoint.parse::<http::Uri>().unwrap(),
                         }),
                         allow_loopback_ip: allow_loopback_ip.get_or_insert(false).to_owned(),
