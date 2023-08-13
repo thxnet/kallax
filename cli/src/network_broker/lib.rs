@@ -48,8 +48,7 @@ pub struct RootchainNode {
 
     pub allow_loopback_ip: Option<bool>,
 
-    pub external_p2p_host: Option<String>,
-    pub external_p2p_port: Option<u16>,
+    pub external_p2p_endpoint: Option<P2pEndpoint>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -60,11 +59,15 @@ pub struct LeafchainNode {
 
     pub allow_loopback_ip: Option<bool>,
 
-    pub external_rootchain_p2p_host: Option<String>,
-    pub external_rootchain_p2p_port: Option<u16>,
+    pub external_rootchain_p2p_endpoint: Option<P2pEndpoint>,
+    pub external_leafchain_p2p_endpoint: Option<P2pEndpoint>,
+}
 
-    pub external_leafchain_p2p_host: Option<String>,
-    pub external_leafchain_p2p_port: Option<u16>,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct P2pEndpoint {
+    pub host: String,
+    pub port: u16,
 }
 
 impl Thxnet {
@@ -170,34 +173,24 @@ impl Rootchain {
 
         rootchain_nodes
             .into_iter()
-            .map(
-                |RootchainNode {
-                     ws_endpoint,
-                     mut allow_loopback_ip,
-                     external_p2p_host,
-                     external_p2p_port,
-                 }| {
-                    let external_rootchain_p2p_endpoint =
-                        if external_p2p_host.is_some() && external_p2p_port.is_some() {
-                            Some(ExternalEndpoint {
-                                host: external_p2p_host.unwrap(),
-                                port: external_p2p_port.unwrap(),
-                            })
-                        } else {
-                            None
-                        };
-                    NodeConfig {
-                        rootchain_endpoint: ChainEndpoint {
-                            chain_id: rootchain_id.to_owned(),
-                            websocket_endpoint: ws_endpoint.parse::<http::Uri>().unwrap(),
-                        },
-                        leafchain_endpoint: None,
-                        allow_loopback_ip: allow_loopback_ip.get_or_insert(false).to_owned(),
-                        external_rootchain_p2p_endpoint,
-                        external_leafchain_p2p_endpoint: None,
-                    }
-                },
-            )
+            .map(|RootchainNode { ws_endpoint, mut allow_loopback_ip, external_p2p_endpoint }| {
+                let external_rootchain_p2p_endpoint = if external_p2p_endpoint.is_some() {
+                    let P2pEndpoint { host, port } = external_p2p_endpoint.unwrap();
+                    Some(ExternalEndpoint { host, port })
+                } else {
+                    None
+                };
+                NodeConfig {
+                    rootchain_endpoint: ChainEndpoint {
+                        chain_id: rootchain_id.to_owned(),
+                        websocket_endpoint: ws_endpoint.parse::<http::Uri>().unwrap(),
+                    },
+                    leafchain_endpoint: None,
+                    allow_loopback_ip: allow_loopback_ip.get_or_insert(false).to_owned(),
+                    external_rootchain_p2p_endpoint,
+                    external_leafchain_p2p_endpoint: None,
+                }
+            })
             .collect()
     }
 }
@@ -229,29 +222,23 @@ impl Leafchain {
                      rootchain_ws_endpoint,
                      leafchain_ws_endpoint,
                      mut allow_loopback_ip,
-                     external_rootchain_p2p_host,
-                     external_rootchain_p2p_port,
-                     external_leafchain_p2p_host,
-                     external_leafchain_p2p_port,
+                     external_rootchain_p2p_endpoint,
+                     external_leafchain_p2p_endpoint,
                  }| {
-                    let external_rootchain_p2p_endpoint = if external_rootchain_p2p_host.is_some()
-                        && external_rootchain_p2p_port.is_some()
+                    let external_rootchain_p2p_endpoint = if external_rootchain_p2p_endpoint
+                        .is_some()
                     {
-                        Some(ExternalEndpoint {
-                            host: external_rootchain_p2p_host.unwrap(),
-                            port: external_rootchain_p2p_port.unwrap(),
-                        })
+                        let P2pEndpoint { host, port } = external_rootchain_p2p_endpoint.unwrap();
+                        Some(ExternalEndpoint { host, port })
                     } else {
                         None
                     };
 
-                    let external_leafchain_p2p_endpoint = if external_leafchain_p2p_host.is_some()
-                        && external_leafchain_p2p_port.is_some()
+                    let external_leafchain_p2p_endpoint = if external_leafchain_p2p_endpoint
+                        .is_some()
                     {
-                        Some(ExternalEndpoint {
-                            host: external_leafchain_p2p_host.unwrap(),
-                            port: external_leafchain_p2p_port.unwrap(),
-                        })
+                        let P2pEndpoint { host, port } = external_leafchain_p2p_endpoint.unwrap();
+                        Some(ExternalEndpoint { host, port })
                     } else {
                         None
                     };
