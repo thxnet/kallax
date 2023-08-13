@@ -120,9 +120,9 @@ impl Mainnet {
 impl Testnet {
     pub const LMT_ID: &str = "lmt_testnet";
     pub const ROOTCHAIN_ID: &str = "thxnet_testnet";
-    pub const SAND_ID: &str = "lmt_testnet";
+    pub const SAND_ID: &str = "sand_testnet";
     pub const THX_ID: &str = "thx_testnet";
-    pub const TXD_ID: &str = "thx_testnet";
+    pub const TXD_ID: &str = "txd_testnet";
 
     pub fn nodes_config(&self) -> Vec<NodeConfig> {
         let mut nodes_config: Vec<NodeConfig> = vec![];
