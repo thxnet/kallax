@@ -5,11 +5,12 @@ use std::{
 };
 
 use sc_network::multiaddr::Protocol;
+use serde::{Deserialize, Serialize};
 use snafu::ResultExt;
 
 use crate::{error, error::Error, ExternalEndpoint};
 
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct PeerAddress(pub sc_network::Multiaddr);
 
 impl PeerAddress {
