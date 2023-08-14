@@ -155,6 +155,11 @@ mod rootchain_spec;
 
 use snafu::ResultExt;
 
+#[allow(dead_code)]
+pub struct AAA {
+    aaa: reqwest::Client,
+}
+
 pub use self::{
     error::{Error, Result},
     leafchain_peer::LeafchainPeer,
