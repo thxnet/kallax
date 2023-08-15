@@ -28,8 +28,7 @@ name = "kallax"
 path = "src/main.rs"
 
 [dependencies]
-kallax-cli  = { path = "cli" }
-openssl-sys = "0.9.91"
+kallax-cli = { path = "cli" }
 
 [workspace]
 members = [
