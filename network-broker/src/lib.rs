@@ -171,8 +171,6 @@ pub struct NodeConfig {
 
     pub leafchain_endpoint: Option<ChainEndpoint>,
 
-    pub allow_loopback_ip: bool,
-
     pub external_rootchain_p2p_endpoint: Option<ExternalEndpoint>,
 
     pub external_leafchain_p2p_endpoint: Option<ExternalEndpoint>,
@@ -210,7 +208,6 @@ pub async fn serve(config: Config) -> Result<()> {
                     |NodeConfig {
                          rootchain_endpoint,
                          leafchain_endpoint,
-                         allow_loopback_ip,
                          external_rootchain_p2p_endpoint,
                          external_leafchain_p2p_endpoint,
                      }| {
@@ -222,7 +219,6 @@ pub async fn serve(config: Config) -> Result<()> {
                                 BlockchainLayer::Rootchain,
                                 websocket_endpoint,
                                 tracker_client.clone(),
-                                allow_loopback_ip,
                                 external_rootchain_p2p_endpoint,
                             )
                         };
@@ -234,7 +230,6 @@ pub async fn serve(config: Config) -> Result<()> {
                                     BlockchainLayer::Leafchain,
                                     websocket_endpoint,
                                     tracker_client.clone(),
-                                    allow_loopback_ip,
                                     external_leafchain_p2p_endpoint,
                                 )
                             },

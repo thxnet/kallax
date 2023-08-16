@@ -27,9 +27,6 @@ pub struct PeerDiscoverer {
 
     substrate_client: Option<WsClient>,
 
-    allow_loopback_ip: bool,
-
-    // TODO: remove if not necessary on Network-broker
     pub external_endpoint: Option<ExternalEndpoint>,
 }
 
@@ -41,7 +38,6 @@ impl PeerDiscoverer {
         blockchain_layer: BlockchainLayer,
         substrate_websocket_endpoint: http::Uri,
         tracker_client: TrackerClient,
-        allow_loopback_ip: bool,
         external_endpoint: Option<ExternalEndpoint>,
     ) -> Self {
         Self {
@@ -49,7 +45,6 @@ impl PeerDiscoverer {
             blockchain_layer,
             substrate_websocket_endpoint,
             tracker_client,
-            allow_loopback_ip,
             substrate_client: None,
             external_endpoint,
         }
@@ -131,7 +126,7 @@ impl PeerDiscoverer {
         };
 
         // filter out new peer addresses
-        let new_peers = {
+        let new_peers: HashSet<PeerAddress> = {
             // remove local node addresses
             potential_new_peers.retain(|addr| !listen_addresses.contains(addr));
 
@@ -151,14 +146,10 @@ impl PeerDiscoverer {
 
             potential_new_peers.retain(|addr| !to_remove.contains(addr));
 
-            if self.allow_loopback_ip {
-                potential_new_peers
-            } else {
-                potential_new_peers
-                    .into_iter()
-                    .filter_map(|addr| if addr.is_loopback() { None } else { Some(addr) })
-                    .collect()
-            }
+            potential_new_peers
+                .into_iter()
+                .filter_map(|addr| if addr.is_loopback() { None } else { Some(addr) })
+                .collect()
         };
 
         // add new peer addresses into local node

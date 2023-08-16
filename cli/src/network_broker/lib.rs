@@ -46,8 +46,6 @@ pub struct Leafchain {
 pub struct RootchainNode {
     pub ws_endpoint: String,
 
-    pub allow_loopback_ip: Option<bool>,
-
     pub external_p2p_endpoint: Option<P2pEndpoint>,
 }
 
@@ -56,8 +54,6 @@ pub struct RootchainNode {
 pub struct LeafchainNode {
     pub rootchain_ws_endpoint: String,
     pub leafchain_ws_endpoint: String,
-
-    pub allow_loopback_ip: Option<bool>,
 
     pub external_rootchain_p2p_endpoint: Option<P2pEndpoint>,
     pub external_leafchain_p2p_endpoint: Option<P2pEndpoint>,
@@ -178,7 +174,7 @@ impl Rootchain {
 
         rootchain_nodes
             .into_iter()
-            .map(|RootchainNode { ws_endpoint, mut allow_loopback_ip, external_p2p_endpoint }| {
+            .map(|RootchainNode { ws_endpoint, external_p2p_endpoint }| {
                 let external_rootchain_p2p_endpoint =
                     if let Some(P2pEndpoint { host, port }) = external_p2p_endpoint {
                         Some(ExternalEndpoint { host, port })
@@ -191,7 +187,6 @@ impl Rootchain {
                         websocket_endpoint: ws_endpoint.parse::<http::Uri>().unwrap(),
                     },
                     leafchain_endpoint: None,
-                    allow_loopback_ip: allow_loopback_ip.get_or_insert(false).to_owned(),
                     external_rootchain_p2p_endpoint,
                     external_leafchain_p2p_endpoint: None,
                 }
@@ -226,7 +221,6 @@ impl Leafchain {
                 |LeafchainNode {
                      rootchain_ws_endpoint,
                      leafchain_ws_endpoint,
-                     mut allow_loopback_ip,
                      external_rootchain_p2p_endpoint,
                      external_leafchain_p2p_endpoint,
                  }| {
@@ -253,7 +247,6 @@ impl Leafchain {
                             chain_id: leafchain_id.to_string(),
                             websocket_endpoint: leafchain_ws_endpoint.parse::<http::Uri>().unwrap(),
                         }),
-                        allow_loopback_ip: allow_loopback_ip.get_or_insert(false).to_owned(),
                         external_rootchain_p2p_endpoint,
                         external_leafchain_p2p_endpoint,
                     }
