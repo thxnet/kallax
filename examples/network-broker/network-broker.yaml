@@ -1,0 +1,5 @@
+testnet:
+  rootchain:
+    archives:
+      - wsEndpoint: ws://localhost:50002
+        allowLoopbackIp: true
