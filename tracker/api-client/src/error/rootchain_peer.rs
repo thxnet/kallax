@@ -1,23 +1,21 @@
-use std::fmt;
+use snafu::prelude::*;
 
-#[derive(Debug)]
+#[derive(Debug, Snafu)]
 pub enum GetRootchainPeerAddressError {
-    Primitives { source: kallax_primitives::Error },
+    Primitives {
+        source: kallax_primitives::Error,
+    },
 
-    Reqwest { source: reqwest::Error },
-    UrlParse { source: url::ParseError },
-    UrlCanNotBeBase { source: () },
-}
-
-impl fmt::Display for GetRootchainPeerAddressError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Primitives { source } => source.fmt(f),
-            Self::Reqwest { source } => source.fmt(f),
-            Self::UrlParse { source } => source.fmt(f),
-            Self::UrlCanNotBeBase { source: _ } => "()".fmt(f),
-        }
-    }
+    #[snafu(display("{source}"))]
+    Reqwest {
+        source: reqwest::Error,
+    },
+    #[snafu(display("{source}"))]
+    UrlParse {
+        source: url::ParseError,
+    },
+    #[snafu(display("UrlCanNotBeBase"))]
+    UrlCanNotBeBase,
 }
 
 impl From<kallax_primitives::Error> for GetRootchainPeerAddressError {

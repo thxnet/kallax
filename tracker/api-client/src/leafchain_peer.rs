@@ -31,7 +31,7 @@ impl LeafchainPeer for Client {
             .map_err(|source| GetLeafchainPeerAddressError::UrlParse { source })?;
 
         url.path_segments_mut()
-            .map_err(|source| GetLeafchainPeerAddressError::UrlCanNotBeBase { source })?
+            .map_err(|_| GetLeafchainPeerAddressError::UrlCanNotBeBase)?
             .pop_if_empty()
             .push("leafchain")
             .push(chain_id.to_string().as_str())

@@ -31,7 +31,7 @@ impl RootchainPeer for Client {
             .map_err(|source| GetRootchainPeerAddressError::UrlParse { source })?;
 
         url.path_segments_mut()
-            .map_err(|source| GetRootchainPeerAddressError::UrlCanNotBeBase { source })?
+            .map_err(|_| GetRootchainPeerAddressError::UrlCanNotBeBase)?
             .pop_if_empty()
             .push("rootchain")
             .push(chain_id.to_string().as_str())
