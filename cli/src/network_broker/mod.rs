@@ -26,8 +26,9 @@ pub async fn run(config: Config) -> Result<()> {
 
         tracing::info!("Read config: {file:?}");
 
-        let config_file = std::fs::File::open(&file).expect("Could not open file.");
-        let thxnet: Thxnet = serde_yaml::from_reader(config_file).expect("Could not read values.");
+        let config_file = std::fs::File::open(&file).map_err(|source| Error::Io { source })?;
+        let thxnet: Thxnet =
+            serde_yaml::from_reader(config_file).map_err(|source| Error::SerdeYaml { source })?;
 
         let nodes_config: Vec<NodeConfig> = thxnet.nodes_config();
 

@@ -16,11 +16,11 @@ pub enum Error {
     #[snafu(display("Error occurs while creating UNIX signal listener, error: {source}"))]
     CreateUnixSignalListener { source: std::io::Error },
 
-    #[snafu(display("Leafchain name must be provided"))]
-    LeafchainNameNotProvided,
+    #[snafu(display("Could not open file, error: {source}"))]
+    Io { source: std::io::Error },
 
-    #[snafu(display("Leafchain node WebSocket endpoint must be provided"))]
-    LeafchainNodeWebSocketEndpointNotProvided,
+    #[snafu(display("Could not read yaml, error: {source}"))]
+    SerdeYaml { source: serde_yaml::Error },
 }
 
 impl From<kallax_network_broker::Error> for Error {
@@ -33,9 +33,7 @@ impl CommandError for Error {
         match self {
             Self::Application { .. } => exitcode::SOFTWARE,
             Self::JoinTaskHandle { .. } | Self::CreateUnixSignalListener { .. } => exitcode::IOERR,
-            Self::LeafchainNameNotProvided | Self::LeafchainNodeWebSocketEndpointNotProvided => {
-                exitcode::USAGE
-            }
+            Self::Io { .. } | Self::SerdeYaml { .. } => exitcode::IOERR,
         }
     }
 }
