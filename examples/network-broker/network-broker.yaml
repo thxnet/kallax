@@ -1,5 +1,21 @@
 testnet:
   rootchain:
     archives:
-      - wsEndpoint: ws://localhost:50002
-        allowLoopbackIp: true
+      - wsEndpoint: ws://139.162.98.42:50012
+        externalP2pEndpoint:
+          host: 139.162.98.42
+          port: 50012
+      - wsEndpoint: ws://139.162.98.42:50022
+        externalP2pEndpoint:
+          host: 139.162.98.42
+          port: 50022
+  thx:
+    archives:
+      - rootchainWsEndpoint: ws://139.162.98.42:60012
+        leafchainWsEndpoint: ws://139.162.98.42:60112
+        externalRootchainP2pEndpoint:
+          host: 139.162.98.42
+          port: 60012
+        externalLeafchainP2pEndpoint:
+          host: 139.162.98.42
+          port: 60112
