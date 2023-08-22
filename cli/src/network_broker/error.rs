@@ -32,8 +32,10 @@ impl CommandError for Error {
     fn exit_code(&self) -> exitcode::ExitCode {
         match self {
             Self::Application { .. } => exitcode::SOFTWARE,
-            Self::JoinTaskHandle { .. } | Self::CreateUnixSignalListener { .. } => exitcode::IOERR,
-            Self::Io { .. } | Self::SerdeYaml { .. } => exitcode::IOERR,
+            Self::JoinTaskHandle { .. }
+            | Self::CreateUnixSignalListener { .. }
+            | Self::Io { .. }
+            | Self::SerdeYaml { .. } => exitcode::IOERR,
         }
     }
 }

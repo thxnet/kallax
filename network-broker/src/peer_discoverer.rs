@@ -193,6 +193,44 @@ impl PeerDiscoverer {
             }
         }
 
+        // advertise local address via tracker
+        if self.external_endpoint.is_some() {
+            tracing::info!("Advertise local address via tracker");
+            let res = {
+                let blockchain_layer = self.blockchain_layer;
+                match blockchain_layer {
+                    BlockchainLayer::Rootchain => futures::future::try_join_all(
+                        listen_addresses.iter().map(|local_address| {
+                            RootchainPeer::insert(
+                                &self.tracker_client,
+                                &self.chain_id,
+                                local_address,
+                                &self.external_endpoint,
+                            )
+                        }),
+                    )
+                    .await
+                    .map_err(|e| e.to_string()),
+                    BlockchainLayer::Leafchain => futures::future::try_join_all(
+                        listen_addresses.iter().map(|local_address| {
+                            LeafchainPeer::insert(
+                                &self.tracker_client,
+                                &self.chain_id,
+                                local_address,
+                                &self.external_endpoint,
+                            )
+                        }),
+                    )
+                    .await
+                    .map_err(|e| e.to_string()),
+                }
+            };
+
+            if let Err(err) = res {
+                tracing::error!("Error occurs while advertising peers to Tracker, error: {err}");
+            }
+        }
+
         self.substrate_client = Some(substrate_client);
 
         Ok(())

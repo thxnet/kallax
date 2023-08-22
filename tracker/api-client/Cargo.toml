@@ -31,5 +31,6 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 url = "2.4"
 
-kallax-primitives    = { path = "../../primitives" }
-kallax-tracker-proto = { path = "../proto" }
+kallax-primitives     = { path = "../../primitives" }
+kallax-tracker-proto  = { path = "../proto" }
+kallax-tracker-server = { path = "../server" }

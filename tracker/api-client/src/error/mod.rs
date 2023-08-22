@@ -4,7 +4,8 @@ mod rootchain_peer;
 use snafu::{Backtrace, Snafu};
 
 pub use self::{
-    leafchain_peer::GetLeafchainPeerAddressError, rootchain_peer::GetRootchainPeerAddressError,
+    leafchain_peer::{GetLeafchainPeerAddressError, InsertLeafchainPeerAddressError},
+    rootchain_peer::{GetRootchainPeerAddressError, InsertRootchainPeerAddressError},
 };
 
 pub type Result<T> = std::result::Result<T, Error>;

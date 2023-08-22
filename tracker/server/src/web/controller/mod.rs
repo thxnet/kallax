@@ -1,5 +1,5 @@
-mod leafchain;
-mod rootchain;
+pub mod leafchain;
+pub mod rootchain;
 
 use axum::Router;
 
