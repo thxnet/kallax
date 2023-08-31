@@ -5,7 +5,7 @@ use clap::Args;
 use crate::consts;
 
 #[derive(Args, Debug)]
-pub struct Config {
+pub struct Options {
     #[clap(long = "api-listen-address", default_value = "0.0.0.0", help = "API Listen address")]
     pub api_listen_address: IpAddr,
 
