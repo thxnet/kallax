@@ -188,25 +188,25 @@ pub enum Commands {
     #[command(about = "Generate session keys")]
     SessionKey {
         #[clap(flatten)]
-        config: session_key::Config,
+        options: session_key::Options,
     },
 
     #[command(about = "Run initializer for starting Substrate-based node")]
     Initializer {
         #[clap(flatten)]
-        config: initializer::Config,
+        options: initializer::Options,
     },
 
     #[command(about = "Run Kubernetes sidecar for Substrate-based node")]
     Sidecar {
         #[clap(flatten)]
-        config: sidecar::Config,
+        options: sidecar::Options,
     },
 
     #[command(about = "Run tracker for Substrate-based node")]
     Tracker {
         #[clap(flatten)]
-        config: tracker::Config,
+        options: tracker::Options,
     },
 }
 
@@ -229,17 +229,17 @@ impl Cli {
                 clap_complete::generate(shell, &mut app, bin_name, &mut std::io::stdout());
                 Ok(())
             }
-            Commands::SessionKey { config } => {
-                execute("Session key", async { session_key::run(config).await })
+            Commands::SessionKey { options } => {
+                execute("Session key", async { session_key::run(options).await })
             }
-            Commands::Initializer { config } => {
-                execute("Initializer", async { initializer::run(config).await })
+            Commands::Initializer { options } => {
+                execute("Initializer", async { initializer::run(options).await })
             }
-            Commands::Sidecar { config } => {
-                execute("Sidecar", async { sidecar::run(config).await })
+            Commands::Sidecar { options } => {
+                execute("Sidecar", async { sidecar::run(options).await })
             }
-            Commands::Tracker { config } => {
-                execute("Tracker", async { tracker::run(config).await })
+            Commands::Tracker { options } => {
+                execute("Tracker", async { tracker::run(options).await })
             }
         }
     }
@@ -304,7 +304,7 @@ mod tests {
         ])
         .commands
         {
-            Commands::Sidecar { config: _ } => (),
+            Commands::Sidecar { options: _ } => (),
             _ => panic!(),
         }
     }

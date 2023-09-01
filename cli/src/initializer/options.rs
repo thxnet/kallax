@@ -5,7 +5,7 @@ use clap::Args;
 use crate::consts;
 
 #[derive(Args, Debug)]
-pub struct Config {
+pub struct Options {
     #[clap(long = "node-key-file-path", help = "Node key file path")]
     pub node_key_file_path: PathBuf,
 
