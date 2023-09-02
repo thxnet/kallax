@@ -17,7 +17,7 @@ tracing = "0.1"
 tokio   = { version = "1", features = ["rt-multi-thread", "sync"] }
 sigfinn = "0.1"
 
-tonic = { version = "0.9", features = ["gzip"] }
+tonic = { version = "0.10", features = ["gzip"] }
 
 axum       = { version = "0.6", features = ["headers"] }
 hyper      = "0.14"
