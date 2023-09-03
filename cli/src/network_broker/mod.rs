@@ -1,6 +1,6 @@
-mod config;
 mod error;
 mod lib;
+mod options;
 
 use std::time::Duration;
 
@@ -8,9 +8,9 @@ use kallax_network_broker::NodeConfig;
 use serde_yaml::{self};
 
 pub use self::{
-    config::Config,
     error::{Error, Result},
     lib::Thxnet,
+    options::Options,
 };
 
 const POLLING_INTERVAL: Duration = Duration::from_millis(1000);
@@ -20,9 +20,9 @@ const CONFIG_PATH: &str = "./network-broker.yaml";
 /// # Errors
 ///
 /// This function returns an error if the network-broker is not created.
-pub async fn run(config: Config) -> Result<()> {
+pub async fn run(options: Options) -> Result<()> {
     let config = {
-        let Config { tracker_api_endpoint, file } = config;
+        let Options { tracker_api_endpoint, file } = options;
 
         tracing::info!("Read config: {file:?}");
 

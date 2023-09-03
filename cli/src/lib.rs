@@ -207,7 +207,7 @@ pub enum Commands {
     #[command(about = "Run network broker for Substrate-based node which is out of Kubernetes")]
     NetworkBroker {
         #[clap(flatten)]
-        config: network_broker::Config,
+        options: network_broker::Options,
     },
 
     #[command(about = "Run tracker for Substrate-based node")]
@@ -245,11 +245,11 @@ impl Cli {
             Commands::Sidecar { options } => {
                 execute("Sidecar", async { sidecar::run(options).await })
             }
-            Commands::NetworkBroker { config } => {
-                execute("Network Broker", async { network_broker::run(config).await })
+            Commands::NetworkBroker { options } => {
+                execute("Network Broker", async { network_broker::run(options).await })
             }
-            Commands::Tracker { config } => {
-                execute("Tracker", async { tracker::run(config).await })
+            Commands::Tracker { options } => {
+                execute("Tracker", async { tracker::run(options).await })
             }
         }
     }
