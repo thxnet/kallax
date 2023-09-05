@@ -16,11 +16,11 @@ pub enum Error {
     #[snafu(display("Error occurs while creating UNIX signal listener, error: {source}"))]
     CreateUnixSignalListener { source: std::io::Error },
 
-    #[snafu(display("Could not open file, error: {source}"))]
-    Io { source: std::io::Error },
+    #[snafu(display("Could not open file, error: {source}j, path: {path}"))]
+    Io { source: std::io::Error, path: String },
 
-    #[snafu(display("Could not read yaml, error: {source}"))]
-    SerdeYaml { source: serde_yaml::Error },
+    #[snafu(display("Could not read yaml, error: {source}, path: {path}"))]
+    SerdeYaml { source: serde_yaml::Error, path: String },
 }
 
 impl From<kallax_network_broker::Error> for Error {
@@ -32,10 +32,8 @@ impl CommandError for Error {
     fn exit_code(&self) -> exitcode::ExitCode {
         match self {
             Self::Application { .. } => exitcode::SOFTWARE,
-            Self::JoinTaskHandle { .. }
-            | Self::CreateUnixSignalListener { .. }
-            | Self::Io { .. }
-            | Self::SerdeYaml { .. } => exitcode::IOERR,
+            Self::JoinTaskHandle { .. } | Self::CreateUnixSignalListener { .. } => exitcode::IOERR,
+            Self::Io { .. } | Self::SerdeYaml { .. } => exitcode::CONFIG,
         }
     }
 }

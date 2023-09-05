@@ -3,7 +3,7 @@ use std::{collections::HashSet, fmt};
 use async_trait::async_trait;
 use kallax_primitives::{ExternalEndpoint, PeerAddress};
 use kallax_tracker_server::InsertLeafchainPeerAddressRequest;
-use url::Url;
+use reqwest::Url;
 
 use crate::{
     error::{GetLeafchainPeerAddressError, InsertLeafchainPeerAddressError},
@@ -40,25 +40,23 @@ impl LeafchainPeer for Client {
     {
         let Self { client: api_client, api_endpoint } = self;
 
-        let mut url = Url::parse(api_endpoint.to_string().as_str())
-            .map_err(|source| GetLeafchainPeerAddressError::UrlParse { source })?;
+        let mut url =
+            Url::parse(api_endpoint.to_string().as_str()).expect("parse url error: {api_endpoint}");
 
-        url.path_segments_mut()
-            .map_err(|_| GetLeafchainPeerAddressError::UrlCanNotBeBase)?
-            .pop_if_empty()
-            .push("leafchain")
-            .push(chain_id.to_string().as_str())
-            .push("peers");
+        url.set_path(format!("/api/v1/leafchain/{chain_id}/peers").as_str());
 
-        api_client
+        let peers = api_client
             .get(url)
             .send()
             .await
-            .map_err(|source| GetLeafchainPeerAddressError::Reqwest { source })?
+            .expect("get response error")
             .json::<Vec<PeerAddress>>()
             .await
-            .map_err(|source| GetLeafchainPeerAddressError::Reqwest { source })
-            .map(|vec| vec.into_iter().collect::<HashSet<PeerAddress>>())
+            .expect("parse json error")
+            .into_iter()
+            .collect::<HashSet<PeerAddress>>();
+
+        Ok(peers)
     }
 
     async fn insert<S>(
@@ -72,15 +70,10 @@ impl LeafchainPeer for Client {
     {
         let Self { client: api_client, api_endpoint } = self;
 
-        let mut url = Url::parse(api_endpoint.to_string().as_str())
-            .map_err(|source| InsertLeafchainPeerAddressError::UrlParse { source })?;
+        let mut url =
+            Url::parse(api_endpoint.to_string().as_str()).expect("parse url error: {api_endpoint}");
 
-        url.path_segments_mut()
-            .map_err(|_| InsertLeafchainPeerAddressError::UrlCanNotBeBase)?
-            .pop_if_empty()
-            .push("leafchain")
-            .push(chain_id.to_string().as_str())
-            .push("insert");
+        url.set_path(format!("/api/v1/leafchain/{chain_id}/insert").as_str());
 
         api_client
             .post(url)
@@ -90,7 +83,7 @@ impl LeafchainPeer for Client {
             })
             .send()
             .await
-            .map_err(|source| InsertLeafchainPeerAddressError::Reqwest { source })?;
+            .expect("get response error");
 
         Ok(())
     }

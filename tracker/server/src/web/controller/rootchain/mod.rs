@@ -1,7 +1,8 @@
 mod v1;
 
 use axum::{routing, Router};
-pub use v1::InsertRootchainPeerAddressRequest;
+
+pub use self::v1::InsertRootchainPeerAddressRequest;
 
 pub fn v1() -> Router {
     Router::new().nest(

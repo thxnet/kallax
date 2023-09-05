@@ -57,9 +57,9 @@ pub async fn insert_peers(
     Extension(RootchainPeerAddressBook(book)): Extension<RootchainPeerAddressBook>,
     Path(chain_id): Path<String>,
     Json(payload): Json<InsertRootchainPeerAddressRequest>,
-) -> (StatusCode, Json<String>) {
+) -> StatusCode {
     let InsertRootchainPeerAddressRequest { peer_address, external_endpoint } = payload;
     tracing::info!("Insert new peer `{peer_address}` to chain `{chain_id}`");
     book.insert(chain_id, peer_address, Some(external_endpoint)).await;
-    (StatusCode::OK, Json("{}".to_string()))
+    StatusCode::OK
 }

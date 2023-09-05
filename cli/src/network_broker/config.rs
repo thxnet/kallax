@@ -1,4 +1,4 @@
-use kallax_network_broker::{ChainEndpoint, NodeConfig};
+use kallax_network_broker::{ChainEndpoint, Node};
 use kallax_primitives::ExternalEndpoint;
 use serde::{Deserialize, Serialize};
 
@@ -67,21 +67,21 @@ pub struct P2pEndpoint {
 }
 
 impl Thxnet {
-    pub fn nodes_config(&self) -> Vec<NodeConfig> {
-        let mut nodes_config: Vec<NodeConfig> = vec![];
+    pub fn nodes(&self) -> Vec<Node> {
+        let mut nodes: Vec<Node> = Vec::new();
         let Self { mainnet, testnet } = self;
 
-        if let Some(net) = mainnet.clone() {
-            let mut config = net.nodes_config();
-            nodes_config.append(&mut config);
+        if let Some(net) = mainnet {
+            let mut config = net.nodes();
+            nodes.append(&mut config);
         }
 
-        if let Some(net) = testnet.clone() {
-            let mut config = net.nodes_config();
-            nodes_config.append(&mut config);
+        if let Some(net) = testnet {
+            let mut config = net.nodes();
+            nodes.append(&mut config);
         }
 
-        nodes_config
+        nodes
     }
 }
 
@@ -90,26 +90,26 @@ impl Mainnet {
     pub const ROOTCHAIN_ID: &str = "thxnet_mainnet";
     pub const THX_ID: &str = "thx_mainnet";
 
-    pub fn nodes_config(&self) -> Vec<NodeConfig> {
-        let mut nodes_config: Vec<NodeConfig> = vec![];
+    pub fn nodes(&self) -> Vec<Node> {
+        let mut nodes: Vec<Node> = Vec::new();
         let Self { rootchain, thx, lmt } = self;
 
-        if let Some(chain) = rootchain.clone() {
-            let mut config = chain.nodes_config(Self::ROOTCHAIN_ID);
-            nodes_config.append(&mut config);
+        if let Some(chain) = rootchain {
+            let mut config = chain.nodes(Self::ROOTCHAIN_ID);
+            nodes.append(&mut config);
         }
 
-        if let Some(chain) = thx.clone() {
-            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::THX_ID);
-            nodes_config.append(config);
+        if let Some(chain) = thx {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::THX_ID);
+            nodes.append(config);
         }
 
-        if let Some(chain) = lmt.clone() {
-            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::LMT_ID);
-            nodes_config.append(config);
+        if let Some(chain) = lmt {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::LMT_ID);
+            nodes.append(config);
         }
 
-        nodes_config
+        nodes
     }
 }
 
@@ -120,57 +120,55 @@ impl Testnet {
     pub const THX_ID: &str = "thx_testnet";
     pub const TXD_ID: &str = "txd_testnet";
 
-    pub fn nodes_config(&self) -> Vec<NodeConfig> {
-        let mut nodes_config: Vec<NodeConfig> = vec![];
+    pub fn nodes(&self) -> Vec<Node> {
+        let mut nodes: Vec<Node> = Vec::new();
         let Self { rootchain, thx, lmt, txd, sand } = self;
 
-        if let Some(chain) = rootchain.clone() {
-            let mut config = chain.nodes_config(Self::ROOTCHAIN_ID);
-            nodes_config.append(&mut config);
+        if let Some(chain) = rootchain {
+            let mut config = chain.nodes(Self::ROOTCHAIN_ID);
+            nodes.append(&mut config);
         }
 
-        if let Some(chain) = thx.clone() {
-            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::THX_ID);
-            nodes_config.append(config);
+        if let Some(chain) = thx {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::THX_ID);
+            nodes.append(config);
         }
 
-        if let Some(chain) = lmt.clone() {
-            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::LMT_ID);
-            nodes_config.append(config);
+        if let Some(chain) = lmt {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::LMT_ID);
+            nodes.append(config);
         }
 
-        if let Some(chain) = txd.clone() {
-            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::TXD_ID);
-            nodes_config.append(config);
+        if let Some(chain) = txd {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::TXD_ID);
+            nodes.append(config);
         }
 
-        if let Some(chain) = sand.clone() {
-            let config = &mut chain.nodes_config(Self::ROOTCHAIN_ID, Self::SAND_ID);
-            nodes_config.append(config);
+        if let Some(chain) = sand {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::SAND_ID);
+            nodes.append(config);
         }
-        nodes_config
+        nodes
     }
 }
 
 impl Rootchain {
-    pub fn nodes_config(&self, rootchain_id: &str) -> Vec<NodeConfig> {
+    pub fn nodes(&self, rootchain_id: &str) -> Vec<Node> {
         if self.validators.is_none() && self.archives.is_none() {
-            return vec![];
+            return Vec::new();
         }
 
-        let mut rootchain_nodes: Vec<RootchainNode> = vec![];
+        let mut rootchain_nodes: Vec<RootchainNode> = Vec::new();
 
         let Self { validators, archives } = self;
 
-        if validators.is_some() {
-            let nodes = validators.clone();
-            rootchain_nodes.append(&mut nodes.unwrap());
-        }
+        if let Some(nodes) = validators {
+            rootchain_nodes.append(&mut nodes.clone());
+        };
 
-        if archives.is_some() {
-            let nodes = archives.clone();
-            rootchain_nodes.append(&mut nodes.unwrap());
-        }
+        if let Some(nodes) = archives {
+            rootchain_nodes.append(&mut nodes.clone());
+        };
 
         rootchain_nodes
             .into_iter()
@@ -181,10 +179,12 @@ impl Rootchain {
                     } else {
                         None
                     };
-                NodeConfig {
+                Node {
                     rootchain_endpoint: ChainEndpoint {
                         chain_id: rootchain_id.to_string(),
-                        websocket_endpoint: ws_endpoint.parse::<http::Uri>().unwrap(),
+                        websocket_endpoint: ws_endpoint
+                            .parse::<http::Uri>()
+                            .expect("websocket endpoint is invalid"),
                     },
                     leafchain_endpoint: None,
                     external_rootchain_p2p_endpoint,
@@ -196,24 +196,22 @@ impl Rootchain {
 }
 
 impl Leafchain {
-    pub fn nodes_config(&self, rootchain_id: &str, leafchain_id: &str) -> Vec<NodeConfig> {
+    pub fn nodes(&self, rootchain_id: &str, leafchain_id: &str) -> Vec<Node> {
         if self.collators.is_none() && self.archives.is_none() {
-            return vec![];
+            return Vec::new();
         }
 
-        let mut leafchain_nodes: Vec<LeafchainNode> = vec![];
+        let mut leafchain_nodes: Vec<LeafchainNode> = Vec::new();
 
         let Self { collators, archives } = self;
 
-        if collators.is_some() {
-            let nodes: Option<Vec<LeafchainNode>> = collators.clone();
-            leafchain_nodes.append(&mut nodes.unwrap());
-        }
+        if let Some(nodes) = collators {
+            leafchain_nodes.append(&mut nodes.clone());
+        };
 
-        if archives.is_some() {
-            let nodes = archives.clone();
-            leafchain_nodes.append(&mut nodes.unwrap());
-        }
+        if let Some(nodes) = archives {
+            leafchain_nodes.append(&mut nodes.clone());
+        };
 
         leafchain_nodes
             .into_iter()
@@ -238,14 +236,18 @@ impl Leafchain {
                             None
                         };
 
-                    NodeConfig {
+                    Node {
                         rootchain_endpoint: ChainEndpoint {
                             chain_id: rootchain_id.to_string(),
-                            websocket_endpoint: rootchain_ws_endpoint.parse::<http::Uri>().unwrap(),
+                            websocket_endpoint: rootchain_ws_endpoint
+                                .parse::<http::Uri>()
+                                .expect("websocket endpoint is invalid"),
                         },
                         leafchain_endpoint: Some(ChainEndpoint {
                             chain_id: leafchain_id.to_string(),
-                            websocket_endpoint: leafchain_ws_endpoint.parse::<http::Uri>().unwrap(),
+                            websocket_endpoint: leafchain_ws_endpoint
+                                .parse::<http::Uri>()
+                                .expect("websocket endpoint is invalid"),
                         }),
                         external_rootchain_p2p_endpoint,
                         external_leafchain_p2p_endpoint,

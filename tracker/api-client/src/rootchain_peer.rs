@@ -3,7 +3,7 @@ use std::{collections::HashSet, fmt};
 use async_trait::async_trait;
 use kallax_primitives::{ExternalEndpoint, PeerAddress};
 use kallax_tracker_server::InsertRootchainPeerAddressRequest;
-use url::Url;
+use reqwest::Url;
 
 use crate::{
     error::{GetRootchainPeerAddressError, InsertRootchainPeerAddressError},
@@ -40,25 +40,23 @@ impl RootchainPeer for Client {
     {
         let Self { client: api_client, api_endpoint } = self;
 
-        let mut url = Url::parse(api_endpoint.to_string().as_str())
-            .map_err(|source| GetRootchainPeerAddressError::UrlParse { source })?;
+        let mut url =
+            Url::parse(api_endpoint.to_string().as_str()).expect("parse url error: {api_endpoint}");
 
-        url.path_segments_mut()
-            .map_err(|_| GetRootchainPeerAddressError::UrlCanNotBeBase)?
-            .pop_if_empty()
-            .push("rootchain")
-            .push(chain_id.to_string().as_str())
-            .push("peers");
+        url.set_path(format!("/api/v1/rootchain/{chain_id}/peers").as_str());
 
-        api_client
+        let peers = api_client
             .get(url)
             .send()
             .await
-            .map_err(|source| GetRootchainPeerAddressError::Reqwest { source })?
+            .expect("get response error")
             .json::<Vec<PeerAddress>>()
             .await
-            .map_err(|source| GetRootchainPeerAddressError::Reqwest { source })
-            .map(|vec| vec.into_iter().collect::<HashSet<PeerAddress>>())
+            .expect("parse json error")
+            .into_iter()
+            .collect::<HashSet<PeerAddress>>();
+
+        Ok(peers)
     }
 
     async fn insert<S>(
@@ -72,15 +70,10 @@ impl RootchainPeer for Client {
     {
         let Self { client: api_client, api_endpoint } = self;
 
-        let mut url = Url::parse(api_endpoint.to_string().as_str())
-            .map_err(|source| InsertRootchainPeerAddressError::UrlParse { source })?;
+        let mut url =
+            Url::parse(api_endpoint.to_string().as_str()).expect("parse url error: {api_endpoint}");
 
-        url.path_segments_mut()
-            .map_err(|_| InsertRootchainPeerAddressError::UrlCanNotBeBase)?
-            .pop_if_empty()
-            .push("rootchain")
-            .push(chain_id.to_string().as_str())
-            .push("insert");
+        url.set_path(format!("/api/v1/rootchain/{chain_id}/insert").as_str());
 
         api_client
             .post(url)
@@ -90,7 +83,7 @@ impl RootchainPeer for Client {
             })
             .send()
             .await
-            .map_err(|source| InsertRootchainPeerAddressError::Reqwest { source })?;
+            .expect("get response error");
 
         Ok(())
     }

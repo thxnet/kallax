@@ -162,11 +162,11 @@ pub struct Config {
 
     pub polling_interval: Duration,
 
-    pub nodes: Vec<NodeConfig>,
+    pub nodes: Vec<Node>,
 }
 
 #[derive(Clone, Debug)]
-pub struct NodeConfig {
+pub struct Node {
     pub rootchain_endpoint: ChainEndpoint,
 
     pub leafchain_endpoint: Option<ChainEndpoint>,
@@ -205,7 +205,7 @@ pub async fn serve(config: Config) -> Result<()> {
             let mut peer_discoverers: Vec<PeerDiscoverers> = nodes
                 .into_iter()
                 .map(
-                    |NodeConfig {
+                    |Node {
                          rootchain_endpoint,
                          leafchain_endpoint,
                          external_rootchain_p2p_endpoint,

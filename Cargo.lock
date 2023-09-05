@@ -3102,7 +3102,6 @@ dependencies = [
  "snafu",
  "tracing",
  "tracing-subscriber 0.3.17",
- "url",
 ]
 
 [[package]]

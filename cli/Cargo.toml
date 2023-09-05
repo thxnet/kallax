@@ -34,7 +34,7 @@ serde      = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 
 kallax-initializer    = { path = "../initializer" }
+kallax-network-broker = { path = "../network-broker" }
 kallax-primitives     = { path = "../primitives" }
 kallax-sidecar        = { path = "../sidecar" }
-kallax-network-broker = { path = "../network-broker" }
 kallax-tracker-server = { path = "../tracker/server" }

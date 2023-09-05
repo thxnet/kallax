@@ -1,16 +1,8 @@
-use snafu::prelude::*;
+use core::fmt;
 
-#[derive(Debug, Snafu)]
+#[derive(Debug)]
 pub enum GetLeafchainPeerAddressError {
-    #[snafu(context(suffix(G)))]
     Primitives { source: kallax_primitives::Error },
-
-    #[snafu(context(suffix(G)), display("{source}"))]
-    Reqwest { source: reqwest::Error },
-    #[snafu(context(suffix(G)), display("{source}"))]
-    UrlParse { source: url::ParseError },
-    #[snafu(context(suffix(G)), display("UrlCanNotBeBase"))]
-    UrlCanNotBeBase,
 }
 
 impl From<kallax_primitives::Error> for GetLeafchainPeerAddressError {
@@ -18,20 +10,28 @@ impl From<kallax_primitives::Error> for GetLeafchainPeerAddressError {
     fn from(source: kallax_primitives::Error) -> Self { Self::Primitives { source } }
 }
 
-#[derive(Debug, Snafu)]
-pub enum InsertLeafchainPeerAddressError {
-    #[snafu(context(suffix(I)))]
-    Primitives { source: kallax_primitives::Error },
+impl fmt::Display for GetLeafchainPeerAddressError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Primitives { source } => source.fmt(f),
+        }
+    }
+}
 
-    #[snafu(context(suffix(I)), display("{source}"))]
-    Reqwest { source: reqwest::Error },
-    #[snafu(context(suffix(I)), display("{source}"))]
-    UrlParse { source: url::ParseError },
-    #[snafu(context(suffix(I)), display("UrlCanNotBeBase"))]
-    UrlCanNotBeBase,
+#[derive(Debug)]
+pub enum InsertLeafchainPeerAddressError {
+    Primitives { source: kallax_primitives::Error },
 }
 
 impl From<kallax_primitives::Error> for InsertLeafchainPeerAddressError {
     #[inline]
     fn from(source: kallax_primitives::Error) -> Self { Self::Primitives { source } }
+}
+
+impl fmt::Display for InsertLeafchainPeerAddressError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Primitives { source } => source.fmt(f),
+        }
+    }
 }

@@ -155,7 +155,7 @@ mod session_key;
 mod sidecar;
 mod tracker;
 
-use std::{fmt, future::Future, io::Write};
+use std::{fmt, future::Future, io::Write, path::PathBuf};
 
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
@@ -206,8 +206,20 @@ pub enum Commands {
 
     #[command(about = "Run network broker for Substrate-based node which is out of Kubernetes")]
     NetworkBroker {
-        #[clap(flatten)]
-        options: network_broker::Options,
+        #[clap(
+            long = "tracker-api-endpoint",
+            help = "Tracker api endpoint",
+            default_value = network_broker::TRACKER_API_ENDPOINT
+        )]
+        tracker_api_endpoint: http::Uri,
+
+        #[clap(
+            short = 'f',
+            long = "file",
+            help = "Config file path",
+            default_value = network_broker::CONFIG_PATH
+        )]
+        file: PathBuf,
     },
 
     #[command(about = "Run tracker for Substrate-based node")]
@@ -245,8 +257,10 @@ impl Cli {
             Commands::Sidecar { options } => {
                 execute("Sidecar", async { sidecar::run(options).await })
             }
-            Commands::NetworkBroker { options } => {
-                execute("Network Broker", async { network_broker::run(options).await })
+            Commands::NetworkBroker { tracker_api_endpoint, file } => {
+                execute("Network Broker", async {
+                    network_broker::run(tracker_api_endpoint, file).await
+                })
             }
             Commands::Tracker { options } => {
                 execute("Tracker", async { tracker::run(options).await })
