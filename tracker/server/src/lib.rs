@@ -163,8 +163,13 @@ use kallax_tracker_proto::{
 };
 use snafu::ResultExt;
 
-pub use self::error::{Error, Result};
 use self::web::extension::LeafchainSpecList;
+pub use self::{
+    error::{Error, Result},
+    web::controller::{
+        leafchain::InsertLeafchainPeerAddressRequest, rootchain::InsertRootchainPeerAddressRequest,
+    },
+};
 use crate::{
     chain_spec_list::ChainSpecList,
     peer_address_book::PeerAddressBook,

@@ -1,0 +1,97 @@
+version: "3"
+
+services:
+  testnet-rootchain-archive1:
+    container_name: testnet-rootchain-archive1
+    image: ghcr.io/thxnet/rootchain:latest
+    restart: unless-stopped
+    ports:
+      - 50011:50011
+      - 50012:50012
+      - 50013:50013
+    volumes:
+      - $HOME/Project/kallax/examples/network-broker:/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command: >
+      --chain="/data/chain-specs/testnet.rootchain.raw.json"
+      --name testnet-rootchain-archive1
+      --base-path /data/nodes/testnet/testnet-rootchain-archive1
+      --allow-private-ip
+      --discover-local
+      --port 50011
+      --ws-port 50012
+      --rpc-port 50013
+      --rpc-cors all
+      --ws-external
+      --rpc-external
+      --rpc-methods unsafe
+
+  testnet-rootchain-archive2:
+    container_name: testnet-rootchain-archive2
+    image: ghcr.io/thxnet/rootchain:latest
+    restart: unless-stopped
+    ports:
+      - 50021:50021
+      - 50022:50022
+      - 50023:50023
+    volumes:
+      - $HOME/Project/kallax/examples/network-broker:/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command: >
+      --chain="/data/chain-specs/testnet.rootchain.raw.json"
+      --name testnet-rootchain-archive2
+      --base-path /data/nodes/testnet/testnet-rootchain-archive2
+      --allow-private-ip
+      --discover-local
+      --port 50021
+      --ws-port 50022
+      --rpc-port 50023
+      --rpc-cors all
+      --ws-external
+      --rpc-external
+      --rpc-methods unsafe
+
+  testnet-thx-archive1:
+    container_name: testnet-thx-archive1
+    image: ghcr.io/thxnet/leafchain:latest
+    restart: unless-stopped
+    ports:
+      - 60011:60011
+      - 60012:60012
+      - 60013:60013
+      - 60111:60111
+      - 60112:60112
+      - 60113:60113
+    volumes:
+      - $HOME/Project/kallax/examples/network-broker:/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    command: >
+      --chain="/data/chain-specs/testnet.leafchain.thx.raw.json"
+      --state-pruning=archive
+      --blocks-pruning=archive
+      --name testnet-thx-archive1
+      --base-path /data/nodes/testnet/testnet-thx-archive1
+      --allow-private-ip
+      --discover-local
+      --port 60111
+      --ws-port 60112
+      --rpc-port 60113
+      --rpc-cors all
+      --ws-external
+      --rpc-external
+      --rpc-methods unsafe
+      --
+      --execution wasm
+      --chain="/data/chain-specs/testnet.rootchain.raw.json"
+      --allow-private-ip
+      --discover-local
+      --port 60011
+      --ws-port 60012
+      --rpc-port 60013
+      --rpc-cors all
+      --ws-external
+      --rpc-external
+      --rpc-methods unsafe

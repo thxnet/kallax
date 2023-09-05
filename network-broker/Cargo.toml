@@ -1,6 +1,6 @@
 [package]
-name                 = "kallax-sidecar"
-description          = "Kubernetes sidecar for operating Substrate-base node"
+name                 = "kallax-network-broker"
+description          = "Network Broker for operating Substrate-base node which is out of Kubernetes"
 version.workspace    = true
 authors.workspace    = true
 homepage.workspace   = true

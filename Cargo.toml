@@ -36,6 +36,8 @@ members = [
   "initializer",
   "primitives",
   "sidecar",
+  "network-broker",
+  "tracker/api-client",
   "tracker/grpc-client",
   "tracker/proto",
   "tracker/server",

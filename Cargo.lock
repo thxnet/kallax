@@ -1811,6 +1811,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "encoding_rs"
+version = "0.8.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7268b386296a025e474d5140678f75d6de9493ae55a5d709eeb9dd08149945e1"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
 name = "enum-as-inner"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2573,6 +2582,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "hyper-rustls"
+version = "0.24.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d78e1e73ec14cf7375674f74d7dde185c8206fd9dea6fb6295e8a98098aaa97"
+dependencies = [
+ "futures-util",
+ "http",
+ "hyper",
+ "rustls 0.21.7",
+ "tokio",
+ "tokio-rustls 0.24.1",
+]
+
+[[package]]
 name = "hyper-timeout"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2988,9 +3011,12 @@ dependencies = [
  "futures",
  "http",
  "kallax-initializer",
+ "kallax-network-broker",
  "kallax-primitives",
  "kallax-sidecar",
  "kallax-tracker-server",
+ "serde",
+ "serde_yaml",
  "snafu",
  "tokio",
  "tracing",
@@ -3017,6 +3043,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "kallax-network-broker"
+version = "0.2.0"
+dependencies = [
+ "futures",
+ "http",
+ "kallax-primitives",
+ "kallax-tracker-api-client",
+ "kallax-tracker-grpc-client",
+ "sigfinn",
+ "snafu",
+ "sp-core",
+ "substrate-rpc-client",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "kallax-primitives"
 version = "0.2.0"
 dependencies = [
@@ -3034,6 +3077,7 @@ dependencies = [
  "futures",
  "http",
  "kallax-primitives",
+ "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
  "sigfinn",
  "snafu",
@@ -3041,6 +3085,23 @@ dependencies = [
  "substrate-rpc-client",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "kallax-tracker-api-client"
+version = "0.2.0"
+dependencies = [
+ "async-trait",
+ "http",
+ "kallax-primitives",
+ "kallax-tracker-proto",
+ "kallax-tracker-server",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "snafu",
+ "tracing",
+ "tracing-subscriber 0.3.17",
 ]
 
 [[package]]
@@ -3076,6 +3137,8 @@ dependencies = [
  "kallax-primitives",
  "kallax-tracker-proto",
  "sc-network",
+ "serde",
+ "serde_json",
  "sigfinn",
  "snafu",
  "time 0.3.28",
@@ -5374,6 +5437,45 @@ dependencies = [
 ]
 
 [[package]]
+name = "reqwest"
+version = "0.11.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e9ad3fe7488d7e34558a2033d45a0c90b72d97b4f80705666fea71472e2e6a1"
+dependencies = [
+ "base64 0.21.3",
+ "bytes",
+ "encoding_rs",
+ "futures-core",
+ "futures-util",
+ "h2",
+ "http",
+ "http-body",
+ "hyper",
+ "hyper-rustls 0.24.1",
+ "ipnet",
+ "js-sys",
+ "log",
+ "mime",
+ "once_cell",
+ "percent-encoding",
+ "pin-project-lite 0.2.13",
+ "rustls 0.21.7",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "tokio",
+ "tokio-rustls 0.24.1",
+ "tower-service",
+ "url",
+ "wasm-bindgen",
+ "wasm-bindgen-futures",
+ "web-sys",
+ "webpki-roots 0.25.2",
+ "winreg",
+]
+
+[[package]]
 name = "resolv-conf"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6110,7 +6212,7 @@ dependencies = [
  "futures",
  "futures-timer",
  "hyper",
- "hyper-rustls",
+ "hyper-rustls 0.23.2",
  "libp2p 0.50.1",
  "num_cpus",
  "once_cell",
@@ -6684,6 +6786,19 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
+]
+
+[[package]]
+name = "serde_yaml"
+version = "0.9.25"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a49e178e4452f45cb61d0cd8cebc1b0fafd3e41929e996cef79aa3aca91f574"
+dependencies = [
+ "indexmap 2.0.0",
+ "itoa",
+ "ryu",
+ "serde",
+ "unsafe-libyaml",
 ]
 
 [[package]]
@@ -8378,6 +8493,12 @@ dependencies = [
  "crypto-common",
  "subtle",
 ]
+
+[[package]]
+name = "unsafe-libyaml"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f28467d3e1d3c6586d8f25fa243f544f5800fec42d97032474e17222c2b75cfa"
 
 [[package]]
 name = "unsigned-varint"

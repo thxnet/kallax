@@ -1,10 +1,11 @@
 use std::{fmt, str::FromStr};
 
+use serde::{Deserialize, Serialize};
 use snafu::OptionExt;
 
 use crate::{error, error::Error};
 
-#[derive(Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub struct ExternalEndpoint {
     pub host: String,
     pub port: u16,
