@@ -25,6 +25,7 @@ pub struct Testnet {
     pub lmt: Option<Leafchain>,
     pub txd: Option<Leafchain>,
     pub sand: Option<Leafchain>,
+    pub aether: Option<Leafchain>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -114,6 +115,7 @@ impl Mainnet {
 }
 
 impl Testnet {
+    pub const AETHER_ID: &str = "aether_testnet";
     pub const LMT_ID: &str = "lmt_testnet";
     pub const ROOTCHAIN_ID: &str = "thxnet_testnet";
     pub const SAND_ID: &str = "sand_testnet";
@@ -122,7 +124,7 @@ impl Testnet {
 
     pub fn nodes(&self) -> Vec<Node> {
         let mut nodes: Vec<Node> = Vec::new();
-        let Self { rootchain, thx, lmt, txd, sand } = self;
+        let Self { rootchain, thx, lmt, txd, sand, aether } = self;
 
         if let Some(chain) = rootchain {
             let mut config = chain.nodes(Self::ROOTCHAIN_ID);
@@ -148,6 +150,12 @@ impl Testnet {
             let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::SAND_ID);
             nodes.append(config);
         }
+
+        if let Some(chain) = aether {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::AETHER_ID);
+            nodes.append(config);
+        }
+
         nodes
     }
 }
