@@ -6,6 +6,8 @@ use axum::{
     response::{IntoResponse, Response},
     TypedHeader,
 };
+use kallax_primitives::{ExternalEndpoint, PeerAddress};
+use serde::{Deserialize, Serialize};
 
 use crate::web::extension::{LeafchainPeerAddressBook, LeafchainSpecList};
 
@@ -44,4 +46,21 @@ pub async fn get_peers(
         StatusCode::OK,
         Json(book.fetch_exposed_peers(chain_id).await.into_iter().map(|a| a.to_string()).collect()),
     )
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct InsertLeafchainPeerAddressRequest {
+    pub peer_address: PeerAddress,
+    pub external_endpoint: ExternalEndpoint,
+}
+
+pub async fn insert_peers(
+    Extension(LeafchainPeerAddressBook(book)): Extension<LeafchainPeerAddressBook>,
+    Path(chain_id): Path<String>,
+    Json(payload): Json<InsertLeafchainPeerAddressRequest>,
+) -> (StatusCode, Json<String>) {
+    let InsertLeafchainPeerAddressRequest { peer_address, external_endpoint } = payload;
+    tracing::info!("Insert new peer `{peer_address}` to chain `{chain_id}`");
+    book.insert(chain_id, peer_address, Some(external_endpoint)).await;
+    (StatusCode::OK, Json("{}".to_string()))
 }

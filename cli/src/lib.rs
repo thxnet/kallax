@@ -150,11 +150,12 @@
 mod consts;
 mod error;
 mod initializer;
+mod network_broker;
 mod session_key;
 mod sidecar;
 mod tracker;
 
-use std::{fmt, future::Future, io::Write};
+use std::{fmt, future::Future, io::Write, path::PathBuf};
 
 use clap::{CommandFactory, Parser, Subcommand};
 use clap_complete::Shell;
@@ -188,25 +189,43 @@ pub enum Commands {
     #[command(about = "Generate session keys")]
     SessionKey {
         #[clap(flatten)]
-        config: session_key::Config,
+        options: session_key::Options,
     },
 
     #[command(about = "Run initializer for starting Substrate-based node")]
     Initializer {
         #[clap(flatten)]
-        config: initializer::Config,
+        options: initializer::Options,
     },
 
     #[command(about = "Run Kubernetes sidecar for Substrate-based node")]
     Sidecar {
         #[clap(flatten)]
-        config: sidecar::Config,
+        options: sidecar::Options,
+    },
+
+    #[command(about = "Run network broker for Substrate-based node which is out of Kubernetes")]
+    NetworkBroker {
+        #[clap(
+            long = "tracker-api-endpoint",
+            help = "Tracker api endpoint",
+            default_value = network_broker::TRACKER_API_ENDPOINT
+        )]
+        tracker_api_endpoint: http::Uri,
+
+        #[clap(
+            short = 'f',
+            long = "file",
+            help = "Config file path",
+            default_value = network_broker::CONFIG_PATH
+        )]
+        file: PathBuf,
     },
 
     #[command(about = "Run tracker for Substrate-based node")]
     Tracker {
         #[clap(flatten)]
-        config: tracker::Config,
+        options: tracker::Options,
     },
 }
 
@@ -229,17 +248,22 @@ impl Cli {
                 clap_complete::generate(shell, &mut app, bin_name, &mut std::io::stdout());
                 Ok(())
             }
-            Commands::SessionKey { config } => {
-                execute("Session key", async { session_key::run(config).await })
+            Commands::SessionKey { options } => {
+                execute("Session key", async { session_key::run(options).await })
             }
-            Commands::Initializer { config } => {
-                execute("Initializer", async { initializer::run(config).await })
+            Commands::Initializer { options } => {
+                execute("Initializer", async { initializer::run(options).await })
             }
-            Commands::Sidecar { config } => {
-                execute("Sidecar", async { sidecar::run(config).await })
+            Commands::Sidecar { options } => {
+                execute("Sidecar", async { sidecar::run(options).await })
             }
-            Commands::Tracker { config } => {
-                execute("Tracker", async { tracker::run(config).await })
+            Commands::NetworkBroker { tracker_api_endpoint, file } => {
+                execute("Network Broker", async {
+                    network_broker::run(tracker_api_endpoint, file).await
+                })
+            }
+            Commands::Tracker { options } => {
+                execute("Tracker", async { tracker::run(options).await })
             }
         }
     }
@@ -304,7 +328,7 @@ mod tests {
         ])
         .commands
         {
-            Commands::Sidecar { config: _ } => (),
+            Commands::Sidecar { options: _ } => (),
             _ => panic!(),
         }
     }

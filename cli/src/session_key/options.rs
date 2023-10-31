@@ -5,7 +5,7 @@ use clap::Args;
 use crate::consts;
 
 #[derive(Args, Debug)]
-pub struct Config {
+pub struct Options {
     #[clap(long = "keystore-directory-path", help = "Keystore directory path")]
     pub keystore_directory_path: PathBuf,
 

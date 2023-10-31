@@ -12,15 +12,15 @@ categories.workspace = true
 keywords.workspace   = true
 
 [dependencies]
-prost       = "0.11"
-prost-types = "0.11"
-tonic       = { version = "0.9", features = ["gzip"] }
+prost       = "0.12"
+prost-types = "0.12"
+tonic       = { version = "0.10", features = ["gzip"] }
 
 kallax-primitives = { path = "../../primitives" }
 
 [build-dependencies]
-prost-build = "0.11"
-tonic-build = { version = "0.9", default-features = false, features = [
+prost-build = "0.12"
+tonic-build = { version = "0.10", default-features = false, features = [
   "prost",
   "transport",
 ] }

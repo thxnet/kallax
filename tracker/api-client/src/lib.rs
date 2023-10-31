@@ -140,128 +140,40 @@
         clippy::pedantic
     ),
     warn(unstable_features),
-    allow(clippy::multiple_crate_versions,)
+    allow(
+        clippy::future_not_send,
+        clippy::module_name_repetitions,
+        clippy::multiple_crate_versions,
+    )
 )]
 
 mod error;
-mod peer_discoverer;
+mod leafchain_peer;
+mod rootchain_peer;
 
-use std::time::Duration;
-
-use futures::{future, future::Either, FutureExt, StreamExt};
-use kallax_primitives::{BlockchainLayer, ExternalEndpoint};
-use kallax_tracker_grpc_client::{Client as TrackerClient, Config as TrackerClientConfig};
-use snafu::ResultExt;
-
-pub use self::error::{Error, Result};
-use self::peer_discoverer::PeerDiscoverer;
+pub use self::{
+    error::{Error, Result},
+    leafchain_peer::LeafchainPeer,
+    rootchain_peer::RootchainPeer,
+};
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub tracker_grpc_endpoint: http::Uri,
-
-    pub polling_interval: Duration,
-
-    pub rootchain_endpoint: ChainEndpoint,
-
-    pub leafchain_endpoint: Option<ChainEndpoint>,
-
-    pub allow_loopback_ip: bool,
-
-    pub external_rootchain_p2p_endpoint: Option<ExternalEndpoint>,
-
-    pub external_leafchain_p2p_endpoint: Option<ExternalEndpoint>,
+    pub api_endpoint: http::Uri,
 }
 
 #[derive(Clone, Debug)]
-pub struct ChainEndpoint {
-    pub chain_id: String,
-
-    pub websocket_endpoint: http::Uri,
+pub struct Client {
+    client: reqwest::Client,
+    api_endpoint: http::Uri,
 }
 
-/// # Errors
-///
-/// This function returns an error if the server is not connected.
-#[allow(clippy::significant_drop_tightening)]
-pub async fn serve(config: Config) -> Result<()> {
-    let Config {
-        tracker_grpc_endpoint,
-        polling_interval,
-        rootchain_endpoint,
-        leafchain_endpoint,
-        allow_loopback_ip,
-        external_rootchain_p2p_endpoint,
-        external_leafchain_p2p_endpoint,
-    } = config;
-
-    let tracker_client =
-        TrackerClient::new(TrackerClientConfig { grpc_endpoint: tracker_grpc_endpoint.clone() })
-            .await
-            .with_context(|_| error::ConnectTrackerSnafu { uri: tracker_grpc_endpoint })?;
-
-    let lifecycle_manager = sigfinn::LifecycleManager::new();
-    let _handle = lifecycle_manager.spawn("Sidecar", {
-        move |shutdown| async move {
-            let mut rootchain_peer_discoverer = PeerDiscoverer::new(
-                rootchain_endpoint.chain_id,
-                BlockchainLayer::Rootchain,
-                rootchain_endpoint.websocket_endpoint,
-                tracker_client.clone(),
-                allow_loopback_ip,
-                external_rootchain_p2p_endpoint,
-            );
-            let mut leafchain_peer_discoverer = leafchain_endpoint.map(move |endpoint| {
-                PeerDiscoverer::new(
-                    endpoint.chain_id,
-                    BlockchainLayer::Leafchain,
-                    endpoint.websocket_endpoint,
-                    tracker_client,
-                    allow_loopback_ip,
-                    external_leafchain_p2p_endpoint,
-                )
-            });
-
-            let mut shutdown_signal = shutdown.into_stream();
-
-            loop {
-                match future::select(
-                    shutdown_signal.next().boxed(),
-                    tokio::time::sleep(polling_interval).boxed(),
-                )
-                .await
-                {
-                    Either::Left(_) => {
-                        tracing::info!("Shutting down");
-                        break;
-                    }
-                    Either::Right(_) => {
-                        if let Err(err) = rootchain_peer_discoverer.execute().await {
-                            tracing::warn!(
-                                "Error occurs while operating Rootchain node, error: {err}"
-                            );
-                        }
-
-                        if let Some(ref mut leafchain_peer_discoverer) = leafchain_peer_discoverer {
-                            if let Err(err) = leafchain_peer_discoverer.execute().await {
-                                tracing::warn!(
-                                    "Error occurs while operating Leafchain node, error: {err}"
-                                );
-                            }
-                        }
-                    }
-                }
-            }
-
-            tracing::info!("Sidecar is down");
-
-            sigfinn::ExitStatus::Success
-        }
-    });
-
-    if let Ok(Err(err)) = lifecycle_manager.serve().await {
-        return Err(err);
+impl Client {
+    /// # Errors
+    ///
+    /// This function will an error if the server is not connected.
+    pub fn new(Config { api_endpoint }: Config) -> Result<Self> {
+        let client = reqwest::Client::new();
+        Ok(Self { client, api_endpoint })
     }
-
-    Ok(())
 }

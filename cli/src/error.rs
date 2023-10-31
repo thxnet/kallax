@@ -18,6 +18,9 @@ pub enum Error {
     Sidecar { source: crate::sidecar::Error },
 
     #[snafu(display("{source}"))]
+    NetworkBroker { source: crate::network_broker::Error },
+
+    #[snafu(display("{source}"))]
     Tracker { source: crate::tracker::Error },
 }
 
@@ -31,6 +34,10 @@ impl From<crate::initializer::Error> for Error {
 
 impl From<crate::sidecar::Error> for Error {
     fn from(source: crate::sidecar::Error) -> Self { Self::Sidecar { source } }
+}
+
+impl From<crate::network_broker::Error> for Error {
+    fn from(source: crate::network_broker::Error) -> Self { Self::NetworkBroker { source } }
 }
 
 impl From<crate::tracker::Error> for Error {
@@ -48,6 +55,7 @@ impl CommandError for Error {
             Self::SessionKey { source } => source.exit_code(),
             Self::Initializer { source } => source.exit_code(),
             Self::Sidecar { source } => source.exit_code(),
+            Self::NetworkBroker { source } => source.exit_code(),
             Self::Tracker { source } => source.exit_code(),
         }
     }

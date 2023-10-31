@@ -1,6 +1,6 @@
 [package]
-name                 = "kallax-tracker-client"
-description          = "Tracker client"
+name                 = "kallax-tracker-grpc-client"
+description          = "Tracker gRPC client"
 version.workspace    = true
 authors.workspace    = true
 homepage.workspace   = true
@@ -14,7 +14,7 @@ keywords.workspace   = true
 [dependencies]
 async-trait = "0.1"
 
-tonic = { version = "0.9", features = ["gzip"] }
+tonic = { version = "0.10", features = ["gzip"] }
 
 http = "0.2"
 

@@ -33,10 +33,10 @@ jobs:
     name: Check Rust format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v23
 
       - name: Show rustfmt version
         run: |
@@ -53,12 +53,12 @@ jobs:
   #   needs:
   #     - rustfmt
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
   #       with:
   #         submodules: "true"
   #
   #     - name: Install Nix
-  #       uses: cachix/install-nix-action@v22
+  #       uses: cachix/install-nix-action@v23
   #
   #     - name: Pre Cache
   #       run: |
@@ -87,10 +87,10 @@ jobs:
     needs:
       - rustfmt
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v23
 
       - name: Pre Cache
         run: |
@@ -131,10 +131,10 @@ jobs:
         mode:
           - release
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v23
 
       - name: Pre Cache
         run: |
@@ -164,12 +164,12 @@ jobs:
       - clippy
       # - udeps
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
 
       - name: Install Nix
-        uses: cachix/install-nix-action@v22
+        uses: cachix/install-nix-action@v23
 
       - name: Pre Cache
         run: |

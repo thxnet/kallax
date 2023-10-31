@@ -1,12 +1,12 @@
-mod config;
 mod error;
+mod options;
 
 use std::{net::SocketAddr, path::Path, time::Duration};
 
 use kallax_primitives::ChainSpec;
 
 use self::error::Result;
-pub use self::{config::Config, error::Error};
+pub use self::{error::Error, options::Options};
 
 async fn load_chain_spec_files<C, P>(chain_spec_files: C) -> Vec<ChainSpec>
 where
@@ -42,8 +42,8 @@ where
     chain_specs
 }
 
-pub async fn run(config: Config) -> Result<()> {
-    let Config {
+pub async fn run(options: Options) -> Result<()> {
+    let Options {
         api_listen_address,
         api_listen_port,
         grpc_listen_address,
@@ -52,7 +52,7 @@ pub async fn run(config: Config) -> Result<()> {
         leafchain_spec_files,
         allow_peer_in_loopback_network,
         peer_time_to_live,
-    } = config;
+    } = options;
     let config = {
         let api_listen_address = SocketAddr::from((api_listen_address, api_listen_port));
         let grpc_listen_address = SocketAddr::from((grpc_listen_address, grpc_listen_port));
@@ -106,6 +106,13 @@ pub async fn run(config: Config) -> Result<()> {
                 include_bytes!("chain-specs/testnet.leafchain.sand.raw.json").as_ref(),
             )
             .expect("`testnet.leafchain.sand.raw.json` is a valid spec"),
+        );
+
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/testnet.leafchain.aether.raw.json").as_ref(),
+            )
+            .expect("`testnet.leafchain.aether.raw.json` is a valid spec"),
         );
 
         // chain_specs of mainnet

@@ -1,14 +1,14 @@
-mod config;
 mod error;
+mod options;
 
 pub use self::{
-    config::Config,
     error::{Error, Result},
+    options::Options,
 };
 
-pub async fn run(config: Config) -> Result<()> {
-    let config = {
-        let Config {
+pub async fn run(options: Options) -> Result<()> {
+    let options = {
+        let Options {
             node_key_file_path,
             tracker_grpc_endpoint,
             rootchain_id,
@@ -18,7 +18,7 @@ pub async fn run(config: Config) -> Result<()> {
             keystore_directory_path,
             session_key_mnemonic_phrase,
             node_name,
-        } = config;
+        } = options;
         kallax_initializer::Config {
             node_key_file_path,
             tracker_grpc_endpoint,
@@ -32,7 +32,7 @@ pub async fn run(config: Config) -> Result<()> {
         }
     };
 
-    kallax_initializer::prepare(config).await?;
+    kallax_initializer::prepare(options).await?;
 
     Ok(())
 }

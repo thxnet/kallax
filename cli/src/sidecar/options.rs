@@ -1,7 +1,7 @@
 use clap::Args;
 
 #[derive(Args, Debug)]
-pub struct Config {
+pub struct Options {
     #[clap(long = "tracker-grpc-endpoint", help = "Tracker gRPC endpoint")]
     pub tracker_grpc_endpoint: http::Uri,
 

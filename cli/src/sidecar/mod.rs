@@ -1,5 +1,5 @@
-mod config;
 mod error;
+mod options;
 
 use std::time::Duration;
 
@@ -7,8 +7,8 @@ use kallax_primitives::ExternalEndpoint;
 use kallax_sidecar::ChainEndpoint;
 
 pub use self::{
-    config::Config,
     error::{Error, Result},
+    options::Options,
 };
 
 const POLLING_INTERVAL: Duration = Duration::from_millis(1000);
@@ -16,9 +16,9 @@ const POLLING_INTERVAL: Duration = Duration::from_millis(1000);
 /// # Errors
 ///
 /// This function returns an error if the sidecar is not created.
-pub async fn run(config: Config) -> Result<()> {
+pub async fn run(options: Options) -> Result<()> {
     let config = {
-        let Config {
+        let Options {
             tracker_grpc_endpoint,
             rootchain_id,
             rootchain_node_websocket_endpoint,
@@ -29,7 +29,7 @@ pub async fn run(config: Config) -> Result<()> {
             external_rootchain_p2p_port,
             external_leafchain_p2p_host,
             external_leafchain_p2p_port,
-        } = config;
+        } = options;
 
         let leafchain_endpoint = match (leafchain_id, leafchain_node_websocket_endpoint) {
             (Some(chain_id), Some(websocket_endpoint)) => {

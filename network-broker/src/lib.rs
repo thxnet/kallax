@@ -150,7 +150,7 @@ use std::time::Duration;
 
 use futures::{future, future::Either, FutureExt, StreamExt};
 use kallax_primitives::{BlockchainLayer, ExternalEndpoint};
-use kallax_tracker_grpc_client::{Client as TrackerClient, Config as TrackerClientConfig};
+use kallax_tracker_api_client::{Client as TrackerClient, Config as TrackerClientConfig};
 use snafu::ResultExt;
 
 pub use self::error::{Error, Result};
@@ -158,15 +158,18 @@ use self::peer_discoverer::PeerDiscoverer;
 
 #[derive(Clone, Debug)]
 pub struct Config {
-    pub tracker_grpc_endpoint: http::Uri,
+    pub tracker_api_endpoint: http::Uri,
 
     pub polling_interval: Duration,
 
+    pub nodes: Vec<Node>,
+}
+
+#[derive(Clone, Debug)]
+pub struct Node {
     pub rootchain_endpoint: ChainEndpoint,
 
     pub leafchain_endpoint: Option<ChainEndpoint>,
-
-    pub allow_loopback_ip: bool,
 
     pub external_rootchain_p2p_endpoint: Option<ExternalEndpoint>,
 
@@ -180,47 +183,61 @@ pub struct ChainEndpoint {
     pub websocket_endpoint: http::Uri,
 }
 
+pub struct PeerDiscoverers {
+    pub rootchain_peer_discoverer: PeerDiscoverer,
+    pub leafchain_peer_discoverer: Option<PeerDiscoverer>,
+}
+
 /// # Errors
 ///
 /// This function returns an error if the server is not connected.
 #[allow(clippy::significant_drop_tightening)]
 pub async fn serve(config: Config) -> Result<()> {
-    let Config {
-        tracker_grpc_endpoint,
-        polling_interval,
-        rootchain_endpoint,
-        leafchain_endpoint,
-        allow_loopback_ip,
-        external_rootchain_p2p_endpoint,
-        external_leafchain_p2p_endpoint,
-    } = config;
+    let Config { tracker_api_endpoint, polling_interval, nodes } = config;
 
     let tracker_client =
-        TrackerClient::new(TrackerClientConfig { grpc_endpoint: tracker_grpc_endpoint.clone() })
-            .await
-            .with_context(|_| error::ConnectTrackerSnafu { uri: tracker_grpc_endpoint })?;
+        TrackerClient::new(TrackerClientConfig { api_endpoint: tracker_api_endpoint.clone() })
+            .with_context(|_| error::ConnectTrackerSnafu { uri: tracker_api_endpoint })?;
 
     let lifecycle_manager = sigfinn::LifecycleManager::new();
-    let _handle = lifecycle_manager.spawn("Sidecar", {
+    let _handle = lifecycle_manager.spawn("Network-Broker", {
         move |shutdown| async move {
-            let mut rootchain_peer_discoverer = PeerDiscoverer::new(
-                rootchain_endpoint.chain_id,
-                BlockchainLayer::Rootchain,
-                rootchain_endpoint.websocket_endpoint,
-                tracker_client.clone(),
-                allow_loopback_ip,
-                external_rootchain_p2p_endpoint,
-            );
-            let mut leafchain_peer_discoverer = leafchain_endpoint.map(move |endpoint| {
-                PeerDiscoverer::new(
-                    endpoint.chain_id,
-                    BlockchainLayer::Leafchain,
-                    endpoint.websocket_endpoint,
-                    tracker_client,
-                    allow_loopback_ip,
-                    external_leafchain_p2p_endpoint,
+            let mut peer_discoverers: Vec<PeerDiscoverers> = nodes
+                .into_iter()
+                .map(
+                    |Node {
+                         rootchain_endpoint,
+                         leafchain_endpoint,
+                         external_rootchain_p2p_endpoint,
+                         external_leafchain_p2p_endpoint,
+                     }| {
+                        let rootchain_peer_discoverer = {
+                            let ChainEndpoint { chain_id, websocket_endpoint } = rootchain_endpoint;
+
+                            PeerDiscoverer::new(
+                                chain_id,
+                                BlockchainLayer::Rootchain,
+                                websocket_endpoint,
+                                tracker_client.clone(),
+                                external_rootchain_p2p_endpoint,
+                            )
+                        };
+
+                        let leafchain_peer_discoverer = leafchain_endpoint.map(
+                            |ChainEndpoint { chain_id, websocket_endpoint }| {
+                                PeerDiscoverer::new(
+                                    chain_id,
+                                    BlockchainLayer::Leafchain,
+                                    websocket_endpoint,
+                                    tracker_client.clone(),
+                                    external_leafchain_p2p_endpoint,
+                                )
+                            },
+                        );
+                        PeerDiscoverers { rootchain_peer_discoverer, leafchain_peer_discoverer }
+                    },
                 )
-            });
+                .collect::<Vec<PeerDiscoverers>>();
 
             let mut shutdown_signal = shutdown.into_stream();
 
@@ -236,24 +253,30 @@ pub async fn serve(config: Config) -> Result<()> {
                         break;
                     }
                     Either::Right(_) => {
-                        if let Err(err) = rootchain_peer_discoverer.execute().await {
-                            tracing::warn!(
-                                "Error occurs while operating Rootchain node, error: {err}"
-                            );
-                        }
-
-                        if let Some(ref mut leafchain_peer_discoverer) = leafchain_peer_discoverer {
-                            if let Err(err) = leafchain_peer_discoverer.execute().await {
+                        for PeerDiscoverers {
+                            rootchain_peer_discoverer,
+                            leafchain_peer_discoverer,
+                        } in &mut peer_discoverers
+                        {
+                            if let Err(err) = rootchain_peer_discoverer.execute().await {
                                 tracing::warn!(
-                                    "Error occurs while operating Leafchain node, error: {err}"
+                                    "Error occurs while operating Rootchain node, error: {err}"
                                 );
+                            }
+
+                            if let Some(ref mut leafchain) = leafchain_peer_discoverer {
+                                if let Err(err) = leafchain.execute().await {
+                                    tracing::warn!(
+                                        "Error occurs while operating Leafchain node, error: {err}"
+                                    );
+                                }
                             }
                         }
                     }
                 }
             }
 
-            tracing::info!("Sidecar is down");
+            tracing::info!("Network-Broker is down");
 
             sigfinn::ExitStatus::Success
         }
