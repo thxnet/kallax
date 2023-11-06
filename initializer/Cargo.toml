@@ -19,7 +19,7 @@ tokio   = { version = "1", features = ["fs", "rt-multi-thread"] }
 
 http = "0.2"
 
-libp2p = "0.52"
+libp2p = "0.53"
 
 serde_json = "1"
 
