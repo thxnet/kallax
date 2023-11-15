@@ -518,9 +518,9 @@ dependencies = [
  "bytes",
  "futures-util",
  "headers",
- "http",
- "http-body",
- "hyper",
+ "http 0.2.11",
+ "http-body 0.4.5",
+ "hyper 0.14.27",
  "itoa",
  "matchit",
  "memchr",
@@ -548,8 +548,8 @@ dependencies = [
  "async-trait",
  "bytes",
  "futures-util",
- "http",
- "http-body",
+ "http 0.2.11",
+ "http-body 0.4.5",
  "mime",
  "rustversion",
  "tower-layer",
@@ -2341,7 +2341,7 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "futures-util",
- "http",
+ "http 0.2.11",
  "indexmap 1.9.3",
  "slab",
  "tokio",
@@ -2397,7 +2397,7 @@ dependencies = [
  "base64 0.21.3",
  "bytes",
  "headers-core",
- "http",
+ "http 0.2.11",
  "httpdate",
  "mime",
  "sha1",
@@ -2409,7 +2409,7 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7f66481bfee273957b1f20485a4ff3362987f85b2c236580d81b4eb7a326429"
 dependencies = [
- "http",
+ "http 0.2.11",
 ]
 
 [[package]]
@@ -2520,14 +2520,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "http"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b32afd38673a8016f7c9ae69e5af41a58f81b1d31689040f2f1959594ce194ea"
+dependencies = [
+ "bytes",
+ "fnv",
+ "itoa",
+]
+
+[[package]]
 name = "http-body"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d5f38f16d184e36f2408a55281cd658ecbd3ca05cce6d6510a176eca393e26d1"
 dependencies = [
  "bytes",
- "http",
+ "http 0.2.11",
  "pin-project-lite 0.2.13",
+]
+
+[[package]]
+name = "http-body"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cac85db508abc24a2e48553ba12a996e87244a0395ce011e62b37158745d643"
+dependencies = [
+ "bytes",
+ "http 1.0.0",
 ]
 
 [[package]]
@@ -2565,8 +2586,8 @@ dependencies = [
  "futures-core",
  "futures-util",
  "h2",
- "http",
- "http-body",
+ "http 0.2.11",
+ "http-body 0.4.5",
  "httparse",
  "httpdate",
  "itoa",
@@ -2579,13 +2600,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "hyper"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24590385be94998c5def4cf53d34edc5381144c805126f00efb954d986f9a7b2"
+dependencies = [
+ "bytes",
+ "futures-channel",
+ "futures-util",
+ "http 1.0.0",
+ "http-body 1.0.0",
+ "pin-project-lite 0.2.13",
+ "tokio",
+]
+
+[[package]]
 name = "hyper-rustls"
 version = "0.23.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1788965e61b367cd03a62950836d5cd41560c3577d90e40e0819373194d1661c"
 dependencies = [
- "http",
- "hyper",
+ "http 0.2.11",
+ "hyper 0.14.27",
  "log",
  "rustls 0.20.9",
  "rustls-native-certs",
@@ -2600,8 +2636,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8d78e1e73ec14cf7375674f74d7dde185c8206fd9dea6fb6295e8a98098aaa97"
 dependencies = [
  "futures-util",
- "http",
- "hyper",
+ "http 0.2.11",
+ "hyper 0.14.27",
  "rustls 0.21.7",
  "tokio",
  "tokio-rustls 0.24.1",
@@ -2613,7 +2649,7 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbb958482e8c7be4bc3cf272a766a2b0bf1a6755e7a6ae777f017a31d11b13b1"
 dependencies = [
- "hyper",
+ "hyper 0.14.27",
  "pin-project-lite 0.2.13",
  "tokio",
  "tokio-io-timeout",
@@ -2903,7 +2939,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8b3815d9f5d5de348e5f162b316dc9cdf4548305ebb15b4eb9328e66cf27d7a"
 dependencies = [
  "futures-util",
- "http",
+ "http 0.2.11",
  "jsonrpsee-core",
  "jsonrpsee-types",
  "pin-project",
@@ -2932,7 +2968,7 @@ dependencies = [
  "futures-timer",
  "futures-util",
  "globset",
- "hyper",
+ "hyper 0.14.27",
  "jsonrpsee-types",
  "parking_lot 0.12.1",
  "rand 0.8.5",
@@ -2966,8 +3002,8 @@ checksum = "cf4d945a6008c9b03db3354fb3c83ee02d2faa9f2e755ec1dfb69c3551b8f4ba"
 dependencies = [
  "futures-channel",
  "futures-util",
- "http",
- "hyper",
+ "http 0.2.11",
+ "hyper 0.14.27",
  "jsonrpsee-core",
  "jsonrpsee-types",
  "serde",
@@ -3000,7 +3036,7 @@ version = "0.16.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4e1b3975ed5d73f456478681a417128597acd6a2487855fdb7b4a3d4d195bf5e"
 dependencies = [
- "http",
+ "http 0.2.11",
  "jsonrpsee-client-transport",
  "jsonrpsee-core",
  "jsonrpsee-types",
@@ -3021,7 +3057,7 @@ dependencies = [
  "clap_complete",
  "exitcode",
  "futures",
- "http",
+ "http 0.2.11",
  "kallax-initializer",
  "kallax-network-broker",
  "kallax-primitives",
@@ -3041,7 +3077,7 @@ version = "0.3.0"
 dependencies = [
  "array-bytes 6.2.0",
  "futures",
- "http",
+ "http 0.2.11",
  "kallax-primitives",
  "kallax-tracker-grpc-client",
  "libp2p 0.52.4",
@@ -3059,7 +3095,7 @@ name = "kallax-network-broker"
 version = "0.3.0"
 dependencies = [
  "futures",
- "http",
+ "http 0.2.11",
  "kallax-primitives",
  "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
@@ -3087,7 +3123,7 @@ name = "kallax-sidecar"
 version = "0.3.0"
 dependencies = [
  "futures",
- "http",
+ "http 0.2.11",
  "kallax-primitives",
  "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
@@ -3104,7 +3140,7 @@ name = "kallax-tracker-api-client"
 version = "0.3.0"
 dependencies = [
  "async-trait",
- "http",
+ "http 0.2.11",
  "kallax-primitives",
  "kallax-tracker-proto",
  "kallax-tracker-server",
@@ -3121,7 +3157,7 @@ name = "kallax-tracker-grpc-client"
 version = "0.3.0"
 dependencies = [
  "async-trait",
- "http",
+ "http 0.2.11",
  "kallax-primitives",
  "kallax-tracker-proto",
  "snafu",
@@ -3145,7 +3181,7 @@ name = "kallax-tracker-server"
 version = "0.3.0"
 dependencies = [
  "axum",
- "hyper",
+ "hyper 1.0.0",
  "kallax-primitives",
  "kallax-tracker-proto",
  "sc-network",
@@ -5470,9 +5506,9 @@ dependencies = [
  "futures-core",
  "futures-util",
  "h2",
- "http",
- "http-body",
- "hyper",
+ "http 0.2.11",
+ "http-body 0.4.5",
+ "hyper 0.14.27",
  "hyper-rustls 0.24.1",
  "ipnet",
  "js-sys",
@@ -6234,7 +6270,7 @@ dependencies = [
  "fnv",
  "futures",
  "futures-timer",
- "hyper",
+ "hyper 0.14.27",
  "hyper-rustls 0.23.2",
  "libp2p 0.50.1",
  "num_cpus",
@@ -6322,7 +6358,7 @@ name = "sc-rpc-server"
 version = "4.0.0-dev"
 source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.40#98f2e3451c9143278ec53c6718940aeabcd3b68a"
 dependencies = [
- "http",
+ "http 0.2.11",
  "jsonrpsee",
  "log",
  "serde_json",
@@ -7050,7 +7086,7 @@ dependencies = [
  "bytes",
  "flate2",
  "futures",
- "http",
+ "http 0.2.11",
  "httparse",
  "log",
  "rand 0.8.5",
@@ -7763,7 +7799,7 @@ name = "substrate-prometheus-endpoint"
 version = "0.10.0-dev"
 source = "git+https://github.com/paritytech/substrate?branch=polkadot-v0.9.40#98f2e3451c9143278ec53c6718940aeabcd3b68a"
 dependencies = [
- "hyper",
+ "hyper 0.14.27",
  "log",
  "prometheus",
  "thiserror",
@@ -8142,9 +8178,9 @@ dependencies = [
  "bytes",
  "flate2",
  "h2",
- "http",
- "http-body",
- "hyper",
+ "http 0.2.11",
+ "http-body 0.4.5",
+ "hyper 0.14.27",
  "hyper-timeout",
  "percent-encoding",
  "pin-project",
@@ -8200,8 +8236,8 @@ dependencies = [
  "bytes",
  "futures-core",
  "futures-util",
- "http",
- "http-body",
+ "http 0.2.11",
+ "http-body 0.4.5",
  "http-range-header",
  "pin-project-lite 0.2.13",
  "tower-layer",
@@ -8219,8 +8255,8 @@ dependencies = [
  "bytes",
  "futures-core",
  "futures-util",
- "http",
- "http-body",
+ "http 0.2.11",
+ "http-body 0.4.5",
  "http-range-header",
  "pin-project-lite 0.2.13",
  "tokio",
