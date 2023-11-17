@@ -16,7 +16,7 @@ async-trait = "0.1"
 
 tonic = { version = "0.10", features = ["gzip"] }
 
-http = "0.2"
+http = "1.0"
 
 snafu = "0.7"
 
