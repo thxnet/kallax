@@ -3145,7 +3145,7 @@ version = "0.3.0"
 dependencies = [
  "kallax-primitives",
  "prost 0.12.3",
- "prost-build 0.12.2",
+ "prost-build 0.12.3",
  "prost-types 0.12.3",
  "tonic",
  "tonic-build",
@@ -5080,9 +5080,9 @@ dependencies = [
 
 [[package]]
 name = "prost-build"
-version = "0.12.2"
+version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fa3d084c8704911bfefb2771be2f9b6c5c0da7343a71e0021ee3c665cada738"
+checksum = "c55e02e35260070b6f716a2423c2ff1c3bb1642ddca6f99e1f26d06268a0e2d2"
 dependencies = [
  "bytes",
  "heck",
@@ -8176,7 +8176,7 @@ checksum = "9d021fc044c18582b9a2408cd0dd05b1596e3ecdb5c4df822bb0183545683889"
 dependencies = [
  "prettyplease 0.2.14",
  "proc-macro2",
- "prost-build 0.12.2",
+ "prost-build 0.12.3",
  "quote",
  "syn 2.0.31",
 ]
