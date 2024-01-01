@@ -18,7 +18,7 @@ tonic = { version = "0.10", features = ["gzip"] }
 
 http = "1.0"
 
-snafu = "0.7"
+snafu = "0.8"
 
 kallax-primitives    = { path = "../../primitives" }
 kallax-tracker-proto = { path = "../proto" }

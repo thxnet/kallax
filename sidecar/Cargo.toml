@@ -20,7 +20,7 @@ sigfinn = "0.1"
 
 http = "1.0"
 
-snafu = "0.7"
+snafu = "0.8"
 
 sp-core              = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 substrate-rpc-client = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
