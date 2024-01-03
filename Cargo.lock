@@ -3040,7 +3040,7 @@ dependencies = [
  "kallax-tracker-server",
  "serde",
  "serde_yaml",
- "snafu",
+ "snafu 0.8.0",
  "tokio",
  "tracing",
  "tracing-subscriber 0.3.18",
@@ -3058,7 +3058,7 @@ dependencies = [
  "libp2p 0.52.4",
  "sc-cli",
  "serde_json",
- "snafu",
+ "snafu 0.8.0",
  "sp-application-crypto",
  "sp-core",
  "tokio",
@@ -3075,7 +3075,7 @@ dependencies = [
  "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
  "sigfinn",
- "snafu",
+ "snafu 0.8.0",
  "sp-core",
  "substrate-rpc-client",
  "tokio",
@@ -3090,7 +3090,7 @@ dependencies = [
  "sc-network",
  "serde",
  "serde_json",
- "snafu",
+ "snafu 0.8.0",
 ]
 
 [[package]]
@@ -3103,7 +3103,7 @@ dependencies = [
  "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
  "sigfinn",
- "snafu",
+ "snafu 0.8.0",
  "sp-core",
  "substrate-rpc-client",
  "tokio",
@@ -3122,7 +3122,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "snafu",
+ "snafu 0.8.0",
  "tracing",
  "tracing-subscriber 0.3.18",
 ]
@@ -3135,7 +3135,7 @@ dependencies = [
  "http 1.0.0",
  "kallax-primitives",
  "kallax-tracker-proto",
- "snafu",
+ "snafu 0.8.0",
  "tonic",
 ]
 
@@ -3163,7 +3163,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sigfinn",
- "snafu",
+ "snafu 0.8.0",
  "time 0.3.30",
  "tokio",
  "tonic",
@@ -6927,7 +6927,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "19ccc3278dafd66473c654456b52f3d356df5c5d0ce149b39268ff59654afbcc"
 dependencies = [
  "futures",
- "snafu",
+ "snafu 0.7.5",
  "tokio",
  "tracing",
 ]
@@ -6993,7 +6993,16 @@ dependencies = [
  "doc-comment",
  "futures-core",
  "pin-project",
- "snafu-derive",
+ "snafu-derive 0.7.5",
+]
+
+[[package]]
+name = "snafu"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d342c51730e54029130d7dc9fd735d28c4cd360f1368c01981d4f03ff207f096"
+dependencies = [
+ "snafu-derive 0.8.0",
 ]
 
 [[package]]
@@ -7006,6 +7015,18 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "snafu-derive"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "080c44971436b1af15d6f61ddd8b543995cf63ab8e677d46b00cc06f4ef267a0"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.31",
 ]
 
 [[package]]
