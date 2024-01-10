@@ -1,11 +1,3 @@
-variable "TAG" {
-  default = "develop"
-}
-
-variable "CONTAINER_REGISTRY" {
-  default = "ghcr.io/thxnet"
-}
-
 group "default" {
   targets = [
     "kallax",
@@ -15,7 +7,6 @@ group "default" {
 target "kallax" {
   dockerfile = "dev-support/containers/debian/Containerfile"
   target     = "kallax"
-  tags       = ["${CONTAINER_REGISTRY}/kallax:${TAG}"]
   platforms  = ["linux/amd64"]
   args = {
     RUSTC_WRAPPER         = "/usr/bin/sccache"
