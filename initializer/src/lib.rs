@@ -94,7 +94,6 @@
         opaque_hidden_inferred_bound,
         overlapping_range_endpoints,
         path_statements,
-        private_in_public,
         redundant_semicolons,
         renamed_and_removed_lints,
         repr_transparent_external_private_fields,
@@ -186,6 +185,9 @@ pub struct Config {
 /// # Errors
 ///
 /// This function returns an error if the session keys are failed to create.
+///
+/// # Panics
+/// This function never panics.
 pub async fn prepare_session_keys<K, P, N>(
     keystore_dir_path: K,
     phrase: P,

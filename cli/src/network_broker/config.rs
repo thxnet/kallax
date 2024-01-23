@@ -50,6 +50,7 @@ pub struct RootchainNode {
     pub external_p2p_endpoint: Option<P2pEndpoint>,
 }
 
+#[allow(clippy::struct_field_names)]
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LeafchainNode {
@@ -87,9 +88,9 @@ impl Thxnet {
 }
 
 impl Mainnet {
-    pub const LMT_ID: &str = "lmt_mainnet";
-    pub const ROOTCHAIN_ID: &str = "thxnet_mainnet";
-    pub const THX_ID: &str = "thx_mainnet";
+    pub const LMT_ID: &'static str = "lmt_mainnet";
+    pub const ROOTCHAIN_ID: &'static str = "thxnet_mainnet";
+    pub const THX_ID: &'static str = "thx_mainnet";
 
     pub fn nodes(&self) -> Vec<Node> {
         let mut nodes: Vec<Node> = Vec::new();
@@ -115,12 +116,12 @@ impl Mainnet {
 }
 
 impl Testnet {
-    pub const AETHER_ID: &str = "aether_testnet";
-    pub const LMT_ID: &str = "lmt_testnet";
-    pub const ROOTCHAIN_ID: &str = "thxnet_testnet";
-    pub const SAND_ID: &str = "sand_testnet";
-    pub const THX_ID: &str = "thx_testnet";
-    pub const TXD_ID: &str = "txd_testnet";
+    pub const AETHER_ID: &'static str = "aether_testnet";
+    pub const LMT_ID: &'static str = "lmt_testnet";
+    pub const ROOTCHAIN_ID: &'static str = "thxnet_testnet";
+    pub const SAND_ID: &'static str = "sand_testnet";
+    pub const THX_ID: &'static str = "thx_testnet";
+    pub const TXD_ID: &'static str = "txd_testnet";
 
     pub fn nodes(&self) -> Vec<Node> {
         let mut nodes: Vec<Node> = Vec::new();

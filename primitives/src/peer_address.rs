@@ -68,7 +68,7 @@ impl PeerAddress {
 
     #[must_use]
     pub fn id(&self) -> String {
-        for protocol in self.0.iter() {
+        for protocol in &self.0 {
             if let Protocol::P2p(id) = protocol {
                 return multibase::Base::Base58Btc.encode(id.to_bytes());
             }

@@ -94,7 +94,6 @@
         opaque_hidden_inferred_bound,
         overlapping_range_endpoints,
         path_statements,
-        private_in_public,
         redundant_semicolons,
         renamed_and_removed_lints,
         repr_transparent_external_private_fields,
@@ -233,6 +232,9 @@ impl Cli {
     /// # Errors
     ///
     /// This function returns an error if the command is not executed properly.
+    ///
+    /// # Panics
+    /// This function never panics.
     pub fn run(self) -> Result<()> {
         match self.commands {
             Commands::Version => {
@@ -311,15 +313,12 @@ mod tests {
 
     #[test]
     fn test_command_version() {
-        match Cli::parse_from(["program_name", "version"]).commands {
-            Commands::Version => (),
-            _ => panic!(),
-        }
+        matches!(Cli::parse_from(["program_name", "version"]).commands, Commands::Version);
     }
 
     #[test]
     fn test_command_sidecar() {
-        match Cli::parse_from([
+        if let Commands::Sidecar { options: _ } = Cli::parse_from([
             "program_name",
             "sidecar",
             "--tracker-grpc-endpoint=http://kallax-tracker.mainnet.svc.cluster.local:80",
@@ -328,8 +327,9 @@ mod tests {
         ])
         .commands
         {
-            Commands::Sidecar { options: _ } => (),
-            _ => panic!(),
+            // Everything is good here.
+        } else {
+            panic!();
         }
     }
 }

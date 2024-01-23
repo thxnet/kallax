@@ -11,7 +11,6 @@ use tokio::fs;
 pub use self::{
     config::Thxnet,
     error::{Error, Result},
-    options::Options,
 };
 
 const POLLING_INTERVAL: Duration = Duration::from_millis(5000);

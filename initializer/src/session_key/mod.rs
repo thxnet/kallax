@@ -41,6 +41,9 @@ impl SessionKey {
     /// # Errors
     ///
     /// This function returns an error if the file is not saved.
+    ///
+    /// # Panics
+    /// This function never panics.
     pub async fn save_file<P: AsRef<Path>>(&self, directory_path: P) -> Result<PathBuf> {
         fn extract_public_key<Pair: sp_core::Pair>(suri: &str) -> Result<Vec<u8>> {
             let pair: Pair = sp_core::Pair::from_string_with_seed(suri, None)
