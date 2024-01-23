@@ -127,6 +127,7 @@ impl PeerAddressBook {
                 })
             });
         }
+        drop(books);
         tracing::info!("Flushing stalled peer addresses completed");
     }
 
