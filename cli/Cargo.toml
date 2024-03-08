@@ -23,7 +23,7 @@ tokio = { version = "1", features = [
   "signal",
 ] }
 
-http = "1.0"
+http = "1.1"
 
 clap          = { version = "4", features = ["derive", "env"] }
 clap_complete = "4"
