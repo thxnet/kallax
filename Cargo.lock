@@ -321,7 +321,7 @@ dependencies = [
  "num-traits",
  "rusticata-macros",
  "thiserror",
- "time 0.3.34",
+ "time 0.3.35",
 ]
 
 [[package]]
@@ -337,7 +337,7 @@ dependencies = [
  "num-traits",
  "rusticata-macros",
  "thiserror",
- "time 0.3.34",
+ "time 0.3.35",
 ]
 
 [[package]]
@@ -3170,7 +3170,7 @@ dependencies = [
  "serde_json",
  "sigfinn",
  "snafu 0.8.2",
- "time 0.3.34",
+ "time 0.3.35",
  "tokio",
  "tonic",
  "tower",
@@ -5346,7 +5346,7 @@ checksum = "6413f3de1edee53342e6138e75b56d32e7bc6e332b3bd62d497b1929d4cfbcdd"
 dependencies = [
  "pem",
  "ring",
- "time 0.3.34",
+ "time 0.3.35",
  "x509-parser 0.13.2",
  "yasna",
 ]
@@ -5359,7 +5359,7 @@ checksum = "ffbe84efe2f38dea12e9bfc1f65377fdf03e53a18cb3b995faedf7934c7e785b"
 dependencies = [
  "pem",
  "ring",
- "time 0.3.34",
+ "time 0.3.35",
  "yasna",
 ]
 
@@ -8011,9 +8011,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.34"
+version = "0.3.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8248b6521bb14bc45b4067159b9b6ad792e2d6d754d6c41fb50e29fefe38749"
+checksum = "ef89ece63debf11bc32d1ed8d078ac870cbeb44da02afb02a9ff135ae7ca0582"
 dependencies = [
  "deranged",
  "itoa",
@@ -8032,9 +8032,9 @@ checksum = "ef927ca75afb808a4d64dd374f00a2adf8d0fcff8e7b184af886c3c87ec4a3f3"
 
 [[package]]
 name = "time-macros"
-version = "0.2.17"
+version = "0.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ba3a3ef41e6672a2f0f001392bb5dcd3ff0a9992d618ca761a11c3121547774"
+checksum = "3f252a68540fde3a3877aeea552b832b40ab9a69e318efd078774a01ddee1ccf"
 dependencies = [
  "num-conv",
  "time-core",
@@ -9086,7 +9086,7 @@ dependencies = [
  "sha2 0.10.8",
  "stun",
  "thiserror",
- "time 0.3.34",
+ "time 0.3.35",
  "tokio",
  "turn",
  "url",
@@ -9640,7 +9640,7 @@ dependencies = [
  "ring",
  "rusticata-macros",
  "thiserror",
- "time 0.3.34",
+ "time 0.3.35",
 ]
 
 [[package]]
@@ -9658,7 +9658,7 @@ dependencies = [
  "oid-registry 0.6.1",
  "rusticata-macros",
  "thiserror",
- "time 0.3.34",
+ "time 0.3.35",
 ]
 
 [[package]]
@@ -9681,7 +9681,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e17bb3549cc1321ae1296b9cdc2698e2b6cb1992adfa19a8c72e5b7a738f44cd"
 dependencies = [
- "time 0.3.34",
+ "time 0.3.35",
 ]
 
 [[package]]
