@@ -3046,7 +3046,7 @@ dependencies = [
  "kallax-tracker-server",
  "serde",
  "serde_yaml",
- "snafu 0.8.2",
+ "snafu 0.8.4",
  "tokio",
  "tracing",
  "tracing-subscriber 0.3.18",
@@ -3064,7 +3064,7 @@ dependencies = [
  "libp2p 0.53.2",
  "sc-cli",
  "serde_json",
- "snafu 0.8.2",
+ "snafu 0.8.4",
  "sp-application-crypto",
  "sp-core",
  "tokio",
@@ -3081,7 +3081,7 @@ dependencies = [
  "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
  "sigfinn",
- "snafu 0.8.2",
+ "snafu 0.8.4",
  "sp-core",
  "substrate-rpc-client",
  "tokio",
@@ -3096,7 +3096,7 @@ dependencies = [
  "sc-network",
  "serde",
  "serde_json",
- "snafu 0.8.2",
+ "snafu 0.8.4",
 ]
 
 [[package]]
@@ -3109,7 +3109,7 @@ dependencies = [
  "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
  "sigfinn",
- "snafu 0.8.2",
+ "snafu 0.8.4",
  "sp-core",
  "substrate-rpc-client",
  "tokio",
@@ -3128,7 +3128,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "snafu 0.8.2",
+ "snafu 0.8.4",
  "tracing",
  "tracing-subscriber 0.3.18",
 ]
@@ -3141,7 +3141,7 @@ dependencies = [
  "http 1.1.0",
  "kallax-primitives",
  "kallax-tracker-proto",
- "snafu 0.8.2",
+ "snafu 0.8.4",
  "tonic",
 ]
 
@@ -3169,7 +3169,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sigfinn",
- "snafu 0.8.2",
+ "snafu 0.8.4",
  "time 0.3.36",
  "tokio",
  "tonic",
@@ -7010,11 +7010,11 @@ dependencies = [
 
 [[package]]
 name = "snafu"
-version = "0.8.2"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75976f4748ab44f6e5332102be424e7c2dc18daeaf7e725f2040c3ebb133512e"
+checksum = "2b835cb902660db3415a672d862905e791e54d306c6e8189168c7f3d9ae1c79d"
 dependencies = [
- "snafu-derive 0.8.2",
+ "snafu-derive 0.8.4",
 ]
 
 [[package]]
@@ -7031,11 +7031,11 @@ dependencies = [
 
 [[package]]
 name = "snafu-derive"
-version = "0.8.2"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4b19911debfb8c2fb1107bc6cb2d61868aaf53a988449213959bb1b5b1ed95f"
+checksum = "38d1e02fca405f6280643174a50c942219f0bbf4dbf7d480f1dd864d6f211ae5"
 dependencies = [
- "heck 0.4.1",
+ "heck 0.5.0",
  "proc-macro2",
  "quote",
  "syn 2.0.48",
