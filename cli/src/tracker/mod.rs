@@ -136,6 +136,14 @@ pub async fn run(options: Options) -> Result<()> {
             )
             .expect("`mainnet.leafchain.lmt.raw.json` is a valid spec"),
         );
+
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/mainnet.leafchain.activa.raw.json").as_ref(),
+            )
+            .expect("`mainnet.leafchain.activa.raw.json` is a valid spec"),
+        );
+
         specs
     };
 
