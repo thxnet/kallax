@@ -115,6 +115,13 @@ pub async fn run(options: Options) -> Result<()> {
             .expect("`testnet.leafchain.aether.raw.json` is a valid spec"),
         );
 
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/testnet.leafchain.izutsuya.raw.json").as_ref(),
+            )
+            .expect("`testnet.leafchain.izutsuya.raw.json` is a valid spec"),
+        );
+
         // chain_specs of mainnet
         specs.push(
             ChainSpec::try_from(
@@ -129,6 +136,14 @@ pub async fn run(options: Options) -> Result<()> {
             )
             .expect("`mainnet.leafchain.lmt.raw.json` is a valid spec"),
         );
+
+        specs.push(
+            ChainSpec::try_from(
+                include_bytes!("chain-specs/mainnet.leafchain.activa.raw.json").as_ref(),
+            )
+            .expect("`mainnet.leafchain.activa.raw.json` is a valid spec"),
+        );
+
         specs
     };
 
