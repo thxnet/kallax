@@ -1,5 +1,5 @@
 [workspace.package]
-version     = "0.3.1"
+version     = "0.3.3"
 authors     = ["THXLAB PTE. LTD. <contact@thxlab.io>"]
 homepage    = "https://thxnet.org/"
 repository  = "https://github.com/thxnet/kallax"
