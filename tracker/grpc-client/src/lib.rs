@@ -94,7 +94,6 @@
         opaque_hidden_inferred_bound,
         overlapping_range_endpoints,
         path_statements,
-        private_in_public,
         redundant_semicolons,
         renamed_and_removed_lints,
         repr_transparent_external_private_fields,
@@ -177,6 +176,9 @@ impl Client {
     /// # Errors
     ///
     /// This function will an error if the server is not connected.
+    ///
+    /// # Panics
+    /// This function never panic.
     pub async fn new(Config { grpc_endpoint }: Config) -> Result<Self> {
         let channel = tonic::transport::Endpoint::from_shared(grpc_endpoint.to_string())
             .expect("`grpc_endpoint` is a valid URL; qed")

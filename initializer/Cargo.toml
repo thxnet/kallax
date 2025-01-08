@@ -17,14 +17,14 @@ tracing = "0.1"
 futures = "0.3"
 tokio   = { version = "1", features = ["fs", "rt-multi-thread"] }
 
-http = "0.2"
+http = "1.1"
 
-libp2p = "0.52"
+libp2p = "0.53"
 
 serde_json = "1"
 
 array-bytes = "6"
-snafu       = "0.7"
+snafu       = "0.8"
 
 sc-cli                = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
 sp-application-crypto = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }

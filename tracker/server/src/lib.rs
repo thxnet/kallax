@@ -94,7 +94,6 @@
         opaque_hidden_inferred_bound,
         overlapping_range_endpoints,
         path_statements,
-        private_in_public,
         redundant_semicolons,
         renamed_and_removed_lints,
         repr_transparent_external_private_fields,
@@ -247,7 +246,7 @@ where
                         .await
                         .context(error::ServeApiServerSnafu)
                     {
-                        Ok(_) => {
+                        Ok(()) => {
                             tracing::info!("Web server is shut down gracefully");
                             sigfinn::ExitStatus::Success
                         }
@@ -285,7 +284,7 @@ where
                     .serve_with_shutdown(grpc_listen_address, shutdown);
 
                 match server.await.context(error::StartTonicServerSnafu) {
-                    Ok(_) => sigfinn::ExitStatus::Success,
+                    Ok(()) => sigfinn::ExitStatus::Success,
                     Err(err) => sigfinn::ExitStatus::Failure(err),
                 }
             }
@@ -296,7 +295,7 @@ where
 
             loop {
                 tokio::select! {
-                  _ = &mut shutdown => break,
+                  () = &mut shutdown => break,
                   _ = interval.tick() => {
                     rootchain_peer_address_book.flush().await;
                     leafchain_peer_address_book.flush().await;

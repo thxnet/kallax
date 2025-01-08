@@ -23,12 +23,12 @@ tokio = { version = "1", features = [
   "signal",
 ] }
 
-http = "0.2"
+http = "1.1"
 
 clap          = { version = "4", features = ["derive", "env"] }
 clap_complete = "4"
 exitcode      = "1"
-snafu         = "0.7"
+snafu         = "0.8"
 
 serde      = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"

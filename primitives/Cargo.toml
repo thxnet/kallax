@@ -16,6 +16,6 @@ serde      = "1"
 serde_json = "1"
 
 multibase = "0.9"
-snafu     = "0.7"
+snafu     = "0.8"
 
 sc-network = { git = "https://github.com/paritytech/substrate", branch = "polkadot-v0.9.40" }
