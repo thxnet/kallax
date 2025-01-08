@@ -16,6 +16,7 @@ pub struct Mainnet {
     pub thx: Option<Leafchain>,
     pub lmt: Option<Leafchain>,
     pub activa: Option<Leafchain>,
+    pub mirrored_body: Option<Leafchain>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -28,6 +29,7 @@ pub struct Testnet {
     pub sand: Option<Leafchain>,
     pub aether: Option<Leafchain>,
     pub izutsuya: Option<Leafchain>,
+    pub mirrored_body: Option<Leafchain>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -92,12 +94,13 @@ impl Thxnet {
 impl Mainnet {
     pub const ACTIVA_ID: &'static str = "activa_mainnet";
     pub const LMT_ID: &'static str = "lmt_mainnet";
+    pub const MIRRORED_BODY_ID: &'static str = "mirrored_body_mainnet";
     pub const ROOTCHAIN_ID: &'static str = "thxnet_mainnet";
     pub const THX_ID: &'static str = "thx_mainnet";
 
     pub fn nodes(&self) -> Vec<Node> {
         let mut nodes: Vec<Node> = Vec::new();
-        let Self { rootchain, thx, lmt, activa } = self;
+        let Self { rootchain, thx, lmt, activa, mirrored_body } = self;
 
         if let Some(chain) = rootchain {
             let mut config = chain.nodes(Self::ROOTCHAIN_ID);
@@ -119,6 +122,11 @@ impl Mainnet {
             nodes.append(config);
         }
 
+        if let Some(chain) = mirrored_body {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::MIRRORED_BODY_ID);
+            nodes.append(config);
+        }
+
         nodes
     }
 }
@@ -127,6 +135,7 @@ impl Testnet {
     pub const AETHER_ID: &'static str = "aether_testnet";
     pub const IZUTSUYA_ID: &'static str = "izutsuya_testnet";
     pub const LMT_ID: &'static str = "lmt_testnet";
+    pub const MIRRORED_BODY_ID: &'static str = "mirrored_body_testnet";
     pub const ROOTCHAIN_ID: &'static str = "thxnet_testnet";
     pub const SAND_ID: &'static str = "sand_testnet";
     pub const THX_ID: &'static str = "thx_testnet";
@@ -134,7 +143,7 @@ impl Testnet {
 
     pub fn nodes(&self) -> Vec<Node> {
         let mut nodes: Vec<Node> = Vec::new();
-        let Self { rootchain, thx, lmt, txd, sand, aether, izutsuya } = self;
+        let Self { rootchain, thx, lmt, txd, sand, aether, izutsuya, mirrored_body } = self;
 
         if let Some(chain) = rootchain {
             let mut config = chain.nodes(Self::ROOTCHAIN_ID);
@@ -168,6 +177,11 @@ impl Testnet {
 
         if let Some(chain) = izutsuya {
             let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::IZUTSUYA_ID);
+            nodes.append(config);
+        }
+
+        if let Some(chain) = mirrored_body {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::MIRRORED_BODY_ID);
             nodes.append(config);
         }
 
