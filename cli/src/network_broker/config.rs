@@ -16,6 +16,7 @@ pub struct Mainnet {
     pub thx: Option<Leafchain>,
     pub lmt: Option<Leafchain>,
     pub activa: Option<Leafchain>,
+    pub avatect: Option<Leafchain>,
     pub mirrored_body: Option<Leafchain>,
 }
 
@@ -93,6 +94,7 @@ impl Thxnet {
 
 impl Mainnet {
     pub const ACTIVA_ID: &'static str = "activa_mainnet";
+    pub const AVATECT_ID: &'static str = "avatect_mainnet";
     pub const LMT_ID: &'static str = "lmt_mainnet";
     pub const MIRRORED_BODY_ID: &'static str = "mirrored_body_mainnet";
     pub const ROOTCHAIN_ID: &'static str = "thxnet_mainnet";
@@ -100,7 +102,7 @@ impl Mainnet {
 
     pub fn nodes(&self) -> Vec<Node> {
         let mut nodes: Vec<Node> = Vec::new();
-        let Self { rootchain, thx, lmt, activa, mirrored_body } = self;
+        let Self { rootchain, thx, lmt, activa, avatect, mirrored_body } = self;
 
         if let Some(chain) = rootchain {
             let mut config = chain.nodes(Self::ROOTCHAIN_ID);
@@ -119,6 +121,11 @@ impl Mainnet {
 
         if let Some(chain) = activa {
             let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::ACTIVA_ID);
+            nodes.append(config);
+        }
+
+        if let Some(chain) = avatect {
+            let config = &mut chain.nodes(Self::ROOTCHAIN_ID, Self::AVATECT_ID);
             nodes.append(config);
         }
 

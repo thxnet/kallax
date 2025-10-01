@@ -153,6 +153,13 @@ pub async fn run(options: Options) -> Result<()> {
 
         specs.push(
             ChainSpec::try_from(
+                include_bytes!("chain-specs/mainnet.leafchain.avatect.raw.json").as_ref(),
+            )
+            .expect("`mainnet.leafchain.avatect.raw.json` is a valid spec"),
+        );
+
+        specs.push(
+            ChainSpec::try_from(
                 include_bytes!("chain-specs/mainnet.leafchain.mirrored-body.raw.json").as_ref(),
             )
             .expect("`mainnet.leafchain.mirrored-body.raw.json` is a valid spec"),
