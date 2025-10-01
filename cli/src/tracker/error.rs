@@ -19,7 +19,9 @@ pub enum Error {
 
 impl From<kallax_tracker_server::Error> for Error {
     #[inline]
-    fn from(source: kallax_tracker_server::Error) -> Self { Self::Application { source } }
+    fn from(source: kallax_tracker_server::Error) -> Self {
+        Self::Application { source }
+    }
 }
 
 impl CommandError for Error {

@@ -27,13 +27,19 @@ pub enum Error {
 }
 
 impl From<crate::node_key::Error> for Error {
-    fn from(source: crate::node_key::Error) -> Self { Self::NodeKey { source } }
+    fn from(source: crate::node_key::Error) -> Self {
+        Self::NodeKey { source }
+    }
 }
 
 impl From<crate::session_key::Error> for Error {
-    fn from(source: crate::session_key::Error) -> Self { Self::SessionKey { source } }
+    fn from(source: crate::session_key::Error) -> Self {
+        Self::SessionKey { source }
+    }
 }
 
 impl From<kallax_tracker_grpc_client::Error> for Error {
-    fn from(source: kallax_tracker_grpc_client::Error) -> Self { Self::Tracker { source } }
+    fn from(source: kallax_tracker_grpc_client::Error) -> Self {
+        Self::Tracker { source }
+    }
 }

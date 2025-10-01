@@ -17,7 +17,7 @@
   outputs = { self, nixpkgs, flake-utils, fenix, crane }:
     let
       name = "kallax";
-      version = "0.3.4";
+      version = "0.3.5";
     in
     (flake-utils.lib.eachDefaultSystem
       (system:
@@ -30,15 +30,10 @@
             ];
           };
 
-          rustToolchain = with fenix.packages.${system}; combine [
-            stable.rustc
-            stable.cargo
-            stable.clippy
-            stable.rust-src
-            stable.rust-std
-
-            default.rustfmt
-          ];
+          rustToolchain = fenix.packages.${system}.fromToolchainFile {
+            file = ./rust-toolchain.toml;
+            sha256 = "sha256-Qxt8XAuaUR2OMdKbN4u8dBJOhSHxS+uS06Wl9+flVEk=";
+          };
 
           rustPlatform = pkgs.makeRustPlatform {
             cargo = rustToolchain;

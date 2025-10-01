@@ -174,7 +174,9 @@ pub struct Cli {
 
 impl Default for Cli {
     #[inline]
-    fn default() -> Self { Self::parse() }
+    fn default() -> Self {
+        Self::parse()
+    }
 }
 
 #[derive(Debug, Subcommand)]

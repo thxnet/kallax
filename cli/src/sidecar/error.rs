@@ -25,7 +25,9 @@ pub enum Error {
 
 impl From<kallax_sidecar::Error> for Error {
     #[inline]
-    fn from(source: kallax_sidecar::Error) -> Self { Self::Application { source } }
+    fn from(source: kallax_sidecar::Error) -> Self {
+        Self::Application { source }
+    }
 }
 
 impl CommandError for Error {
