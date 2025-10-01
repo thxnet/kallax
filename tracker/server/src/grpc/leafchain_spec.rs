@@ -9,7 +9,9 @@ pub struct Service {
 }
 
 impl Service {
-    pub const fn new(chain_spec_list: ChainSpecList) -> Self { Self { chain_spec_list } }
+    pub const fn new(chain_spec_list: ChainSpecList) -> Self {
+        Self { chain_spec_list }
+    }
 }
 
 #[tonic::async_trait]

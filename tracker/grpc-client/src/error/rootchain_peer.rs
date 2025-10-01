@@ -18,7 +18,9 @@ impl fmt::Display for GetRootchainPeerAddressError {
 
 impl From<kallax_primitives::Error> for GetRootchainPeerAddressError {
     #[inline]
-    fn from(source: kallax_primitives::Error) -> Self { Self::Primitives { source } }
+    fn from(source: kallax_primitives::Error) -> Self {
+        Self::Primitives { source }
+    }
 }
 
 #[derive(Debug)]

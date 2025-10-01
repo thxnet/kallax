@@ -314,4 +314,6 @@ where
 }
 
 #[allow(clippy::unused_async)]
-async fn api_fallback(_uri: axum::http::Uri) -> StatusCode { StatusCode::NOT_FOUND }
+async fn api_fallback(_uri: axum::http::Uri) -> StatusCode {
+    StatusCode::NOT_FOUND
+}

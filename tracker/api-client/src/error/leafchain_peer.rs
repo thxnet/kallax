@@ -7,7 +7,9 @@ pub enum GetLeafchainPeerAddressError {
 
 impl From<kallax_primitives::Error> for GetLeafchainPeerAddressError {
     #[inline]
-    fn from(source: kallax_primitives::Error) -> Self { Self::Primitives { source } }
+    fn from(source: kallax_primitives::Error) -> Self {
+        Self::Primitives { source }
+    }
 }
 
 impl fmt::Display for GetLeafchainPeerAddressError {
@@ -25,7 +27,9 @@ pub enum InsertLeafchainPeerAddressError {
 
 impl From<kallax_primitives::Error> for InsertLeafchainPeerAddressError {
     #[inline]
-    fn from(source: kallax_primitives::Error) -> Self { Self::Primitives { source } }
+    fn from(source: kallax_primitives::Error) -> Self {
+        Self::Primitives { source }
+    }
 }
 
 impl fmt::Display for InsertLeafchainPeerAddressError {

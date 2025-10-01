@@ -25,23 +25,33 @@ pub enum Error {
 }
 
 impl From<crate::session_key::Error> for Error {
-    fn from(source: crate::session_key::Error) -> Self { Self::SessionKey { source } }
+    fn from(source: crate::session_key::Error) -> Self {
+        Self::SessionKey { source }
+    }
 }
 
 impl From<crate::initializer::Error> for Error {
-    fn from(source: crate::initializer::Error) -> Self { Self::Initializer { source } }
+    fn from(source: crate::initializer::Error) -> Self {
+        Self::Initializer { source }
+    }
 }
 
 impl From<crate::sidecar::Error> for Error {
-    fn from(source: crate::sidecar::Error) -> Self { Self::Sidecar { source } }
+    fn from(source: crate::sidecar::Error) -> Self {
+        Self::Sidecar { source }
+    }
 }
 
 impl From<crate::network_broker::Error> for Error {
-    fn from(source: crate::network_broker::Error) -> Self { Self::NetworkBroker { source } }
+    fn from(source: crate::network_broker::Error) -> Self {
+        Self::NetworkBroker { source }
+    }
 }
 
 impl From<crate::tracker::Error> for Error {
-    fn from(source: crate::tracker::Error) -> Self { Self::Tracker { source } }
+    fn from(source: crate::tracker::Error) -> Self {
+        Self::Tracker { source }
+    }
 }
 
 pub trait CommandError {
