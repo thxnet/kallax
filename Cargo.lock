@@ -9757,8 +9757,3 @@ dependencies = [
  "libc",
  "pkg-config",
 ]
-
-[[patch.unused]]
-name = "tikv-jemalloc-sys"
-version = "0.6.0+5.3.0-1-ge13ca993e8ccb9ba9847cc330696e02839f328f7"
-source = "git+https://github.com/tikv/jemallocator?rev=009e71f7b43f8d77cf9323e10ed9f6e8a08b9ee6#009e71f7b43f8d77cf9323e10ed9f6e8a08b9ee6"
