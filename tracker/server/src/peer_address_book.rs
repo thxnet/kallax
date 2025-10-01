@@ -25,11 +25,15 @@ pub struct PeerAddressBook {
 }
 
 impl Default for PeerAddressBook {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PeerAddressBook {
-    pub fn new() -> Self { Self::with_ttl(std::time::Duration::from_secs(120)) }
+    pub fn new() -> Self {
+        Self::with_ttl(std::time::Duration::from_secs(120))
+    }
 
     pub fn with_ttl(ttl: std::time::Duration) -> Self {
         let ttl = Duration::new(i64::try_from(ttl.as_secs()).unwrap_or_default(), 0);

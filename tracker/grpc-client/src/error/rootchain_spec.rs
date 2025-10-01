@@ -11,7 +11,9 @@ pub enum GetRootchainSpecError {
 
 impl From<kallax_primitives::Error> for GetRootchainSpecError {
     #[inline]
-    fn from(source: kallax_primitives::Error) -> Self { Self::Primitives { source } }
+    fn from(source: kallax_primitives::Error) -> Self {
+        Self::Primitives { source }
+    }
 }
 
 impl fmt::Display for GetRootchainSpecError {

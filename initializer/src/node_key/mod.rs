@@ -16,7 +16,9 @@ pub struct NodeKey {
 impl NodeKey {
     #[inline]
     #[must_use]
-    pub fn generate_random() -> Self { Self { keypair: libp2p_ed25519::Keypair::generate() } }
+    pub fn generate_random() -> Self {
+        Self { keypair: libp2p_ed25519::Keypair::generate() }
+    }
 
     /// # Errors
     ///

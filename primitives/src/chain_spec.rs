@@ -11,7 +11,9 @@ pub struct ChainSpec {
 
 impl ChainSpec {
     #[must_use]
-    pub fn id(&self) -> &str { self.id.as_str() }
+    pub fn id(&self) -> &str {
+        self.id.as_str()
+    }
 }
 
 impl TryFrom<&[u8]> for ChainSpec {
@@ -35,7 +37,9 @@ impl TryFrom<&[u8]> for ChainSpec {
 }
 
 impl AsRef<[u8]> for ChainSpec {
-    fn as_ref(&self) -> &[u8] { self.body.as_ref() }
+    fn as_ref(&self) -> &[u8] {
+        self.body.as_ref()
+    }
 }
 
 #[cfg(test)]

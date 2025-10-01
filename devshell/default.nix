@@ -42,11 +42,9 @@ pkgs.mkShell {
     shfmt
     taplo
     treefmt
-  ] ++ lib.optionals stdenv.isDarwin [
+  ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
     iconv
-
-    darwin.apple_sdk.frameworks.Security
-    darwin.apple_sdk.frameworks.SystemConfiguration
+    libiconv
   ];
 
   PROTOC = "${pkgs.protobuf}/bin/protoc";

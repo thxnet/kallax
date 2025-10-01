@@ -25,7 +25,9 @@ pub enum Error {
 
 impl From<kallax_network_broker::Error> for Error {
     #[inline]
-    fn from(source: kallax_network_broker::Error) -> Self { Self::Application { source } }
+    fn from(source: kallax_network_broker::Error) -> Self {
+        Self::Application { source }
+    }
 }
 
 impl CommandError for Error {
