@@ -17,7 +17,7 @@
   outputs = { self, nixpkgs, flake-utils, fenix, crane }:
     let
       name = "kallax";
-      version = "0.3.4";
+      version = "0.3.5";
     in
     (flake-utils.lib.eachDefaultSystem
       (system:

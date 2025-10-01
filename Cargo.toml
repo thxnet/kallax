@@ -1,5 +1,5 @@
 [workspace.package]
-version     = "0.3.4"
+version     = "0.3.5"
 authors     = ["THXLAB PTE. LTD. <contact@thxlab.io>"]
 homepage    = "https://thxnet.org/"
 repository  = "https://github.com/thxnet/kallax"
@@ -42,3 +42,10 @@ members = [
   "tracker/proto",
   "tracker/server",
 ]
+
+[patch.crates-io]
+# Fix tikv-jemalloc-sys build failure on newer glibc (strerror_r signature issue)
+# Substrate polkadot-v0.9.40 uses 0.5.4 which has this bug
+# https://github.com/tikv/jemallocator/issues/51
+# Using main branch which includes 0.6.0+ with the strerror_r fix
+tikv-jemalloc-sys = { git = "https://github.com/tikv/jemallocator", rev = "009e71f7b43f8d77cf9323e10ed9f6e8a08b9ee6" }
