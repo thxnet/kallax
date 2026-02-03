@@ -52,6 +52,10 @@ pkgs.mkShell {
 
   LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
 
+  # Use clang instead of gcc for C/C++ compilation (GCC 15+ has compatibility issues with older RocksDB)
+  CC = "${pkgs.llvmPackages.clang}/bin/clang";
+  CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
+
   # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
   JEMALLOC_OVERRIDE = "${pkgs.jemalloc}/lib/libjemalloc${if pkgs.stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 
