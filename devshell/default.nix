@@ -54,6 +54,8 @@ pkgs.mkShell {
 
   ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
 
+  NIX_CFLAGS_COMPILE = "-include stdint.h";
+
   shellHook = ''
     export NIX_PATH="nixpkgs=${pkgs.path}"
   '';

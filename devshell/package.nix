@@ -33,4 +33,6 @@ rustPlatform.buildRustPackage {
   LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
 
   ROCKSDB_LIB_DIR = "${rocksdb}/lib";
+
+  NIX_CFLAGS_COMPILE = "-include stdint.h";
 }

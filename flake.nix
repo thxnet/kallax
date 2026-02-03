@@ -64,6 +64,8 @@
               llvmPackages.libclang
             ];
 
+            NIX_CFLAGS_COMPILE = "-include stdint.h";
+
             PROTOC = "${pkgs.protobuf}/bin/protoc";
             PROTOC_INCLUDE = "${pkgs.protobuf}/include";
 
