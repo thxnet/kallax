@@ -52,9 +52,7 @@ pkgs.mkShell {
 
   LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
 
-  ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
-  ROCKSDB_INCLUDE_DIR = "${pkgs.rocksdb}/include";
-
+  # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
   JEMALLOC_OVERRIDE = "${pkgs.jemalloc}/lib/libjemalloc${if pkgs.stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 
   shellHook = ''

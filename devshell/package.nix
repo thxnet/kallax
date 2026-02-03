@@ -4,7 +4,6 @@
 , rustPlatform
 , llvmPackages
 , protobuf
-, rocksdb
 , jemalloc
 , stdenv
 , autoPatchelfHook
@@ -31,7 +30,6 @@ rustPlatform.buildRustPackage {
   ];
 
   buildInputs = [
-    rocksdb
     jemalloc
   ] ++ lib.optionals stdenv.hostPlatform.isLinux [
     stdenv.cc.cc.lib
@@ -44,8 +42,6 @@ rustPlatform.buildRustPackage {
 
   LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
 
-  ROCKSDB_LIB_DIR = "${rocksdb}/lib";
-  ROCKSDB_INCLUDE_DIR = "${rocksdb}/include";
-
+  # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
   JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 }
