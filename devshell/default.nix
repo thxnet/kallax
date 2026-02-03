@@ -54,6 +54,9 @@ pkgs.mkShell {
 
   ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
 
+  # Provide stdint.h for clang-compiled C/C++ deps in devshell (matches flake).
+  NIX_CFLAGS_COMPILE = "-include stdint.h";
+
   shellHook = ''
     export NIX_PATH="nixpkgs=${pkgs.path}"
   '';

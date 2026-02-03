@@ -64,6 +64,10 @@
               llvmPackages.libclang
             ];
 
+            # Ensure standard integer types are always available when
+            # building C/C++ dependencies with clang (e.g. RocksDB).
+            NIX_CFLAGS_COMPILE = "-include stdint.h";
+
             PROTOC = "${pkgs.protobuf}/bin/protoc";
             PROTOC_INCLUDE = "${pkgs.protobuf}/include";
 
