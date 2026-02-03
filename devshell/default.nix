@@ -7,8 +7,10 @@
 
 let
   cargo-ext = pkgs.callPackage ./cargo-ext.nix { inherit cargoArgs unitTestArgs; };
+  # Use clang stdenv to avoid GCC 15 compatibility issues with older RocksDB
+  mkShell = pkgs.mkShell.override { stdenv = pkgs.llvmPackages.stdenv; };
 in
-pkgs.mkShell {
+mkShell {
   name = "dev-shell";
 
   nativeBuildInputs = with pkgs; [
@@ -42,7 +44,7 @@ pkgs.mkShell {
     shfmt
     taplo
     treefmt
-  ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+  ] ++ pkgs.lib.optionals pkgs.llvmPackages.stdenv.isDarwin [
     iconv
     libiconv
   ];
@@ -52,12 +54,8 @@ pkgs.mkShell {
 
   LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
 
-  # Use clang instead of gcc for C/C++ compilation (GCC 15+ has compatibility issues with older RocksDB)
-  CC = "${pkgs.llvmPackages.clang}/bin/clang";
-  CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
-
   # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
-  JEMALLOC_OVERRIDE = "${pkgs.jemalloc}/lib/libjemalloc${if pkgs.stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
+  JEMALLOC_OVERRIDE = "${pkgs.jemalloc}/lib/libjemalloc${if pkgs.llvmPackages.stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 
   shellHook = ''
     export NIX_PATH="nixpkgs=${pkgs.path}"
