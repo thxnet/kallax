@@ -53,6 +53,11 @@
           ];
 
           src = craneLib.cleanCargoSource (craneLib.path ./.);
+
+          jemallocLib = if pkgs.stdenv.hostPlatform.isDarwin
+            then "${pkgs.jemalloc}/lib/libjemalloc.dylib"
+            else "${pkgs.jemalloc}/lib/libjemalloc.so";
+
           commonArgs = {
             inherit src;
 
@@ -61,10 +66,22 @@
               llvmPackages.libclang
             ];
 
+            buildInputs = with pkgs; [
+              rocksdb
+              jemalloc
+            ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+              stdenv.cc.cc.lib
+            ];
+
             PROTOC = "${pkgs.protobuf}/bin/protoc";
             PROTOC_INCLUDE = "${pkgs.protobuf}/include";
 
             LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
+
+            ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
+            ROCKSDB_INCLUDE_DIR = "${pkgs.rocksdb}/include";
+
+            JEMALLOC_OVERRIDE = jemallocLib;
           };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         in

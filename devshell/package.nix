@@ -5,6 +5,8 @@
 , llvmPackages
 , protobuf
 , rocksdb
+, jemalloc
+, stdenv
 }:
 
 rustPlatform.buildRustPackage {
@@ -25,6 +27,13 @@ rustPlatform.buildRustPackage {
     llvmPackages.libclang
   ];
 
+  buildInputs = [
+    rocksdb
+    jemalloc
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+    stdenv.cc.cc.lib
+  ];
+
   doCheck = false;
 
   PROTOC = "${protobuf}/bin/protoc";
@@ -33,4 +42,7 @@ rustPlatform.buildRustPackage {
   LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
 
   ROCKSDB_LIB_DIR = "${rocksdb}/lib";
+  ROCKSDB_INCLUDE_DIR = "${rocksdb}/include";
+
+  JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 }
