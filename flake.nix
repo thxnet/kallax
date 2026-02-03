@@ -54,7 +54,8 @@
 
           src = craneLib.cleanCargoSource (craneLib.path ./.);
 
-          jemallocLib = if pkgs.stdenv.hostPlatform.isDarwin
+          jemallocLib =
+            if pkgs.stdenv.hostPlatform.isDarwin
             then "${pkgs.jemalloc}/lib/libjemalloc.dylib"
             else "${pkgs.jemalloc}/lib/libjemalloc.so";
 
@@ -64,6 +65,8 @@
             nativeBuildInputs = with pkgs; [
               llvmPackages.clang
               llvmPackages.libclang
+            ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+              pkgs.autoPatchelfHook
             ];
 
             buildInputs = with pkgs; [

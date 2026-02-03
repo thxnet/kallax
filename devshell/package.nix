@@ -7,6 +7,7 @@
 , rocksdb
 , jemalloc
 , stdenv
+, autoPatchelfHook
 }:
 
 rustPlatform.buildRustPackage {
@@ -25,6 +26,8 @@ rustPlatform.buildRustPackage {
   nativeBuildInputs = [
     llvmPackages.clang
     llvmPackages.libclang
+  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+    autoPatchelfHook
   ];
 
   buildInputs = [
