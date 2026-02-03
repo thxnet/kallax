@@ -5,10 +5,14 @@
 , llvmPackages
 , protobuf
 , jemalloc
-, stdenv
 , autoPatchelfHook
 }:
 
+# Note: rustPlatform is expected to be built with llvmPackages.stdenv (clang)
+# to avoid GCC 15 compatibility issues with older RocksDB
+let
+  stdenv = llvmPackages.stdenv;
+in
 rustPlatform.buildRustPackage {
   pname = name;
   inherit version;
@@ -32,7 +36,7 @@ rustPlatform.buildRustPackage {
   buildInputs = [
     jemalloc
   ] ++ lib.optionals stdenv.hostPlatform.isLinux [
-    stdenv.cc.cc.lib
+    llvmPackages.libcxx
   ];
 
   doCheck = false;
@@ -41,10 +45,6 @@ rustPlatform.buildRustPackage {
   PROTOC_INCLUDE = "${protobuf}/include";
 
   LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
-
-  # Use clang instead of gcc for C/C++ compilation (GCC 15+ has compatibility issues with older RocksDB)
-  CC = "${llvmPackages.clang}/bin/clang";
-  CXX = "${llvmPackages.clang}/bin/clang++";
 
   # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
   JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";

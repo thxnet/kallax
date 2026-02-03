@@ -32,12 +32,18 @@
             sha256 = "sha256-vra6TkHITpwRyA5oBKAHSX0Mi6CBDNQD+ryPSpxFsfg=";
           };
 
+          # Use clang stdenv to avoid GCC 15 compatibility issues with older RocksDB
+          clangStdenv = pkgs.llvmPackages.stdenv;
+
           rustPlatform = pkgs.makeRustPlatform {
             cargo = rustToolchain;
             rustc = rustToolchain;
+            stdenv = clangStdenv;
           };
 
-          craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
+          craneLib = ((crane.mkLib pkgs).overrideToolchain rustToolchain).overrideScope (final: prev: {
+            stdenv = clangStdenv;
+          });
 
           cargoArgs = [
             "--workspace"
@@ -65,24 +71,20 @@
             nativeBuildInputs = with pkgs; [
               llvmPackages.clang
               llvmPackages.libclang
-            ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+            ] ++ pkgs.lib.optionals clangStdenv.hostPlatform.isLinux [
               pkgs.autoPatchelfHook
             ];
 
             buildInputs = with pkgs; [
               jemalloc
-            ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
-              stdenv.cc.cc.lib
+            ] ++ pkgs.lib.optionals clangStdenv.hostPlatform.isLinux [
+              llvmPackages.libcxx
             ];
 
             PROTOC = "${pkgs.protobuf}/bin/protoc";
             PROTOC_INCLUDE = "${pkgs.protobuf}/include";
 
             LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
-
-            # Use clang instead of gcc for C/C++ compilation (GCC 15+ has compatibility issues with older RocksDB)
-            CC = "${pkgs.llvmPackages.clang}/bin/clang";
-            CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
 
             # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
             JEMALLOC_OVERRIDE = jemallocLib;
