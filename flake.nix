@@ -68,6 +68,9 @@
           commonArgs = {
             inherit src;
 
+            # Use clang stdenv for the build
+            stdenv = clangStdenv;
+
             nativeBuildInputs = with pkgs; [
               llvmPackages.clang
               llvmPackages.libclang
