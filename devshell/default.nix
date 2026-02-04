@@ -63,10 +63,12 @@ mkShell {
   # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
   JEMALLOC_OVERRIDE = "${pkgs.jemalloc}/lib/libjemalloc${if pkgs.llvmPackages.stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 
-  # Force cc-rs to use clang instead of GCC for C/C++ compilation
+  # Force cc-rs to use clang with libc++ instead of GCC/libstdc++
   # This avoids GCC 15 compatibility issues with older RocksDB code
   CC = "${pkgs.llvmPackages.clang}/bin/clang";
   CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
+  CXXFLAGS = "-stdlib=libc++";
+  CXXSTDLIB = "c++";
 
   shellHook = ''
     export NIX_PATH="nixpkgs=${pkgs.path}"
