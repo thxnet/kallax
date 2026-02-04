@@ -163,6 +163,7 @@
             });
             rust-nextest = craneLib.cargoNextest (commonArgs // {
               inherit cargoArtifacts;
+              cargoExtraArgs = "--workspace --all-targets";
               partitions = 1;
               partitionType = "count";
             });
