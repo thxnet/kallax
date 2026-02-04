@@ -49,6 +49,12 @@ mkShell {
     libiconv
   ];
 
+  buildInputs = with pkgs; [
+    jemalloc
+  ] ++ pkgs.lib.optionals pkgs.llvmPackages.stdenv.hostPlatform.isLinux [
+    llvmPackages.libcxx
+  ];
+
   PROTOC = "${pkgs.protobuf}/bin/protoc";
   PROTOC_INCLUDE = "${pkgs.protobuf}/include";
 
