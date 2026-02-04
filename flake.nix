@@ -120,9 +120,14 @@
 
           packages = rec {
             default = kallax;
-            kallax = pkgs.callPackage ./devshell/package.nix {
-              inherit name version rustPlatform clangWithLibcxx clangStdenv;
-            };
+            # Use crane instead of rustPlatform.buildRustPackage to ensure
+            # consistent stdenv (clangStdenv) is used for cc-rs builds
+            kallax = craneLib.buildPackage (commonArgs // {
+              inherit cargoArtifacts;
+              pname = name;
+              inherit version;
+              doCheck = false;
+            });
             container = pkgs.callPackage ./devshell/container.nix {
               inherit name version kallax;
             };
