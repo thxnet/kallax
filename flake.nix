@@ -80,6 +80,7 @@
 
             buildInputs = with pkgs; [
               jemalloc
+              rocksdb
             ] ++ pkgs.lib.optionals clangStdenv.hostPlatform.isLinux [
               llvmPackages.libcxx
             ];
@@ -92,23 +93,17 @@
             # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
             JEMALLOC_OVERRIDE = jemallocLib;
 
+            # Use system RocksDB to avoid compilation issues with GCC 15
+            # This bypasses the librocksdb-sys build.rs which tries to compile C++ code
+            ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
+            ROCKSDB_INCLUDE_DIR = "${pkgs.rocksdb}/include";
+
             # Force cc-rs to use clang with libc++ instead of GCC/libstdc++
-            # This avoids GCC 15 compatibility issues with older RocksDB code
-            # Note: Setting these as environment variables AND in preBuild to ensure
-            # they override stdenv's CC/CXX during cargo build
+            # This avoids GCC 15 compatibility issues with other native code
             CC = "${pkgs.llvmPackages.clang}/bin/clang";
             CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
-            # Use -nostdinc++ to disable default C++ include paths, then add libc++ headers
             CXXFLAGS = "-nostdinc++ -isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1 -stdlib=libc++";
             CXXSTDLIB = "c++";
-
-            # Hook to ensure CC/CXX are set correctly before cargo build
-            preBuild = ''
-              export CC="${pkgs.llvmPackages.clang}/bin/clang"
-              export CXX="${pkgs.llvmPackages.clang}/bin/clang++"
-              export CXXFLAGS="-nostdinc++ -isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1 -stdlib=libc++"
-              export CXXSTDLIB="c++"
-            '';
           };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         in
