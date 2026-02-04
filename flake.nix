@@ -73,7 +73,15 @@
             "--workspace"
           ];
 
-          src = craneLib.cleanCargoSource (craneLib.path ./.);
+          # Custom source filter that includes .proto files
+          src = pkgs.lib.cleanSourceWith {
+            src = craneLib.path ./.;
+            filter = path: type:
+              # Include .proto files for protobuf compilation
+              (pkgs.lib.hasSuffix ".proto" path) ||
+              # Use crane's default filter for everything else
+              (craneLib.filterCargoSources path type);
+          };
 
           jemallocLib =
             if pkgs.stdenv.hostPlatform.isDarwin
