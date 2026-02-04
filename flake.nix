@@ -112,6 +112,9 @@
             CC = "${clangWithLibcxx}/bin/clang";
             CXX = "${clangWithLibcxx}/bin/clang++";
             CXXSTDLIB = "c++";
+
+            # Force libc++ headers via CXXFLAGS (cc-rs may not use wrapper's cc-cxxflags)
+            CXXFLAGS = "-nostdinc++ -isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1 -stdlib=libc++";
           };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         in
