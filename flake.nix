@@ -32,10 +32,7 @@
             sha256 = "sha256-vra6TkHITpwRyA5oBKAHSX0Mi6CBDNQD+ryPSpxFsfg=";
           };
 
-          # Use clang stdenv to avoid GCC 15 compatibility issues with older RocksDB
-          clangStdenv = pkgs.llvmPackages.stdenv;
-
-          # Create a clang with libc++ as the default stdlib
+          # Create a clang wrapper with libc++ as the default stdlib
           clangWithLibcxx = pkgs.wrapCCWith {
             cc = pkgs.llvmPackages.clang-unwrapped;
             bintools = pkgs.llvmPackages.bintools;
@@ -45,6 +42,10 @@
               echo "-isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1" >> $out/nix-support/cc-cflags
             '';
           };
+
+          # Use a custom stdenv with our clang+libc++ wrapper
+          # This ensures cc-rs uses our compiler regardless of environment variables
+          clangStdenv = pkgs.overrideCC pkgs.llvmPackages.stdenv clangWithLibcxx;
 
           rustPlatform = pkgs.makeRustPlatform {
             cargo = rustToolchain;
