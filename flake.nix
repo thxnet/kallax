@@ -121,7 +121,7 @@
           packages = rec {
             default = kallax;
             kallax = pkgs.callPackage ./devshell/package.nix {
-              inherit name version rustPlatform clangWithLibcxx;
+              inherit name version rustPlatform clangWithLibcxx clangStdenv;
             };
             container = pkgs.callPackage ./devshell/container.nix {
               inherit name version kallax;

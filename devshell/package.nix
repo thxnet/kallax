@@ -7,16 +7,17 @@
 , jemalloc
 , autoPatchelfHook
 , clangWithLibcxx
+, clangStdenv
 }:
 
-# Note: rustPlatform is expected to be built with llvmPackages.stdenv (clang)
-# to avoid GCC 15 compatibility issues with older RocksDB
-let
-  stdenv = llvmPackages.stdenv;
-in
+# Use clangStdenv to avoid GCC 15 compatibility issues with older RocksDB
+# The stdenv parameter overrides the derivation's default stdenv
 rustPlatform.buildRustPackage {
   pname = name;
   inherit version;
+
+  # Override stdenv to use clang instead of gcc
+  stdenv = clangStdenv;
 
   src = lib.cleanSource ./..;
 
@@ -30,13 +31,13 @@ rustPlatform.buildRustPackage {
   nativeBuildInputs = [
     llvmPackages.clang
     llvmPackages.libclang
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ] ++ lib.optionals clangStdenv.hostPlatform.isLinux [
     autoPatchelfHook
   ];
 
   buildInputs = [
     jemalloc
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
+  ] ++ lib.optionals clangStdenv.hostPlatform.isLinux [
     llvmPackages.libcxx
   ];
 
@@ -48,7 +49,7 @@ rustPlatform.buildRustPackage {
   LIBCLANG_PATH = "${llvmPackages.libclang.lib}/lib";
 
   # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
-  JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
+  JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if clangStdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 
   # Force cc-rs to use our custom clang with libc++ instead of GCC/libstdc++
   CC = "${clangWithLibcxx}/bin/clang";
