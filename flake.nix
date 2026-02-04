@@ -35,6 +35,17 @@
           # Use clang stdenv to avoid GCC 15 compatibility issues with older RocksDB
           clangStdenv = pkgs.llvmPackages.stdenv;
 
+          # Create a clang with libc++ as the default stdlib
+          clangWithLibcxx = pkgs.wrapCCWith {
+            cc = pkgs.llvmPackages.clang-unwrapped;
+            bintools = pkgs.llvmPackages.bintools;
+            extraBuildCommands = ''
+              echo "-stdlib=libc++" >> $out/nix-support/cc-cflags
+              echo "-nostdinc++" >> $out/nix-support/cc-cflags
+              echo "-isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1" >> $out/nix-support/cc-cflags
+            '';
+          };
+
           rustPlatform = pkgs.makeRustPlatform {
             cargo = rustToolchain;
             rustc = rustToolchain;
@@ -80,7 +91,6 @@
 
             buildInputs = with pkgs; [
               jemalloc
-              rocksdb
             ] ++ pkgs.lib.optionals clangStdenv.hostPlatform.isLinux [
               llvmPackages.libcxx
             ];
@@ -93,16 +103,9 @@
             # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
             JEMALLOC_OVERRIDE = jemallocLib;
 
-            # Use system RocksDB to avoid compilation issues with GCC 15
-            # This bypasses the librocksdb-sys build.rs which tries to compile C++ code
-            ROCKSDB_LIB_DIR = "${pkgs.rocksdb}/lib";
-            ROCKSDB_INCLUDE_DIR = "${pkgs.rocksdb}/include";
-
-            # Force cc-rs to use clang with libc++ instead of GCC/libstdc++
-            # This avoids GCC 15 compatibility issues with other native code
-            CC = "${pkgs.llvmPackages.clang}/bin/clang";
-            CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
-            CXXFLAGS = "-nostdinc++ -isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1 -stdlib=libc++";
+            # Force cc-rs to use our custom clang with libc++ instead of GCC/libstdc++
+            CC = "${clangWithLibcxx}/bin/clang";
+            CXX = "${clangWithLibcxx}/bin/clang++";
             CXXSTDLIB = "c++";
           };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
