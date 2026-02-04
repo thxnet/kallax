@@ -28,7 +28,9 @@ rustPlatform.buildRustPackage {
     lockFile = ../Cargo.lock;
   };
 
+  # Put clangWithLibcxx first to ensure it's found before any GCC in PATH
   nativeBuildInputs = [
+    clangWithLibcxx
     llvmPackages.clang
     llvmPackages.libclang
   ] ++ lib.optionals clangStdenv.hostPlatform.isLinux [
@@ -52,15 +54,22 @@ rustPlatform.buildRustPackage {
   JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if clangStdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 
   # Force cc-rs to use our custom clang with libc++ instead of GCC/libstdc++
-  # Setting both CC/CXX and NIX_CC/NIX_CXX ensures cc-rs uses clang
   CC = "${clangWithLibcxx}/bin/clang";
   CXX = "${clangWithLibcxx}/bin/clang++";
   CXXSTDLIB = "c++";
 
-  # Override NIX_CC in preBuild to ensure cc-rs picks up our clang wrapper
-  preBuild = ''
+  # Set target-specific environment variables for cc-rs
+  # cc-rs checks TARGET_{triple}_CC and TARGET_{triple}_CXX before CC/CXX
+  TARGET_CC = "${clangWithLibcxx}/bin/clang";
+  TARGET_CXX = "${clangWithLibcxx}/bin/clang++";
+
+  # Use configurePhase to override PATH and ensure our clang is first
+  preConfigure = ''
+    export PATH="${clangWithLibcxx}/bin:$PATH"
     export NIX_CC="${clangWithLibcxx}"
     export CC="${clangWithLibcxx}/bin/clang"
     export CXX="${clangWithLibcxx}/bin/clang++"
+    export TARGET_CC="${clangWithLibcxx}/bin/clang"
+    export TARGET_CXX="${clangWithLibcxx}/bin/clang++"
   '';
 }
