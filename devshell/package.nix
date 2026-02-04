@@ -63,7 +63,7 @@ rustPlatform.buildRustPackage {
   TARGET_CC = "${clangWithLibcxx}/bin/clang";
   TARGET_CXX = "${clangWithLibcxx}/bin/clang++";
 
-  # Use configurePhase to override PATH and ensure our clang is first
+  # Use preConfigure to create Cargo config and override environment
   preConfigure = ''
     export PATH="${clangWithLibcxx}/bin:$PATH"
     export NIX_CC="${clangWithLibcxx}"
@@ -71,5 +71,16 @@ rustPlatform.buildRustPackage {
     export CXX="${clangWithLibcxx}/bin/clang++"
     export TARGET_CC="${clangWithLibcxx}/bin/clang"
     export TARGET_CXX="${clangWithLibcxx}/bin/clang++"
+
+    # Create .cargo/config.toml to tell cc-rs to use our clang
+    mkdir -p .cargo
+    cat > .cargo/config.toml << EOF
+    [target.x86_64-unknown-linux-gnu]
+    linker = "${clangWithLibcxx}/bin/clang"
+
+    [env]
+    CC = "${clangWithLibcxx}/bin/clang"
+    CXX = "${clangWithLibcxx}/bin/clang++"
+    EOF
   '';
 }
