@@ -88,6 +88,11 @@
 
             # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
             JEMALLOC_OVERRIDE = jemallocLib;
+
+            # Force cc-rs to use clang instead of GCC for C/C++ compilation
+            # This avoids GCC 15 compatibility issues with older RocksDB code
+            CC = "${pkgs.llvmPackages.clang}/bin/clang";
+            CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
           };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         in
