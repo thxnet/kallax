@@ -73,12 +73,14 @@
             "--workspace"
           ];
 
-          # Custom source filter that includes .proto files
+          # Custom source filter that includes .proto and .json files
           src = pkgs.lib.cleanSourceWith {
             src = craneLib.path ./.;
             filter = path: type:
               # Include .proto files for protobuf compilation
               (pkgs.lib.hasSuffix ".proto" path) ||
+              # Include .json files for chain-spec include_bytes!
+              (pkgs.lib.hasSuffix ".json" path) ||
               # Use crane's default filter for everything else
               (craneLib.filterCargoSources path type);
           };
