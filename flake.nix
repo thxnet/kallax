@@ -37,9 +37,12 @@
             cc = pkgs.llvmPackages.clang-unwrapped;
             bintools = pkgs.llvmPackages.bintools;
             extraBuildCommands = ''
-              echo "-stdlib=libc++" >> $out/nix-support/cc-cflags
-              echo "-nostdinc++" >> $out/nix-support/cc-cflags
-              echo "-isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1" >> $out/nix-support/cc-cflags
+              # Set flags for C++ compilation specifically
+              echo "-stdlib=libc++" >> $out/nix-support/cc-cxxflags
+              echo "-nostdinc++" >> $out/nix-support/cc-cxxflags
+              echo "-isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1" >> $out/nix-support/cc-cxxflags
+              # Also add -lc++ to link against libc++
+              echo "-lc++" >> $out/nix-support/cc-ldflags
             '';
           };
 
