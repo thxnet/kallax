@@ -84,7 +84,8 @@
             stdenv = clangStdenv;
 
             nativeBuildInputs = with pkgs; [
-              llvmPackages.clang
+              # Use clangWithLibcxx to ensure libc++ headers are available
+              clangWithLibcxx
               llvmPackages.libclang
             ] ++ pkgs.lib.optionals clangStdenv.hostPlatform.isLinux [
               pkgs.autoPatchelfHook
