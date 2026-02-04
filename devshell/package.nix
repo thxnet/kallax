@@ -6,6 +6,7 @@
 , protobuf
 , jemalloc
 , autoPatchelfHook
+, clangWithLibcxx
 }:
 
 # Note: rustPlatform is expected to be built with llvmPackages.stdenv (clang)
@@ -48,4 +49,9 @@ rustPlatform.buildRustPackage {
 
   # Use system jemalloc to avoid tikv-jemalloc-sys build issues with newer glibc
   JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if stdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
+
+  # Force cc-rs to use our custom clang with libc++ instead of GCC/libstdc++
+  CC = "${clangWithLibcxx}/bin/clang";
+  CXX = "${clangWithLibcxx}/bin/clang++";
+  CXXSTDLIB = "c++";
 }
