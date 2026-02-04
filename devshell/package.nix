@@ -52,7 +52,15 @@ rustPlatform.buildRustPackage {
   JEMALLOC_OVERRIDE = "${jemalloc}/lib/libjemalloc${if clangStdenv.hostPlatform.isDarwin then ".dylib" else ".so"}";
 
   # Force cc-rs to use our custom clang with libc++ instead of GCC/libstdc++
+  # Setting both CC/CXX and NIX_CC/NIX_CXX ensures cc-rs uses clang
   CC = "${clangWithLibcxx}/bin/clang";
   CXX = "${clangWithLibcxx}/bin/clang++";
   CXXSTDLIB = "c++";
+
+  # Override NIX_CC in preBuild to ensure cc-rs picks up our clang wrapper
+  preBuild = ''
+    export NIX_CC="${clangWithLibcxx}"
+    export CC="${clangWithLibcxx}/bin/clang"
+    export CXX="${clangWithLibcxx}/bin/clang++"
+  '';
 }
