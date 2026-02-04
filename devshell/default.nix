@@ -66,9 +66,10 @@ mkShell {
   shellHook = ''
     export NIX_PATH="nixpkgs=${pkgs.path}"
   '' + pkgs.lib.optionalString pkgs.llvmPackages.stdenv.hostPlatform.isLinux ''
-    # Force clang to use libc++ instead of GCC's libstdc++
-    # This fixes RocksDB compilation with GCC 15 headers
+    # Force clang to use libc++ headers instead of GCC's libstdc++
+    # This fixes RocksDB compilation with GCC 15 headers (which broke cstdint)
+    export CPLUS_INCLUDE_PATH="${pkgs.llvmPackages.libcxx.dev}/include/c++/v1''${CPLUS_INCLUDE_PATH:+:$CPLUS_INCLUDE_PATH}"
     export CXXFLAGS="-stdlib=libc++"
-    export LDFLAGS="-lc++ -lc++abi"
+    export LDFLAGS="-L${pkgs.llvmPackages.libcxx}/lib -lc++ -lc++abi"
   '';
 }
