@@ -93,7 +93,8 @@
             # This avoids GCC 15 compatibility issues with older RocksDB code
             CC = "${pkgs.llvmPackages.clang}/bin/clang";
             CXX = "${pkgs.llvmPackages.clang}/bin/clang++";
-            CXXFLAGS = "-stdlib=libc++";
+            # Use -nostdinc++ to disable default C++ include paths, then add libc++ headers
+            CXXFLAGS = "-nostdinc++ -isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1 -stdlib=libc++";
             CXXSTDLIB = "c++";
           };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
