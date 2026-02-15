@@ -8,6 +8,8 @@ on:
       - release/*
       - hotfix/*
       - feature/*
+      - feat/*
+      - chore/*
       - ci/*
 
   pull_request:
@@ -15,6 +17,7 @@ on:
       - "*/src/**"
       - ".github/**"
       - "src/**"
+      - "devshell/**"
       - Cargo.lock
       - Cargo.toml
       - deny.toml
@@ -103,7 +106,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('flake.lock') }}
 
       - name: Show cargo clippy version
         run: |
@@ -121,15 +124,8 @@ jobs:
       # - udeps
     env:
       NEXTEST_RETRIES: 5
-    strategy:
-      fail-fast: false
-      matrix:
-        toolchain:
-          # TODO: make `stable` available
-          # - stable
-          - nightly
-        mode:
-          - release
+      # Note: Environment variables (CC, CXX, CXXSTDLIB, CXXFLAGS, JEMALLOC_OVERRIDE)
+      # are automatically provided by the nix develop shell when using `nix develop --command`
     steps:
       - uses: actions/checkout@v4
 
@@ -147,7 +143,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('flake.lock') }}
 
       - name: Show cargo-nextest version
         run: |
@@ -155,7 +151,7 @@ jobs:
 
       - name: Test with cargo-nextest
         run: |
-          nix develop --command cargo nextest-all ${{ matrix.mode == 'release' && '--release' || '' }}
+          nix develop --command cargo nextest-all --release
 
   doc:
     name: Doc
@@ -182,7 +178,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('flake.lock') }}
 
       - name: Run cargo doc
         run: |

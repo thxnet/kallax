@@ -8,6 +8,8 @@ on:
       - release/*
       - hotfix/*
       - feature/*
+      - feat/*
+      - chore/*
       - ci/*
 
   pull_request:
@@ -15,6 +17,7 @@ on:
       - "*/src/**"
       - ".github/**"
       - "src/**"
+      - "devshell/**"
       - Cargo.lock
       - Cargo.toml
       - flake.lock
@@ -37,4 +40,36 @@ jobs:
         run: nix build
 
       - name: Test executable
-        run: ./result/bin/kallax --version
+        run: |
+          ./result/bin/kallax --version
+          ./result/bin/kallax version
+
+      - name: Smoke test - Shell completions
+        run: |
+          # Test bash completions generation
+          ./result/bin/kallax completions bash > /dev/null
+          echo "Bash completions generated successfully"
+
+      - name: Smoke test - Help output
+        run: |
+          # Test main help
+          ./result/bin/kallax --help
+          echo ""
+
+          # Test subcommand help for major commands
+          ./result/bin/kallax session-key --help
+          echo ""
+
+          ./result/bin/kallax initializer --help
+          echo ""
+
+          ./result/bin/kallax sidecar --help
+          echo ""
+
+          ./result/bin/kallax tracker --help
+          echo ""
+
+          ./result/bin/kallax network-broker --help
+          echo ""
+
+          echo "All help outputs generated successfully"
