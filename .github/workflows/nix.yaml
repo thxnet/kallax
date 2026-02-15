@@ -8,6 +8,8 @@ on:
       - release/*
       - hotfix/*
       - feature/*
+      - feat/*
+      - chore/*
       - ci/*
 
   pull_request:
@@ -15,6 +17,7 @@ on:
       - "*/src/**"
       - ".github/**"
       - "src/**"
+      - "devshell/**"
       - Cargo.lock
       - Cargo.toml
       - flake.lock
@@ -37,7 +40,9 @@ jobs:
         run: nix build
 
       - name: Test executable
-        run: ./result/bin/kallax --version
+        run: |
+          ./result/bin/kallax --version
+          ./result/bin/kallax version
 
       - name: Smoke test - Shell completions
         run: |
@@ -68,14 +73,3 @@ jobs:
           echo ""
 
           echo "All help outputs generated successfully"
-
-      - name: Smoke test - Session key dry-run
-        run: |
-          # Test session-key help to verify crypto library linking
-          ./result/bin/kallax session-key --help
-          echo ""
-
-          # Test version command
-          ./result/bin/kallax version
-
-          echo "Session key smoke tests passed"

@@ -316,7 +316,7 @@ mod tests {
 
     #[test]
     fn test_command_version() {
-        matches!(Cli::parse_from(["program_name", "version"]).commands, Commands::Version);
+        assert!(matches!(Cli::parse_from(["program_name", "version"]).commands, Commands::Version));
     }
 
     #[test]
@@ -420,7 +420,7 @@ mod tests {
         ]);
         assert!(cli.is_ok(), "Failed to parse session-key command: {:?}", cli.err());
         let cli = cli.unwrap();
-        matches!(cli.commands, Commands::SessionKey { options: _ });
+        assert!(matches!(cli.commands, Commands::SessionKey { options: _ }));
     }
 
     #[test]

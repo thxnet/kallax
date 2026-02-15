@@ -132,7 +132,7 @@
           formatter = pkgs.treefmt;
 
           devShells.default = pkgs.callPackage ./devshell {
-            inherit rustToolchain cargoArgs unitTestArgs;
+            inherit rustToolchain cargoArgs unitTestArgs clangWithLibcxx clangStdenv;
           };
 
           packages = rec {
