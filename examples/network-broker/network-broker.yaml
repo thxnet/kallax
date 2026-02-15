@@ -19,3 +19,13 @@ testnet:
         externalLeafchainP2pEndpoint:
           host: 139.162.98.42
           port: 60112
+  ecq:
+    archives:
+      - rootchainWsEndpoint: ws://139.162.98.42:60012
+        leafchainWsEndpoint: ws://139.162.98.42:60512
+        externalRootchainP2pEndpoint:
+          host: 139.162.98.42
+          port: 60012
+        externalLeafchainP2pEndpoint:
+          host: 139.162.98.42
+          port: 60512
