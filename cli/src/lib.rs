@@ -310,12 +310,13 @@ fn init_tracing() {
 #[cfg(test)]
 mod tests {
     use clap::Parser;
+    use std::path::PathBuf;
 
     use crate::{Cli, Commands};
 
     #[test]
     fn test_command_version() {
-        matches!(Cli::parse_from(["program_name", "version"]).commands, Commands::Version);
+        assert!(matches!(Cli::parse_from(["program_name", "version"]).commands, Commands::Version));
     }
 
     #[test]
@@ -328,6 +329,187 @@ mod tests {
             "--rootchain-node-websocket-endpoint=ws://127.0.0.1:50002",
         ])
         .commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_completions_bash() {
+        if let Commands::Completions { shell: _ } =
+            Cli::parse_from(["program_name", "completions", "bash"]).commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_completions_fish() {
+        if let Commands::Completions { shell: _ } =
+            Cli::parse_from(["program_name", "completions", "fish"]).commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_completions_zsh() {
+        if let Commands::Completions { shell: _ } =
+            Cli::parse_from(["program_name", "completions", "zsh"]).commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_completions_powershell() {
+        if let Commands::Completions { shell: _ } =
+            Cli::parse_from(["program_name", "completions", "powershell"]).commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_completions_elvish() {
+        if let Commands::Completions { shell: _ } =
+            Cli::parse_from(["program_name", "completions", "elvish"]).commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_session_key_parsing() {
+        if let Commands::SessionKey { options: _ } = Cli::parse_from([
+            "program_name",
+            "session-key",
+            "--keystore-directory-path=/tmp/keystore",
+            "--session-key-mnemonic-phrase=test mnemonic phrase",
+            "--node-name=test-node",
+        ])
+        .commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_session_key_parsing_with_env_prefix() {
+        // Test that the command can be parsed with all required arguments
+        let cli = Cli::try_parse_from([
+            "program_name",
+            "session-key",
+            "--keystore-directory-path=/tmp/keystore",
+            "--session-key-mnemonic-phrase=bottom drive obey lake curtain smoke basket hold race lonely fit walk",
+            "--node-name=test-node-1",
+        ]);
+        assert!(cli.is_ok(), "Failed to parse session-key command: {:?}", cli.err());
+        let cli = cli.unwrap();
+        assert!(matches!(cli.commands, Commands::SessionKey { options: _ }));
+    }
+
+    #[test]
+    fn test_command_session_key_missing_required_arg() {
+        // Test error case: missing required argument
+        let cli = Cli::try_parse_from([
+            "program_name",
+            "session-key",
+            "--keystore-directory-path=/tmp/keystore",
+            "--session-key-mnemonic-phrase=test phrase",
+            // Missing --node-name
+        ]);
+        assert!(cli.is_err(), "Should fail when missing required --node-name argument");
+    }
+
+    #[test]
+    fn test_command_session_key_missing_all_required_args() {
+        // Test error case: missing all required arguments
+        let cli = Cli::try_parse_from(["program_name", "session-key"]);
+        assert!(cli.is_err(), "Should fail when missing all required arguments");
+    }
+
+    #[test]
+    fn test_command_invalid_subcommand() {
+        // Test error case: invalid subcommand
+        let cli = Cli::try_parse_from(["program_name", "invalid-subcommand"]);
+        assert!(cli.is_err(), "Should fail for invalid subcommand");
+    }
+
+    #[test]
+    fn test_command_invalid_shell_type() {
+        // Test error case: invalid shell type for completions
+        let cli = Cli::try_parse_from(["program_name", "completions", "invalid-shell"]);
+        assert!(cli.is_err(), "Should fail for invalid shell type");
+    }
+
+    #[test]
+    fn test_command_network_broker() {
+        if let Commands::NetworkBroker { tracker_api_endpoint, file } = Cli::parse_from([
+            "program_name",
+            "network-broker",
+            "--tracker-api-endpoint=https://tracker.example.com",
+            "--file=/tmp/config.json",
+        ])
+        .commands
+        {
+            assert_eq!(tracker_api_endpoint.to_string(), "https://tracker.example.com/");
+            assert_eq!(file, PathBuf::from("/tmp/config.json"));
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_network_broker_defaults() {
+        if let Commands::NetworkBroker { tracker_api_endpoint, file } =
+            Cli::parse_from(["program_name", "network-broker"]).commands
+        {
+            // Default values should be set
+            assert!(!tracker_api_endpoint.to_string().is_empty());
+            assert!(!file.as_os_str().is_empty());
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_initializer() {
+        if let Commands::Initializer { options: _ } = Cli::parse_from([
+            "program_name",
+            "initializer",
+            "--node-key-file-path=/tmp/node.key",
+            "--tracker-grpc-endpoint=http://localhost:53973",
+            "--rootchain-id=rootchain",
+            "--rootchain-spec-file-path=/tmp/rootchain.json",
+            "--keystore-directory-path=/tmp/keystore",
+        ])
+        .commands
+        {
+            // Everything is good here.
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_tracker() {
+        if let Commands::Tracker { options: _ } =
+            Cli::parse_from(["program_name", "tracker"]).commands
         {
             // Everything is good here.
         } else {

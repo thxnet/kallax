@@ -1,0 +1,40 @@
+name: "Nix Flakes Checks"
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - release/*
+      - hotfix/*
+      - feature/*
+      - feat/*
+      - chore/*
+      - ci/*
+
+  pull_request:
+    paths:
+      - "*/src/**"
+      - ".github/**"
+      - "src/**"
+      - "devshell/**"
+      - Cargo.lock
+      - Cargo.toml
+      - flake.lock
+      - flake.nix
+
+jobs:
+  check-nix-flake:
+    name: Run Nix Flake Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v26
+        with:
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run nix flake check
+        run: nix flake check -L

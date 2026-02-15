@@ -1,6 +1,6 @@
 { pkgs, }:
 
-pkgs.runCommandNoCC "check-format"
+pkgs.runCommand "check-format"
 {
   buildInputs = with pkgs; [
     shellcheck
@@ -13,17 +13,15 @@ pkgs.runCommandNoCC "check-format"
     treefmt
   ];
 } ''
+  # Copy source to a writable directory since treefmt needs to write files
+  cp -r ${./..} ./source
+  chmod -R u+w ./source
+
   treefmt \
     --allow-missing-formatter \
     --fail-on-change \
     --no-cache \
-    --formatters \
-      prettier \
-      nix \
-      shell \
-      hcl \
-      toml \
-    -C ${./..}
+    -C ./source
 
   # it worked!
   touch $out
