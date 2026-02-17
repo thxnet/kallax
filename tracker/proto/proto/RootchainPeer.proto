@@ -17,7 +17,10 @@ service RootchainPeerService {
   rpc Clear(google.protobuf.Empty) returns (google.protobuf.Empty);
 }
 
-message GetRootchainPeerAddressesRequest { string chain_id = 1; }
+message GetRootchainPeerAddressesRequest {
+  string chain_id = 1;
+  bool prefer_exposed = 2;
+}
 message GetRootchainPeerAddressesResponse {
   repeated PeerAddress addresses = 1;
 }

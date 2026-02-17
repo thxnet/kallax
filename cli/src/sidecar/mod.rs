@@ -29,6 +29,7 @@ pub async fn run(options: Options) -> Result<()> {
             external_rootchain_p2p_port,
             external_leafchain_p2p_host,
             external_leafchain_p2p_port,
+            prefer_exposed_peers,
         } = options;
 
         let leafchain_endpoint = match (leafchain_id, leafchain_node_websocket_endpoint) {
@@ -58,6 +59,7 @@ pub async fn run(options: Options) -> Result<()> {
             rootchain_endpoint,
             leafchain_endpoint,
             allow_loopback_ip,
+            prefer_exposed_peers,
             external_rootchain_p2p_endpoint,
             external_leafchain_p2p_endpoint,
         }

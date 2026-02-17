@@ -43,4 +43,11 @@ pub struct Options {
         help = "External port for exposing the P2P network port of Leafchain"
     )]
     pub external_leafchain_p2p_port: Option<u16>,
+
+    #[clap(
+        long = "prefer-exposed-peers",
+        help = "Prefer exposed (externally routable) peer addresses from tracker. \
+                Use this when the sidecar is in a different cluster than the tracker."
+    )]
+    pub prefer_exposed_peers: bool,
 }
