@@ -24,8 +24,7 @@ impl proto::RootchainPeerService for Service {
         &self,
         req: Request<proto::GetRootchainPeerAddressesRequest>,
     ) -> Result<Response<proto::GetRootchainPeerAddressesResponse>, Status> {
-        let proto::GetRootchainPeerAddressesRequest { chain_id, prefer_exposed } =
-            req.into_inner();
+        let proto::GetRootchainPeerAddressesRequest { chain_id, prefer_exposed } = req.into_inner();
 
         let addresses = if prefer_exposed {
             self.peer_address_book.fetch_exposed_peers(&chain_id).await

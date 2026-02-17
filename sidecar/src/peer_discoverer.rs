@@ -109,26 +109,22 @@ impl PeerDiscoverer {
             let blockchain_layer = self.blockchain_layer;
 
             match blockchain_layer {
-                BlockchainLayer::Rootchain => {
-                    RootchainPeer::get(
-                        &self.tracker_client,
-                        &self.chain_id,
-                        self.prefer_exposed_peers,
-                    )
-                    .await
-                    .map_err(|err| tracing::error!("{err}"))
-                    .unwrap_or_default()
-                }
-                BlockchainLayer::Leafchain => {
-                    LeafchainPeer::get(
-                        &self.tracker_client,
-                        &self.chain_id,
-                        self.prefer_exposed_peers,
-                    )
-                    .await
-                    .map_err(|err| tracing::error!("{err}"))
-                    .unwrap_or_default()
-                }
+                BlockchainLayer::Rootchain => RootchainPeer::get(
+                    &self.tracker_client,
+                    &self.chain_id,
+                    self.prefer_exposed_peers,
+                )
+                .await
+                .map_err(|err| tracing::error!("{err}"))
+                .unwrap_or_default(),
+                BlockchainLayer::Leafchain => LeafchainPeer::get(
+                    &self.tracker_client,
+                    &self.chain_id,
+                    self.prefer_exposed_peers,
+                )
+                .await
+                .map_err(|err| tracing::error!("{err}"))
+                .unwrap_or_default(),
             }
         };
         tracing::debug!("Peers advertised from tracker: {potential_new_peers:?}");
