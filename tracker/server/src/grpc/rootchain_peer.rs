@@ -24,15 +24,17 @@ impl proto::RootchainPeerService for Service {
         &self,
         req: Request<proto::GetRootchainPeerAddressesRequest>,
     ) -> Result<Response<proto::GetRootchainPeerAddressesResponse>, Status> {
-        let chain_id = req.into_inner().chain_id;
+        let proto::GetRootchainPeerAddressesRequest { chain_id, prefer_exposed } =
+            req.into_inner();
 
-        let addresses = self
-            .peer_address_book
-            .fetch_peers(&chain_id)
-            .await
-            .into_iter()
-            .map(proto::PeerAddress::from)
-            .collect();
+        let addresses = if prefer_exposed {
+            self.peer_address_book.fetch_exposed_peers(&chain_id).await
+        } else {
+            self.peer_address_book.fetch_peers(&chain_id).await
+        }
+        .into_iter()
+        .map(proto::PeerAddress::from)
+        .collect();
 
         Ok(Response::new(proto::GetRootchainPeerAddressesResponse { addresses }))
     }

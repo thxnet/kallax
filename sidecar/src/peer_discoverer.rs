@@ -29,6 +29,8 @@ pub struct PeerDiscoverer {
 
     allow_loopback_ip: bool,
 
+    prefer_exposed_peers: bool,
+
     external_endpoint: Option<ExternalEndpoint>,
 }
 
@@ -41,6 +43,7 @@ impl PeerDiscoverer {
         substrate_websocket_endpoint: http::Uri,
         tracker_client: TrackerClient,
         allow_loopback_ip: bool,
+        prefer_exposed_peers: bool,
         external_endpoint: Option<ExternalEndpoint>,
     ) -> Self {
         Self {
@@ -49,6 +52,7 @@ impl PeerDiscoverer {
             substrate_websocket_endpoint,
             tracker_client,
             allow_loopback_ip,
+            prefer_exposed_peers,
             substrate_client: None,
             external_endpoint,
         }
@@ -106,16 +110,24 @@ impl PeerDiscoverer {
 
             match blockchain_layer {
                 BlockchainLayer::Rootchain => {
-                    RootchainPeer::get(&self.tracker_client, &self.chain_id)
-                        .await
-                        .map_err(|err| tracing::error!("{err}"))
-                        .unwrap_or_default()
+                    RootchainPeer::get(
+                        &self.tracker_client,
+                        &self.chain_id,
+                        self.prefer_exposed_peers,
+                    )
+                    .await
+                    .map_err(|err| tracing::error!("{err}"))
+                    .unwrap_or_default()
                 }
                 BlockchainLayer::Leafchain => {
-                    LeafchainPeer::get(&self.tracker_client, &self.chain_id)
-                        .await
-                        .map_err(|err| tracing::error!("{err}"))
-                        .unwrap_or_default()
+                    LeafchainPeer::get(
+                        &self.tracker_client,
+                        &self.chain_id,
+                        self.prefer_exposed_peers,
+                    )
+                    .await
+                    .map_err(|err| tracing::error!("{err}"))
+                    .unwrap_or_default()
                 }
             }
         };
