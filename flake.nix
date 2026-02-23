@@ -125,6 +125,9 @@
 
             # Force libc++ headers via CXXFLAGS (cc-rs may not use wrapper's cc-cxxflags)
             CXXFLAGS = "-nostdinc++ -isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1 -stdlib=libc++";
+
+            # Override .cargo/config.toml rustc-wrapper since sccache is not available in the Nix sandbox
+            RUSTC_WRAPPER = "";
           };
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
         in

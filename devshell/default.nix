@@ -28,6 +28,8 @@ mkShell {
     cargo-watch
     rustToolchain
 
+    sccache
+
     tokei
 
     zlib
@@ -72,6 +74,8 @@ mkShell {
   # Use -nostdinc++ to disable default C++ include paths, then add libc++ headers
   CXXFLAGS = "-nostdinc++ -isystem ${pkgs.llvmPackages.libcxx.dev}/include/c++/v1 -stdlib=libc++";
   CXXSTDLIB = "c++";
+
+  RUSTC_WRAPPER = "sccache";
 
   shellHook = ''
     export NIX_PATH="nixpkgs=${pkgs.path}"

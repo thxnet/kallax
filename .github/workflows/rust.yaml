@@ -26,6 +26,13 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTC_WRAPPER: sccache
+  SCCACHE_BUCKET: sccache
+  SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+  SCCACHE_S3_USE_SSL: "true"
+  SCCACHE_REGION: auto
+  AWS_ACCESS_KEY_ID: ${{ secrets.MINIO_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_ACCESS_KEY }}
 
 concurrency:
   group: rust-${{ github.ref }}
@@ -108,6 +115,10 @@ jobs:
             ~/.cargo/git/db/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('flake.lock') }}
 
+      - name: Show sccache version
+        run: |
+          nix develop --command sccache --version
+
       - name: Show cargo clippy version
         run: |
           nix develop --command cargo clippy --version
@@ -115,6 +126,10 @@ jobs:
       - name: Run cargo clippy
         run: |
           nix develop --command cargo clippy-all
+
+      - name: Show sccache stats
+        run: |
+          nix develop --command sccache --show-stats
 
   test:
     name: Test
@@ -145,6 +160,10 @@ jobs:
             ~/.cargo/git/db/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('flake.lock') }}
 
+      - name: Show sccache version
+        run: |
+          nix develop --command sccache --version
+
       - name: Show cargo-nextest version
         run: |
           nix develop --command cargo nextest --version
@@ -152,6 +171,10 @@ jobs:
       - name: Test with cargo-nextest
         run: |
           nix develop --command cargo nextest-all --release
+
+      - name: Show sccache stats
+        run: |
+          nix develop --command sccache --show-stats
 
   doc:
     name: Doc
@@ -180,6 +203,14 @@ jobs:
             ~/.cargo/git/db/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('flake.lock') }}
 
+      - name: Show sccache version
+        run: |
+          nix develop --command sccache --version
+
       - name: Run cargo doc
         run: |
           nix develop --command cargo doc-all
+
+      - name: Show sccache stats
+        run: |
+          nix develop --command sccache --show-stats
