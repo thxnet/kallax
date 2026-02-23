@@ -55,6 +55,11 @@ impl PeerAddressBook {
         })
     }
 
+    /// Fetches peer addresses with external endpoint rewriting for cross-cluster
+    /// connectivity. Peers with an external endpoint get their address rewritten
+    /// via `exposed()`. Peers without an external endpoint (or where `exposed()`
+    /// returns `None`) fall back to their original internal address, ensuring they
+    /// are never silently dropped from the peer list.
     pub async fn fetch_exposed_peers<ChainId>(
         &self,
         chain_id: ChainId,
@@ -66,10 +71,21 @@ impl PeerAddressBook {
         self.books.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
             let mut addresses = addresses
                 .iter()
-                .filter_map(|(PeerAddress { address, external }, _)| {
+                .map(|(PeerAddress { address, external }, _)| {
                     external
                         .as_ref()
-                        .and_then(|external_endpoint| address.exposed(external_endpoint))
+                        .and_then(|external_endpoint| {
+                            let exposed = address.exposed(external_endpoint);
+                            if exposed.is_none() {
+                                tracing::warn!(
+                                    %address, ?external_endpoint,
+                                    "Peer has external endpoint but exposed() returned None; \
+                                     falling back to original address"
+                                );
+                            }
+                            exposed
+                        })
+                        .unwrap_or_else(|| address.clone())
                 })
                 .collect::<HashSet<_>>()
                 .into_iter()
@@ -138,5 +154,60 @@ impl PeerAddressBook {
     pub async fn clear(&self) {
         let mut books = self.books.lock().await;
         books.clear();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use kallax_primitives::{ExternalEndpoint, PeerAddress as PrimitivePeerAddress};
+
+    use super::*;
+
+    const PEER_ADDR_WITH_IP: &str =
+        "/ip4/10.0.0.1/tcp/30333/p2p/12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo";
+    const PEER_ADDR_WITH_DNS: &str =
+        "/dns/node.example.com/tcp/30333/p2p/12D3KooWEYdR9WN6tyReBTmngueGTRAQztkWrNLx9kCw9aQ3Tbwo";
+
+    #[tokio::test]
+    async fn fetch_exposed_peers_includes_peers_without_external_endpoint() {
+        let book = PeerAddressBook::new();
+        let addr = PrimitivePeerAddress::from_str(PEER_ADDR_WITH_IP).unwrap();
+        book.insert("chain-1", addr.clone(), None).await;
+
+        let peers = book.fetch_exposed_peers("chain-1").await;
+        assert_eq!(peers.len(), 1);
+        assert_eq!(peers[0].to_string(), PEER_ADDR_WITH_IP);
+    }
+
+    #[tokio::test]
+    async fn fetch_exposed_peers_rewrites_when_external_endpoint_present() {
+        let book = PeerAddressBook::new();
+        let addr = PrimitivePeerAddress::from_str(PEER_ADDR_WITH_IP).unwrap();
+        let external = ExternalEndpoint { host: "node.example.com".to_string(), port: 54321 };
+        book.insert("chain-1", addr, Some(external)).await;
+
+        let peers = book.fetch_exposed_peers("chain-1").await;
+        assert_eq!(peers.len(), 1);
+        assert!(
+            peers[0].to_string().contains("/dns/node.example.com/tcp/54321/"),
+            "Expected rewritten DNS address, got: {}",
+            peers[0]
+        );
+    }
+
+    #[tokio::test]
+    async fn fetch_exposed_peers_falls_back_when_exposed_returns_none() {
+        let book = PeerAddressBook::new();
+        // A /dns/ base address won't match the Ip4/Ip6 check in exposed(), returning None
+        let addr = PrimitivePeerAddress::from_str(PEER_ADDR_WITH_DNS).unwrap();
+        let external = ExternalEndpoint { host: "other.example.com".to_string(), port: 9999 };
+        book.insert("chain-1", addr.clone(), Some(external)).await;
+
+        let peers = book.fetch_exposed_peers("chain-1").await;
+        assert_eq!(peers.len(), 1);
+        // Should fall back to original /dns/ address, not be dropped
+        assert_eq!(peers[0].to_string(), PEER_ADDR_WITH_DNS);
     }
 }
