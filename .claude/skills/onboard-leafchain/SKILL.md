@@ -25,6 +25,7 @@ Use `AskUserQuestion` to collect the following. If `$ARGUMENTS` contains a para 
 ## Step 1: Discover Pods
 
 Run:
+
 ```bash
 kubectl --context=<ctx> -n <ns> get pods --no-headers | rg 'leafchain-<chain>'
 ```
@@ -64,6 +65,7 @@ curl -sS -H "Content-Type: application/json" \
 ```
 
 Store the full JSON result. Extract these fields:
+
 - `parentHash`
 - `number`
 - `stateRoot`
@@ -106,12 +108,14 @@ Compare results from both pods. **ALL checks must pass**:
 5. **Validation code suffix**: last 100 chars must match
 
 If **any mismatch** is found:
+
 - **STOP immediately**
 - Report the mismatch details to the user
 - Suggest checking pod sync status and logs
 - Do NOT proceed to saving files
 
 Print a summary:
+
 ```
 Cross-check PASSED
   Genesis hash:       0x...
@@ -149,12 +153,14 @@ Write two files (no trailing newline):
 2. **`./tmp/<chain>-<network>-validation-code.hex`** — the raw validation code hex string (the `result` from `state_getStorage`, including `0x` prefix)
 
 Use the `Write` tool for the genesis head file. For the validation code (which can be very large, ~1.5MB+), use Bash:
+
 ```bash
 # Write validation code to file without trailing newline
 printf '%s' '<VALIDATION_CODE>' > ./tmp/<chain>-<network>-validation-code.hex
 ```
 
 Print file sizes to confirm:
+
 ```bash
 wc -c ./tmp/<chain>-<network>-genesis-head.hex ./tmp/<chain>-<network>-validation-code.hex
 ```
@@ -168,6 +174,7 @@ Display the following instructions to the user:
 ---
 
 **Files saved:**
+
 - `./tmp/<chain>-<network>-genesis-head.hex` (198 bytes)
 - `./tmp/<chain>-<network>-validation-code.hex` (<size> bytes)
 
