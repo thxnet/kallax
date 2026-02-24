@@ -15,9 +15,10 @@ target "kallax" {
     SCCACHE_BUCKET        = null
     SCCACHE_ENDPOINT      = null
     SCCACHE_S3_USE_SSL    = null
+    SCCACHE_REGION        = null
   }
   contexts = {
-    sccache         = "docker-image://ghcr.io/thxnet/ci-containers/sccache:0.5.4"
+    sccache         = "docker-image://ghcr.io/thxnet/ci-containers/sccache:0.14.0"
     substrate-based = "docker-image://ghcr.io/thxnet/ci-containers/substrate-based:build-2023.05.20-41956af"
     ubuntu          = "docker-image://docker.io/library/ubuntu:22.04"
   }

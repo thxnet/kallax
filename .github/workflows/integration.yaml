@@ -23,6 +23,7 @@ env:
   MINIO_SECRET_ACCESS_KEY: ${{ secrets.MINIO_SECRET_ACCESS_KEY }}
   SCCACHE_BUCKET: sccache
   SCCACHE_ENDPOINT: ${{ secrets.SCCACHE_ENDPOINT }}
+  SCCACHE_REGION: auto
 
 concurrency:
   group: image-${{ github.ref }}
@@ -86,7 +87,8 @@ jobs:
             kallax.args.AWS_SECRET_ACCESS_KEY=${{ env.MINIO_SECRET_ACCESS_KEY }}
             kallax.args.SCCACHE_BUCKET=${{ env.SCCACHE_BUCKET }}
             kallax.args.SCCACHE_ENDPOINT=${{ env.SCCACHE_ENDPOINT }}
-            kallax.args.SCCACHE_S3_USE_SSL=false
+            kallax.args.SCCACHE_S3_USE_SSL=true
+            kallax.args.SCCACHE_REGION=${{ env.SCCACHE_REGION }}
 
           files: |
             ./dev-support/containers/docker-bake.hcl
