@@ -516,4 +516,65 @@ mod tests {
             panic!();
         }
     }
+
+    #[test]
+    fn test_command_sidecar_auto_detect_public_ip() {
+        if let Commands::Sidecar { options } = Cli::parse_from([
+            "program_name",
+            "sidecar",
+            "--tracker-grpc-endpoint=http://kallax-tracker.mainnet.svc.cluster.local:80",
+            "--rootchain-id=mainnet",
+            "--rootchain-node-websocket-endpoint=ws://127.0.0.1:50002",
+            "--auto-detect-public-ip",
+        ])
+        .commands
+        {
+            assert!(options.auto_detect_public_ip);
+            assert!(options.public_ip_detection_url.is_none());
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_sidecar_auto_detect_with_custom_url() {
+        if let Commands::Sidecar { options } = Cli::parse_from([
+            "program_name",
+            "sidecar",
+            "--tracker-grpc-endpoint=http://kallax-tracker.mainnet.svc.cluster.local:80",
+            "--rootchain-id=mainnet",
+            "--rootchain-node-websocket-endpoint=ws://127.0.0.1:50002",
+            "--auto-detect-public-ip",
+            "--public-ip-detection-url=https://api.ipify.org",
+        ])
+        .commands
+        {
+            assert!(options.auto_detect_public_ip);
+            assert_eq!(options.public_ip_detection_url.as_deref(), Some("https://api.ipify.org"));
+        } else {
+            panic!();
+        }
+    }
+
+    #[test]
+    fn test_command_sidecar_explicit_host_with_auto_detect() {
+        if let Commands::Sidecar { options } = Cli::parse_from([
+            "program_name",
+            "sidecar",
+            "--tracker-grpc-endpoint=http://kallax-tracker.mainnet.svc.cluster.local:80",
+            "--rootchain-id=mainnet",
+            "--rootchain-node-websocket-endpoint=ws://127.0.0.1:50002",
+            "--auto-detect-public-ip",
+            "--external-rootchain-p2p-host=1.2.3.4",
+            "--external-leafchain-p2p-host=5.6.7.8",
+        ])
+        .commands
+        {
+            assert!(options.auto_detect_public_ip);
+            assert_eq!(options.external_rootchain_p2p_host.as_deref(), Some("1.2.3.4"));
+            assert_eq!(options.external_leafchain_p2p_host.as_deref(), Some("5.6.7.8"));
+        } else {
+            panic!();
+        }
+    }
 }

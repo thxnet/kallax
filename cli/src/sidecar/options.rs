@@ -45,6 +45,22 @@ pub struct Options {
     pub external_leafchain_p2p_port: Option<u16>,
 
     #[clap(
+        long = "auto-detect-public-ip",
+        help = "Auto-detect public IP at startup using cloud metadata or HTTP service. \
+                Used as external P2P host when --external-rootchain-p2p-host or \
+                --external-leafchain-p2p-host is not explicitly set."
+    )]
+    pub auto_detect_public_ip: bool,
+
+    #[clap(
+        long = "public-ip-detection-url",
+        requires = "auto_detect_public_ip",
+        help = "Custom URL for public IP detection (default: Hetzner metadata, fallback: ifconfig.me). \
+                Requires --auto-detect-public-ip."
+    )]
+    pub public_ip_detection_url: Option<String>,
+
+    #[clap(
         long = "prefer-exposed-peers",
         help = "Prefer exposed (externally routable) peer addresses from tracker. \
                 Use this when the sidecar is in a different cluster than the tracker."
