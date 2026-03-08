@@ -5,6 +5,7 @@ use std::{
 };
 
 use kallax_primitives::ExternalEndpoint;
+use serde::Serialize;
 use time::Duration;
 use tokio::sync::Mutex;
 
@@ -13,6 +14,14 @@ struct PeerAddress {
     address: kallax_primitives::PeerAddress,
 
     external: Option<ExternalEndpoint>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DiagnosticPeer {
+    pub address: String,
+    pub external_endpoint: Option<ExternalEndpoint>,
+    pub last_seen: Option<String>,
+    pub is_reserved: bool,
 }
 
 type PeerAddresses = HashMap<PeerAddress, Option<time::OffsetDateTime>>;
@@ -154,6 +163,31 @@ impl PeerAddressBook {
     pub async fn clear(&self) {
         let mut books = self.books.lock().await;
         books.clear();
+    }
+
+    pub async fn peer_counts(&self) -> HashMap<String, usize> {
+        let books = self.books.lock().await;
+        books.iter().map(|(chain_id, addresses)| (chain_id.clone(), addresses.len())).collect()
+    }
+
+    #[allow(dead_code)]
+    pub async fn diagnostic_snapshot(&self) -> HashMap<String, Vec<DiagnosticPeer>> {
+        let books = self.books.lock().await;
+        books
+            .iter()
+            .map(|(chain_id, addresses)| {
+                let peers = addresses
+                    .iter()
+                    .map(|(peer, last_seen)| DiagnosticPeer {
+                        address: peer.address.to_string(),
+                        external_endpoint: peer.external.clone(),
+                        last_seen: last_seen.map(|t| t.to_string()),
+                        is_reserved: last_seen.is_none(),
+                    })
+                    .collect();
+                (chain_id.clone(), peers)
+            })
+            .collect()
     }
 }
 

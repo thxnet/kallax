@@ -3277,15 +3277,20 @@ dependencies = [
 name = "kallax-sidecar"
 version = "0.4.3"
 dependencies = [
+ "axum",
  "futures",
  "http 1.4.0",
+ "hyper",
  "kallax-primitives",
  "kallax-tracker-api-client",
  "kallax-tracker-grpc-client",
+ "serde",
+ "serde_json",
  "sigfinn",
  "snafu 0.8.9",
  "sp-core",
  "substrate-rpc-client",
+ "time",
  "tokio",
  "tracing",
 ]

@@ -1,3 +1,5 @@
+use std::net::IpAddr;
+
 use clap::Args;
 
 #[derive(Args, Debug)]
@@ -66,4 +68,18 @@ pub struct Options {
                 Use this when the sidecar is in a different cluster than the tracker."
     )]
     pub prefer_exposed_peers: bool,
+
+    #[clap(
+        long = "diagnostic-listen-address",
+        default_value = "0.0.0.0",
+        help = "Listen address for the diagnostic HTTP API"
+    )]
+    pub diagnostic_listen_address: IpAddr,
+
+    #[clap(
+        long = "diagnostic-listen-port",
+        default_value_t = crate::consts::SIDECAR_DIAGNOSTIC_DEFAULT_PORT,
+        help = "Listen port for the diagnostic HTTP API"
+    )]
+    pub diagnostic_listen_port: u16,
 }
