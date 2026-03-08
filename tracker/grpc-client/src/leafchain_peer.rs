@@ -17,7 +17,6 @@ pub trait LeafchainPeer {
     async fn get<S>(
         &self,
         chain_name: S,
-        prefer_exposed: bool,
     ) -> Result<HashSet<PeerAddress>, GetLeafchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync;
@@ -39,7 +38,6 @@ impl LeafchainPeer for Client {
     async fn get<S>(
         &self,
         chain_id: S,
-        prefer_exposed: bool,
     ) -> Result<HashSet<PeerAddress>, GetLeafchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync,
@@ -47,7 +45,7 @@ impl LeafchainPeer for Client {
         proto::LeafchainPeerServiceClient::new(self.channel.clone())
             .get(proto::GetLeafchainPeerAddressesRequest {
                 chain_id: chain_id.to_string(),
-                prefer_exposed,
+                prefer_exposed: false,
             })
             .await
             .map_err(|source| GetLeafchainPeerAddressError::Status { source })?

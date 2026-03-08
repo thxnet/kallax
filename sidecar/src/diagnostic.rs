@@ -13,7 +13,6 @@ pub struct SidecarDiagnosticConfig {
     pub rootchain_id: String,
     pub leafchain_id: Option<String>,
     pub allow_loopback_ip: bool,
-    pub prefer_exposed_peers: bool,
     pub external_rootchain_p2p_endpoint: Option<String>,
     pub external_leafchain_p2p_endpoint: Option<String>,
     pub polling_interval_ms: u64,

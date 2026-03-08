@@ -169,8 +169,6 @@ pub struct Config {
 
     pub allow_loopback_ip: bool,
 
-    pub prefer_exposed_peers: bool,
-
     pub external_rootchain_p2p_endpoint: Option<ExternalEndpoint>,
 
     pub external_leafchain_p2p_endpoint: Option<ExternalEndpoint>,
@@ -198,7 +196,6 @@ pub async fn serve(config: Config) -> Result<()> {
         rootchain_endpoint,
         leafchain_endpoint,
         allow_loopback_ip,
-        prefer_exposed_peers,
         external_rootchain_p2p_endpoint,
         external_leafchain_p2p_endpoint,
         diagnostic_listen_address,
@@ -221,7 +218,6 @@ pub async fn serve(config: Config) -> Result<()> {
         rootchain_id: rootchain_endpoint.chain_id.clone(),
         leafchain_id: leafchain_endpoint.as_ref().map(|e| e.chain_id.clone()),
         allow_loopback_ip,
-        prefer_exposed_peers,
         external_rootchain_p2p_endpoint: external_rootchain_p2p_endpoint
             .as_ref()
             .map(ToString::to_string),
@@ -264,7 +260,6 @@ pub async fn serve(config: Config) -> Result<()> {
                     rootchain_endpoint.websocket_endpoint,
                     tracker_client.clone(),
                     allow_loopback_ip,
-                    prefer_exposed_peers,
                     external_rootchain_p2p_endpoint,
                     rootchain_diag,
                     detected_public_ip.clone(),
@@ -277,7 +272,6 @@ pub async fn serve(config: Config) -> Result<()> {
                         endpoint.websocket_endpoint,
                         tracker_client,
                         allow_loopback_ip,
-                        prefer_exposed_peers,
                         external_leafchain_p2p_endpoint,
                         leafchain_diag,
                         detected_public_ip,
