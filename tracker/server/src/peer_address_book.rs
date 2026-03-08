@@ -5,6 +5,7 @@ use std::{
 };
 
 use kallax_primitives::ExternalEndpoint;
+use serde::Serialize;
 use time::Duration;
 use tokio::sync::Mutex;
 
@@ -13,6 +14,14 @@ struct PeerAddress {
     address: kallax_primitives::PeerAddress,
 
     external: Option<ExternalEndpoint>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+pub struct DiagnosticPeer {
+    pub address: String,
+    pub external_endpoint: Option<ExternalEndpoint>,
+    pub last_seen: Option<String>,
+    pub is_reserved: bool,
 }
 
 type PeerAddresses = HashMap<PeerAddress, Option<time::OffsetDateTime>>;
@@ -42,6 +51,7 @@ impl PeerAddressBook {
 }
 
 impl PeerAddressBook {
+    #[allow(dead_code)]
     pub async fn fetch_peers<ChainId>(
         &self,
         chain_id: ChainId,
@@ -60,6 +70,7 @@ impl PeerAddressBook {
     /// via `exposed()`. Peers without an external endpoint (or where `exposed()`
     /// returns `None`) fall back to their original internal address, ensuring they
     /// are never silently dropped from the peer list.
+    #[allow(dead_code)]
     pub async fn fetch_exposed_peers<ChainId>(
         &self,
         chain_id: ChainId,
@@ -92,6 +103,36 @@ impl PeerAddressBook {
                 .collect::<Vec<_>>();
             addresses.sort_unstable();
             addresses
+        })
+    }
+
+    /// Fetches both internal and exposed addresses for every peer, enabling
+    /// topology-agnostic peer discovery. Peers with an external endpoint will
+    /// have both their original (internal) address and the exposed (external)
+    /// address included. This lets libp2p connect via whichever route works.
+    pub async fn fetch_all_peers<ChainId>(
+        &self,
+        chain_id: ChainId,
+    ) -> Vec<kallax_primitives::PeerAddress>
+    where
+        ChainId: fmt::Display,
+    {
+        let chain_id = chain_id.to_string();
+        self.books.lock().await.get(&chain_id).map_or_else(Vec::new, |addresses| {
+            let mut result = HashSet::new();
+            for PeerAddress { address, external } in addresses.keys() {
+                result.insert(address.clone()); // always include internal
+                if let Some(ep) = external.as_ref() {
+                    if let Some(exposed) = address.exposed(ep) {
+                        result.insert(exposed);
+                    } else {
+                        tracing::warn!(%address, external_endpoint = ?ep, "exposed() returned None");
+                    }
+                }
+            }
+            let mut result: Vec<_> = result.into_iter().collect();
+            result.sort_unstable();
+            result
         })
     }
 
@@ -155,6 +196,31 @@ impl PeerAddressBook {
         let mut books = self.books.lock().await;
         books.clear();
     }
+
+    pub async fn peer_counts(&self) -> HashMap<String, usize> {
+        let books = self.books.lock().await;
+        books.iter().map(|(chain_id, addresses)| (chain_id.clone(), addresses.len())).collect()
+    }
+
+    #[allow(dead_code)]
+    pub async fn diagnostic_snapshot(&self) -> HashMap<String, Vec<DiagnosticPeer>> {
+        let books = self.books.lock().await;
+        books
+            .iter()
+            .map(|(chain_id, addresses)| {
+                let peers = addresses
+                    .iter()
+                    .map(|(peer, last_seen)| DiagnosticPeer {
+                        address: peer.address.to_string(),
+                        external_endpoint: peer.external.clone(),
+                        last_seen: last_seen.map(|t| t.to_string()),
+                        is_reserved: last_seen.is_none(),
+                    })
+                    .collect();
+                (chain_id.clone(), peers)
+            })
+            .collect()
+    }
 }
 
 #[cfg(test)]
@@ -209,5 +275,69 @@ mod tests {
         assert_eq!(peers.len(), 1);
         // Should fall back to original /dns/ address, not be dropped
         assert_eq!(peers[0].to_string(), PEER_ADDR_WITH_DNS);
+    }
+
+    #[tokio::test]
+    async fn fetch_all_peers_returns_both_when_external_present() {
+        let book = PeerAddressBook::new();
+        let addr = PrimitivePeerAddress::from_str(PEER_ADDR_WITH_IP).unwrap();
+        let external = ExternalEndpoint { host: "node.example.com".to_string(), port: 54321 };
+        book.insert("chain-1", addr, Some(external)).await;
+
+        let peers = book.fetch_all_peers("chain-1").await;
+        // Should contain both the internal /ip4/ address and the exposed /dns/ address
+        assert_eq!(peers.len(), 2);
+        let addrs: Vec<String> = peers.iter().map(ToString::to_string).collect();
+        assert!(addrs.iter().any(|a| a.contains("/ip4/10.0.0.1/")), "missing internal address");
+        assert!(
+            addrs.iter().any(|a| a.contains("/dns/node.example.com/tcp/54321/")),
+            "missing exposed address"
+        );
+    }
+
+    #[tokio::test]
+    async fn fetch_all_peers_returns_only_internal_when_no_external() {
+        let book = PeerAddressBook::new();
+        let addr = PrimitivePeerAddress::from_str(PEER_ADDR_WITH_IP).unwrap();
+        book.insert("chain-1", addr, None).await;
+
+        let peers = book.fetch_all_peers("chain-1").await;
+        assert_eq!(peers.len(), 1);
+        assert!(peers[0].to_string().contains("/ip4/10.0.0.1/"));
+    }
+
+    #[tokio::test]
+    async fn fetch_all_peers_keeps_internal_when_exposed_returns_none() {
+        let book = PeerAddressBook::new();
+        // A /dns/ base address won't match the Ip4/Ip6 check in exposed(), returning None
+        let addr = PrimitivePeerAddress::from_str(PEER_ADDR_WITH_DNS).unwrap();
+        let external = ExternalEndpoint { host: "other.example.com".to_string(), port: 9999 };
+        book.insert("chain-1", addr.clone(), Some(external)).await;
+
+        let peers = book.fetch_all_peers("chain-1").await;
+        // exposed() returns None for /dns/ base → only internal address kept
+        assert_eq!(peers.len(), 1);
+        assert_eq!(peers[0].to_string(), PEER_ADDR_WITH_DNS);
+    }
+
+    #[tokio::test]
+    async fn fetch_all_peers_deduplicates() {
+        let book = PeerAddressBook::new();
+        let addr1 = PrimitivePeerAddress::from_str(PEER_ADDR_WITH_IP).unwrap();
+        let addr2 = PrimitivePeerAddress::from_str(
+            "/ip4/10.0.0.2/tcp/30333/p2p/12D3KooWHdiAxVd8uMQR1hGWXccidmfCwLqcMpGwR6QcTP6QRMuD",
+        )
+        .unwrap();
+        let external = ExternalEndpoint { host: "node.example.com".to_string(), port: 54321 };
+
+        book.insert("chain-1", addr1, Some(external.clone())).await;
+        book.insert("chain-1", addr2, Some(external)).await;
+
+        let peers = book.fetch_all_peers("chain-1").await;
+        // 2 internal + 2 exposed = 4 unique addresses (different peer IDs)
+        assert_eq!(peers.len(), 4);
+        // Verify no duplicates
+        let unique: HashSet<String> = peers.iter().map(ToString::to_string).collect();
+        assert_eq!(unique.len(), peers.len());
     }
 }

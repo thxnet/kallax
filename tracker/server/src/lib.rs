@@ -172,7 +172,10 @@ pub use self::{
 use crate::{
     chain_spec_list::ChainSpecList,
     peer_address_book::PeerAddressBook,
-    web::extension::{LeafchainPeerAddressBook, RootchainPeerAddressBook, RootchainSpecList},
+    web::extension::{
+        LeafchainPeerAddressBook, RootchainPeerAddressBook, RootchainSpecList, TrackerConfig,
+        TrackerStartTime,
+    },
 };
 
 #[derive(Clone, Debug)]
@@ -212,6 +215,9 @@ where
     let rootchain_spec_list = ChainSpecList::new(BlockchainLayer::Rootchain, rootchain_spec_files);
     let leafchain_spec_list = ChainSpecList::new(BlockchainLayer::Leafchain, leafchain_spec_files);
 
+    let tracker_config = TrackerConfig { peer_time_to_live_seconds: peer_time_to_live.as_secs() };
+    let tracker_start_time = TrackerStartTime(std::time::Instant::now());
+
     let _handle = lifecycle_manager
         .spawn("API", {
             let rootchain_peer_address_book =
@@ -227,6 +233,8 @@ where
                     .layer(tower_http::compression::CompressionLayer::new());
 
                 let router = self::web::controller::api_v1_router()
+                    .layer(axum::Extension(tracker_config))
+                    .layer(axum::Extension(tracker_start_time))
                     .layer(axum::Extension(rootchain_spec_list))
                     .layer(axum::Extension(rootchain_peer_address_book))
                     .layer(axum::Extension(leafchain_spec_list))

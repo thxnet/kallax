@@ -1,7 +1,7 @@
 mod error;
 mod options;
 
-use std::{net::IpAddr, time::Duration};
+use std::{net::IpAddr, net::SocketAddr, time::Duration};
 
 use kallax_primitives::ExternalEndpoint;
 use kallax_sidecar::ChainEndpoint;
@@ -35,7 +35,16 @@ pub async fn run(options: Options) -> Result<()> {
             auto_detect_public_ip,
             public_ip_detection_url,
             prefer_exposed_peers,
+            diagnostic_listen_address,
+            diagnostic_listen_port,
         } = options;
+
+        if prefer_exposed_peers {
+            tracing::warn!(
+                "--prefer-exposed-peers is deprecated and will be removed in a future release. \
+                 The tracker now always returns both internal and external addresses."
+            );
+        }
 
         let leafchain_endpoint = match (leafchain_id, leafchain_node_websocket_endpoint) {
             (Some(chain_id), Some(websocket_endpoint)) => {
@@ -73,6 +82,7 @@ pub async fn run(options: Options) -> Result<()> {
             external_rootchain_p2p_host.or_else(|| detected_ip.clone()).map(|host| {
                 ExternalEndpoint { host, port: external_rootchain_p2p_port.unwrap_or_default() }
             });
+        let detected_public_ip = detected_ip.clone();
         let external_leafchain_p2p_endpoint =
             external_leafchain_p2p_host.or(detected_ip).map(|host| ExternalEndpoint {
                 host,
@@ -85,9 +95,13 @@ pub async fn run(options: Options) -> Result<()> {
             rootchain_endpoint,
             leafchain_endpoint,
             allow_loopback_ip,
-            prefer_exposed_peers,
             external_rootchain_p2p_endpoint,
             external_leafchain_p2p_endpoint,
+            diagnostic_listen_address: SocketAddr::new(
+                diagnostic_listen_address,
+                diagnostic_listen_port,
+            ),
+            detected_public_ip,
         }
     };
 

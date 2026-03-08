@@ -44,4 +44,9 @@ impl ChainSpecList {
     pub async fn get(&self, chain_id: &str) -> Option<ChainSpec> {
         self.chain_specs.lock().await.get(chain_id).cloned()
     }
+
+    #[allow(dead_code)]
+    pub async fn chain_ids(&self) -> Vec<String> {
+        self.chain_specs.lock().await.keys().cloned().collect()
+    }
 }
