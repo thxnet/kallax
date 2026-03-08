@@ -62,11 +62,7 @@ pub struct Options {
     )]
     pub public_ip_detection_url: Option<String>,
 
-    #[clap(
-        long = "prefer-exposed-peers",
-        help = "Prefer exposed (externally routable) peer addresses from tracker. \
-                Use this when the sidecar is in a different cluster than the tracker."
-    )]
+    #[clap(long = "prefer-exposed-peers", hide = true)]
     pub prefer_exposed_peers: bool,
 
     #[clap(

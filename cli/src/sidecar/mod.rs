@@ -39,6 +39,13 @@ pub async fn run(options: Options) -> Result<()> {
             diagnostic_listen_port,
         } = options;
 
+        if prefer_exposed_peers {
+            tracing::warn!(
+                "--prefer-exposed-peers is deprecated and will be removed in a future release. \
+                 The tracker now always returns both internal and external addresses."
+            );
+        }
+
         let leafchain_endpoint = match (leafchain_id, leafchain_node_websocket_endpoint) {
             (Some(chain_id), Some(websocket_endpoint)) => {
                 Some(ChainEndpoint { chain_id, websocket_endpoint })
@@ -88,7 +95,6 @@ pub async fn run(options: Options) -> Result<()> {
             rootchain_endpoint,
             leafchain_endpoint,
             allow_loopback_ip,
-            prefer_exposed_peers,
             external_rootchain_p2p_endpoint,
             external_leafchain_p2p_endpoint,
             diagnostic_listen_address: SocketAddr::new(

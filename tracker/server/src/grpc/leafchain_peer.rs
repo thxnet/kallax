@@ -24,16 +24,16 @@ impl proto::LeafchainPeerService for Service {
         &self,
         req: Request<proto::GetLeafchainPeerAddressesRequest>,
     ) -> Result<Response<proto::GetLeafchainPeerAddressesResponse>, Status> {
-        let proto::GetLeafchainPeerAddressesRequest { chain_id, prefer_exposed } = req.into_inner();
+        let proto::GetLeafchainPeerAddressesRequest { chain_id, prefer_exposed: _ } =
+            req.into_inner();
 
-        let addresses = if prefer_exposed {
-            self.peer_address_book.fetch_exposed_peers(&chain_id).await
-        } else {
-            self.peer_address_book.fetch_peers(&chain_id).await
-        }
-        .into_iter()
-        .map(proto::PeerAddress::from)
-        .collect();
+        let addresses = self
+            .peer_address_book
+            .fetch_all_peers(&chain_id)
+            .await
+            .into_iter()
+            .map(proto::PeerAddress::from)
+            .collect();
 
         Ok(Response::new(proto::GetLeafchainPeerAddressesResponse { addresses }))
     }

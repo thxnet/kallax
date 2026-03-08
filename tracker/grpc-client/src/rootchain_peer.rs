@@ -17,7 +17,6 @@ pub trait RootchainPeer {
     async fn get<S>(
         &self,
         chain_id: S,
-        prefer_exposed: bool,
     ) -> Result<HashSet<PeerAddress>, GetRootchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync;
@@ -39,7 +38,6 @@ impl RootchainPeer for Client {
     async fn get<S>(
         &self,
         chain_id: S,
-        prefer_exposed: bool,
     ) -> Result<HashSet<PeerAddress>, GetRootchainPeerAddressError>
     where
         S: fmt::Display + Send + Sync,
@@ -47,7 +45,7 @@ impl RootchainPeer for Client {
         proto::RootchainPeerServiceClient::new(self.channel.clone())
             .get(proto::GetRootchainPeerAddressesRequest {
                 chain_id: chain_id.to_string(),
-                prefer_exposed,
+                prefer_exposed: false,
             })
             .await
             .map_err(|source| GetRootchainPeerAddressError::Status { source })?

@@ -44,7 +44,7 @@ pub async fn get_peers(
 ) -> (StatusCode, Json<Vec<String>>) {
     (
         StatusCode::OK,
-        Json(book.fetch_exposed_peers(chain_id).await.into_iter().map(|a| a.to_string()).collect()),
+        Json(book.fetch_all_peers(chain_id).await.into_iter().map(|a| a.to_string()).collect()),
     )
 }
 
